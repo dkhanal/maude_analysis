@@ -22,6 +22,7 @@
       "LAPTOP",
       "COMPUTATION",
       "COMPUTE",
+      "MAINFRAME",
       "DICOM",
       "TRASNSMISSION",
       "MESSAGING",
@@ -32,8 +33,43 @@
       "EMR",
       "MIDDLEWARE",
       "MIDDLE WARE",
-      "CONTROLLER",
-      "DEVICE DRIVER"
+      "MICROCONTROLLER",
+      "MICRO CONTROLLER",
+      "DEVICE DRIVER",
+      "SQL",
+      "JAVA",
+      "IMAGING SYSTEM",
+      "IMAGE RECOGNITION",
+      "VOICE RECOGNITION",
+      "DATA CAPTURE",
+      "DATA STORAGE",
+      "DATA ACQUISITION",
+      "DATA LOSS",
+      "INFORMATION TECHNOLOGY",
+      "INFORMATION SYSTEM",
+      "DECISION SUPPORT SYSTEM",
+      "RULE ENGINE",
+      "COMMUNICATION",
+      "RADIOLOGY INFORMATION SYSTEM",
+      "CPOE",
+      "SOFTWARE SYSTEM",
+      "REMOTE SYSTEM",
+      "GUIDING SYSTEM",
+      "DATA MANAGEMENT SYSTEM",
+      "DATA MANAGEMENT",
+      "SCRIPTING",
+      "SCRIPT",
+      "GRAPHING",
+      "PLOTTING",
+      "DOWNLOAD",
+      "UPLOAD",
+      "ROBOTIC",
+      "ROBOTICS",
+      "ANALYZER",
+      "MONITOR SOFTWARE",
+      "DISPLAY",
+      "DATA PROCESSING",
+      "MEASUREMENT"
     ],
     "postfix_terms": [
       "ERROR",
@@ -52,31 +88,14 @@
   },
   "potential_positive_signals": {
     "main_terms": [
-      "SOFTWARE",
-      "FIRMWARE",
-      "OPERATING SYSTEM",
-      "DATABASE",
-      "SERVER",
-      "DATA",
-      "USER INTERFACE",
-      "APPLICATION",
-      "PROGRAMM",
       "DISPLAY",
-      "BUG",
-      "ERROR MESSAGE",
-      " UI ",
-      "ROBOT",
-      "ALGORITHM",
-      "CALCULATION",
-      "COMPUTATION",
-      "ARITHMETIC",
       "SCREEN",
       "MONITOR",
       "DRIVER",
       " SCRIPT ",
       "CODE",
-      "COMPUTER",
-      "PASSWORD"
+      "PASSWORD",
+      "ERROR MESSAGE"
     ]
   },
   "output_files": {
@@ -86,26 +105,23 @@
     "known_negative_records": "../out/known_negative_records.txt",
     "known_positive_words": "../out/known_positive_words.txt",
     "known_negative_words": "../out/known_negative_words.txt",
-    "most_common_positive_words": "../out/most_common_positive_words.txt"
+    "most_common_positive_words": "../out/most_common_positive_words.txt",
+    "predicted_positive_records": "../out/predicted_positive_records.txt"
   },
-  "data_files_real_mode": [
-    "../data/foitext2007.txt",
-    "../data/foitext2008.txt",
-    "../data/foitext2009.txt",
-    "../data/foitext2010.txt",
-    "../data/foitext2011.txt",
-    "../data/foitext2012.txt",
-    "../data/foitext2013.txt",
-    "../data/foitext2014.txt",
-    "../data/foitext2015.txt",
+  "data_files_for_featureset": [
     "../data/foitext2016.txt"
   ],
-  "data_files_sim_mode": [
-    "../data/foitext2007.txt"
+  "data_files_for_classification": [
+    "../data/foitext2016.txt"
   ],
+  "tag_positive": "SW_CAUSED",
+  "tag_negative":  "SW_NOT_CAUSED",
   "known_positive_records_limit": 1000,
   "known_negative_records_limit": 1000,
-  "data_file_record_limit": null,
-  "most_common_words_limit": 3000,
-  "verbose":  false
+  "data_file_max_num_rows_for_featureset": 50000,
+  "data_file_max_num_rows_to_classify": 1000,
+  "positive_probability_threshold": 0.5,
+  "output_positive_record_id_only":  false,
+  "most_common_words_limit": 100,
+  "verbose": false
 }

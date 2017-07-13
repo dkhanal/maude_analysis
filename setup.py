@@ -11,6 +11,7 @@ def create_dirs():
 
     data_dir = os.path.join(base_path, 'data')
     out_dir = os.path.join(base_path, 'out')
+    pickles_dir = os.path.join(base_path, 'pickles')
 
     if not os.path.exists(data_dir):
         print('Creating directory: {}'.format(data_dir))
@@ -19,6 +20,10 @@ def create_dirs():
     if not os.path.exists(out_dir):
         print('Creating directory: {}'.format(out_dir))
         os.makedirs(out_dir)
+
+    if not os.path.exists(pickles_dir):
+        print('Creating directory: {}'.format(pickles_dir))
+        os.makedirs(pickles_dir)
 
 def add_lib_to_path():
     base_path = os.path.dirname(__file__)

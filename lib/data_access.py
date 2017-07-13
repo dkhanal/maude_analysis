@@ -39,7 +39,7 @@ def get_matching_records_from_file(file, predicate, label, skip_first_line=True)
             total_lines += 1
             if total_lines == 1 and skip_first_line:
                 continue
-            if config.data_file_record_limit != None and total_lines > config.data_file_record_limit:
+            if config.data_file_max_num_rows_for_featureset != None and total_lines > config.data_file_max_num_rows_for_featureset:
                break;
 
             row = FoiTextRow(line=line)
@@ -47,7 +47,7 @@ def get_matching_records_from_file(file, predicate, label, skip_first_line=True)
             lines_so_far = total_lines -1
             percent = round(rows_length / lines_so_far * 100, 2)
 
-            if config.verbose == True or total_lines % 1000 == 0:
+            if config.verbose == True or total_lines % 10000 == 0:
                 print('{}=>, {} {} records in total {} ({}%) so far. Checking row (report key: {} text key {})...'.format(file_name, rows_length, label, lines_so_far, percent, row.mdr_report_key, row.mdr_text_key))
                 sys.stdout.flush()
 
