@@ -143,6 +143,9 @@ def classify_file(file_path, classifier_name, classifier, most_common_positive_w
                 print('{}=>, {} {} records in total {} ({}%) so far. Checking row (report key: {} text key {})...'.format(file_name, positive_records_count, config.tag_positive, lines_so_far, percent, row.mdr_report_key, row.mdr_text_key))
                 sys.stdout.flush()
 
+            if len(row.foi_text.strip()) < 10: # Insufficient size of narrative text
+                continue
+
             line_to_classify = row.foi_text.upper()
 
             line_features = build_features(word_tokenize(line_to_classify), most_common_positive_words)
