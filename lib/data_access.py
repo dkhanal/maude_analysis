@@ -1,3 +1,6 @@
+# By Deepak Khanal
+# dkhanal@gmail.com
+
 import os
 import sys
 import random

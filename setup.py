@@ -1,3 +1,6 @@
+# By Deepak Khanal
+# dkhanal@gmail.com
+
 # To manually execute:
 # >> exec(open('C:\\Users\\dkhan\\Google Drive\\Dissertation\\Machine Learning\\maude_sw_causes\\setup.py').read())
 

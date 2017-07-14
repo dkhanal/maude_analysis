@@ -1,3 +1,6 @@
+# By Deepak Khanal
+# dkhanal@gmail.com
+
 import datetime
 import os
 import nltk
@@ -139,7 +142,7 @@ def classify_file(file_path, classifier_name, classifier, most_common_positive_w
             lines_so_far = total_lines -1
             percent = round(positive_records_count / lines_so_far * 100, 2)
 
-            if config.verbose == True or total_lines % 10000 == 0:
+            if config.verbose == True or total_lines % 10000 == 0: # Unless in verbose mode, we write progress every 10000th record
                 print('{}=>, {} {} records in total {} ({}%) so far. Checking row (report key: {} text key {})...'.format(file_name, positive_records_count, config.tag_positive, lines_so_far, percent, row.mdr_report_key, row.mdr_text_key))
                 sys.stdout.flush()
 

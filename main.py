@@ -1,3 +1,5 @@
+# By Deepak Khanal
+# dkhanal@gmail.com
 
 #exec(open('C:\\Users\\dkhan\\Google Drive\\Dissertation\\Machine Learning\\maude_sw_causes\\setup.py').read())
 

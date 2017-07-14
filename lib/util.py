@@ -1,3 +1,6 @@
+# By Deepak Khanal
+# dkhanal@gmail.com
+
 import os
 
 def dump_list_to_file(list_to_dump, output_dump_file):

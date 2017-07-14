@@ -1,3 +1,6 @@
+# By Deepak Khanal
+# dkhanal@gmail.com
+
 class FoiTextRow():
     def __init__(self, **kwargs):
 
