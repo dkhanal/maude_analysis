@@ -23,6 +23,7 @@ def load_config():
     # Configuration items
     global known_positive_signals
     global potential_positive_signals
+    global noise_words
     global output_files
     global data_files_for_featureset
     global data_files_for_classification
@@ -35,6 +36,9 @@ def load_config():
     global positive_probability_threshold
     global most_common_words_limit
     global output_positive_record_id_only
+    global use_pickeled_models_if_present
+    global pickles_save_dir
+    global pickle_models
     global verbose
 
     config_data_pos_section = config_data['known_positive_signals']
@@ -43,6 +47,7 @@ def load_config():
 
     potential_positive_signals = config_data['known_positive_signals']['main_terms'] + config_data['potential_positive_signals']['main_terms']
 
+    noise_words = config_data['noise_words']
     output_files = config_data['output_files']
     data_files_for_featureset = config_data['data_files_for_featureset']
     data_files_for_classification = config_data['data_files_for_classification']
@@ -55,6 +60,9 @@ def load_config():
     positive_probability_threshold = config_data['positive_probability_threshold']
     most_common_words_limit = config_data['most_common_words_limit']
     output_positive_record_id_only = config_data['output_positive_record_id_only']
+    use_pickeled_models_if_present = config_data['use_pickeled_models_if_present']
+    pickles_save_dir = config_data['pickles_save_dir']
+    pickle_models = config_data['pickle_models']
     verbose = config_data['verbose']
 
     print('Configuration loaded.')

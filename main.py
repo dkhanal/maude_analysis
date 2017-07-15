@@ -9,15 +9,29 @@ exec(setup_script.read())
 
 import datetime
 import maude_nlp
+import config
+
 
 start_time = datetime.datetime.now()
 print('Experiment starting at {}'.format(start_time))
 
-print ('Creating models...')
-classifiers, most_common_positive_words = maude_nlp.create_models()
+classifiers = None
+feature_words = None
+
+if config.use_pickeled_models_if_present == True:
+    classifiers = maude_nlp.load_pickled_models()
+    feature_words = maude_nlp.load_pickled_feature_words()
+
+if config.use_pickeled_models_if_present == False or len(classifiers) == 0 or len(feature_words) == 0:
+    print ('Creating models...')
+    classifiers, feature_words = maude_nlp.create_models()
+
+    if config.pickle_models == True:
+        maude_nlp.pickle_models(classifiers)
+        maude_nlp.pickle_feature_words(feature_words)
 
 print ('Classifying text...')
-maude_nlp.classify(classifiers, most_common_positive_words)
+maude_nlp.classify(classifiers, feature_words)
 
 end_time = datetime.datetime.now()
 
