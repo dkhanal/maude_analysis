@@ -7,17 +7,38 @@ import nltk
 import pickle
 import random
 import data_access
+import json
 import util
 import config
 from nltk.corpus import stopwords
 from nltk import word_tokenize
 from foi_text import FoiTextRow
          
-def build_features(list_of_words, known_feature_words):
-    unique_words = set(list_of_words)
+def build_features(list_of_words, features_definition):
+    # Each feature item has name, words (stemmed) to match, 
+    # and minimum number of matches required to satisfy.
+    # name, words, min_matches_required
+    # Incoming list_of_words is also assumed to be stemmed.
+
     features = {}
-    for w in known_feature_words:
-        features[w] = (w in unique_words)
+
+    for feature_config in features_definition:
+        name = feature_config['name']
+        words_stemmed = feature_config['words_stemmed']
+        min_matches_required = feature_config['min_matches_required']
+
+        unique_words = set(words_stemmed)
+
+        match_count = 0
+        for feature_word in unique_words:
+            if feature_word in list_of_words:
+                match_count += 1
+
+        if match_count > min_matches_required:
+            features[name] = True
+        else:
+            features[name] = False
+
     return features
 
 def extract_most_common_words(list_of_words, max):
@@ -36,8 +57,13 @@ def extract_most_common_words(list_of_words, max):
     all_words_fd = nltk.FreqDist(list_of_words)
     return [w for (w, f) in all_words_fd.most_common(max)]
 
-def tag(dataset, tag):
-    return [(w, tag) for w in dataset]
+def remove_stopwords(list_of_words):
+    stop_words = stopwords.words('english')
+    return [word for word in list_of_words if len(word) > 1 and word.lower() not in stop_words]
+
+def stem_words(list_of_words):
+    stemmer = nltk.stem.PorterStemmer()
+    return [stemmer.stem(w) for w in list_of_words]
 
 
 def create_models():
@@ -46,11 +72,11 @@ def create_models():
 
     data_files = config.data_files_for_featureset
 
-    print('Known positive signals used for this experiment written to: {}'.format(config.output_files['known_positive_signals']))
-    util.dump_list_to_file(config.known_positive_signals, config.output_files['known_positive_signals'])
+    print('Known positive signals used for this experiment written to: {}'.format(config.output_files['known_positive_records_selection_terms']))
+    util.dump_list_to_file(config.known_positive_records_selection_terms, config.output_files['known_positive_records_selection_terms'])
 
-    print('Potential positive signals used for this experiment written to: {}'.format(config.output_files['potential_positive_signals']))
-    util.dump_list_to_file(config.potential_positive_signals, config.output_files['potential_positive_signals'])
+    print('Potential positive signals used for this experiment written to: {}'.format(config.output_files['potential_positive_records_selection_terms']))
+    util.dump_list_to_file(config.potential_positive_records_selection_terms, config.output_files['potential_positive_records_selection_terms'])
 
     print('Obtaining up to {} known positive records...'.format(config.known_positive_records_limit))
     known_positive_records = data_access.get_known_positives(data_files, config.known_positive_records_limit)
@@ -61,39 +87,61 @@ def create_models():
     util.dump_list_to_file(known_negative_records, config.output_files['known_negative_records'])
 
     print('Word-tokenizing positive records...')
-    words_in_known_positive_records =  [word for line in known_positive_records for word in word_tokenize(line)]
+    words_in_known_positive_records =  [word_tokenize(line) for line in known_positive_records]
 
     print('Word-tokenizing negative records...')
-    words_in_known_negative_records =  [word for line in known_negative_records for word in word_tokenize(line)]
+    words_in_known_negative_records =  [word_tokenize(line) for line in known_negative_records]
 
     stop_words = stopwords.words('english')
 
     print('Removing stopwords from positive words...')
-    words_without_stopwords_in_known_positive_records = [word for word in words_in_known_positive_records if len(word) > 1 and word.lower() not in stop_words]
-    util.dump_list_to_file(words_without_stopwords_in_known_positive_records, config.output_files['known_positive_words'])
+    words_without_stopwords_in_known_positive_records = [remove_stopwords(sublist) for sublist in words_in_known_positive_records]
+    util.dump_list_to_file(words_without_stopwords_in_known_positive_records, config.output_files['words_in_known_positive_records'])
 
     print('Removing stopwords from negative words...')
-    words_without_stopwords_in_known_negative_records = [word for word in words_in_known_negative_records if len(word) > 1 and word.lower() not in stop_words]
-    util.dump_list_to_file(words_without_stopwords_in_known_negative_records, config.output_files['known_negative_words'])
+    words_without_stopwords_in_known_negative_records =  [remove_stopwords(sublist) for sublist in words_in_known_negative_records]
+    util.dump_list_to_file(words_without_stopwords_in_known_negative_records, config.output_files['words_in_known_negative_records'])
 
     print('Stemming words...')
     stemmer = nltk.stem.PorterStemmer()
-    stemmed_words_without_stopwords_in_known_positive_records = [stemmer.stem(w) for w in words_without_stopwords_in_known_positive_records]
-    stemmed_words_without_stopwords_in_known_negative_records = [stemmer.stem(w) for w in words_without_stopwords_in_known_negative_records]
+    stemmed_words_without_stopwords_in_known_positive_records = [stem_words(sublist) for sublist in words_without_stopwords_in_known_positive_records]
+    stemmed_words_without_stopwords_in_known_negative_records = [stem_words(sublist) for sublist in words_without_stopwords_in_known_negative_records]
 
-    print('Obtaining up to {} most common words from positive records...'.format(config.most_common_words_limit))
-    feature_words = extract_most_common_words(stemmed_words_without_stopwords_in_known_positive_records, config.most_common_words_limit)
-    util.dump_list_to_file(feature_words, config.output_files['feature_words'])
+    if config.use_fixed_features == True:
+        # For fixed model, the configuration has the structure
+        # Here, we simply inject a property for stemmed words
+        # to the existing object.
+        print('Building feature configuration using fixed features.')
+        features_definition = config.fixed_features
+        for feature_config in features_definition:
+            feature_config['words_stemmed'] = [stemmer.stem(w) for w in feature_config['words']]
+    else:
+        print('Building feature configuration using most common words from known positive records...')
+        print('Obtaining up to {} most common words from positive records...'.format(config.most_common_words_limit))
+        all_words_in_all_positive_records = [w for sublist in stemmed_words_without_stopwords_in_known_positive_records for w in sublist]
+        most_common_words = extract_most_common_words(all_words_in_all_positive_records, config.most_common_words_limit)
+
+        features_definition = []
+        for word in most_common_words:
+            feature_config = {}
+            feature_config['name'] = word
+            feature_config['words'] = [word]
+            feature_config['words_stemmed'] = [word] # Word is already stemmed
+            feature_config['min_matches_required'] = 1
+
+            features_definition.append(feature_config)
+
+    util.dump_list_to_file(json.dumps(features_definition, indent=4).split('\n'), config.output_files['features_definition'])
 
     print('Tagging known data sets...')
-    known_positives_tagged = tag(stemmed_words_without_stopwords_in_known_positive_records, config.tag_positive)
-    known_negatives_tagged = tag(stemmed_words_without_stopwords_in_known_negative_records, config.tag_negative)
+    known_positives_tagged = [(sublist, config.tag_positive) for sublist in stemmed_words_without_stopwords_in_known_positive_records]
+    known_negatives_tagged = [(sublist, config.tag_negative) for sublist in stemmed_words_without_stopwords_in_known_negative_records]
 
     print('Building training set...')
     known_tagged = known_positives_tagged + known_negatives_tagged
 
     print('Building feature set..')
-    featureset = [(build_features(list_of_words, feature_words), tag) for (list_of_words, tag) in known_tagged]
+    featureset = [(build_features(list_of_words, features_definition), tag) for (list_of_words, tag) in known_tagged]
     random.shuffle(featureset)
   
     half_mark = len(featureset) // 2
@@ -113,9 +161,9 @@ def create_models():
 
     print('create_models() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
-    return (classifiers, feature_words)
+    return (classifiers, features_definition)
 
-def classify(classifiers, feature_words, skip_first_line=True, max = None):
+def classify(classifiers, features_definition, skip_first_line=True, max = None):
     start_time = datetime.datetime.now()
     print('classify() starting at {}'.format(start_time))
 
@@ -128,14 +176,14 @@ def classify(classifiers, feature_words, skip_first_line=True, max = None):
         for classifier in classifiers:
             classifier_name = classifier[0]
             classifier_obj = classifier[1]
-            positive_record_ids = classify_file(full_file_path, classifier_name, classifier_obj, feature_words, skip_first_line)
+            positive_record_ids = classify_file(full_file_path, classifier_name, classifier_obj, features_definition, skip_first_line)
             util.dump_list_to_file(positive_record_ids, config.output_files['predicted_positive_records'])
 
     end_time = datetime.datetime.now()
     print('classify() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
 
-def classify_file(file_path, classifier_name, classifier, feature_words, skip_first_line=True):
+def classify_file(file_path, classifier_name, classifier, features_definition, skip_first_line=True):
     file_name =  os.path.basename(file_path)
     print ('Classifiying using {} each record in file {}...'.format(classifier_name, file_name))
 
@@ -164,13 +212,10 @@ def classify_file(file_path, classifier_name, classifier, feature_words, skip_fi
             line_to_classify = row.foi_text.upper()
             words_to_classify = word_tokenize(line_to_classify)
             
-            stemmer = nltk.stem.PorterStemmer()
+            words_to_classify_without_stopwords = remove_stopwords(words_to_classify)
+            stemed_words_to_classify = stem_words(words_to_classify_without_stopwords)
 
-            stop_words = stopwords.words('english')
-            words_to_classify_without_stopwords = [word for word in words_to_classify if len(word) > 1 and word.lower() not in stop_words]
-            stemed_words_to_classify = [stemmer.stem(w) for w in words_to_classify_without_stopwords]
-
-            line_features = build_features(stemed_words_to_classify, feature_words)
+            line_features = build_features(stemed_words_to_classify, features_definition)
 
             predicted_classification = classifier.classify(line_features)
 
@@ -231,8 +276,8 @@ def load_pickled_models():
     print('Total {} pickled model(s) loaded.'.format(len(models)))
     return models
 
-def pickle_feature_words(list_of_words):
-    pickle_file = config.output_files['feature_words_pickle']
+def pickle_features_definition(features_definition):
+    pickle_file = config.output_files['features_definition_pickle']
     if not os.path.isabs(pickle_file):
         pickle_dir = config.pickles_save_dir
         if not os.path.isabs(pickle_dir):
@@ -240,13 +285,13 @@ def pickle_feature_words(list_of_words):
         pickle_file = os.path.join(pickle_dir, pickle_file)
 
 
-    print('Pickling feature words as: {}...'.format(os.path.basename(pickle_file)))
+    print('Pickling features definition as: {}...'.format(os.path.basename(pickle_file)))
     f = open(pickle_file, 'wb')
-    pickle.dump(list_of_words, f)
+    pickle.dump(features_definition, f)
     f.close()
 
-def load_pickled_feature_words():
-    pickle_file = config.output_files['feature_words_pickle']
+def load_pickled_features_definition():
+    pickle_file = config.output_files['features_definition_pickle']
     if not os.path.isabs(pickle_file):
         pickle_dir = config.pickles_save_dir
         if not os.path.isabs(pickle_dir):
@@ -254,14 +299,14 @@ def load_pickled_feature_words():
         pickle_file = os.path.join(pickle_dir, pickle_file)
 
 
-    print('Loading pickled feature words from: {}...'.format(os.path.basename(pickle_file)))
+    print('Loading pickled features definition from: {}...'.format(os.path.basename(pickle_file)))
     if not os.path.isfile(pickle_file):
         print ('Pickle file does not exist.')
         return []
 
     f = open(pickle_file, 'rb')
-    feature_words = pickle.load(f)
+    features_definition = pickle.load(f)
     f.close()
 
-    print('Total {} pickled feature word(s) loaded.'.format(len(feature_words)))
-    return feature_words
+    print('Total {} pickled feature definitions loaded.'.format(len(features_definition)))
+    return features_definition

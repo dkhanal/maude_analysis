@@ -16,22 +16,22 @@ start_time = datetime.datetime.now()
 print('Experiment starting at {}'.format(start_time))
 
 classifiers = None
-feature_words = None
+features_definition = None
 
 if config.use_pickeled_models_if_present == True:
     classifiers = maude_nlp.load_pickled_models()
-    feature_words = maude_nlp.load_pickled_feature_words()
+    features_definition = maude_nlp.load_pickled_features_definition()
 
-if config.use_pickeled_models_if_present == False or len(classifiers) == 0 or len(feature_words) == 0:
+if config.use_pickeled_models_if_present == False or len(classifiers) == 0 or len(features_definition) == 0:
     print ('Creating models...')
-    classifiers, feature_words = maude_nlp.create_models()
+    classifiers, features_definition = maude_nlp.create_models()
 
     if config.pickle_models == True:
         maude_nlp.pickle_models(classifiers)
-        maude_nlp.pickle_feature_words(feature_words)
+        maude_nlp.pickle_features_definition(features_definition)
 
 print ('Classifying text...')
-maude_nlp.classify(classifiers, feature_words)
+maude_nlp.classify(classifiers, features_definition)
 
 end_time = datetime.datetime.now()
 

@@ -59,13 +59,9 @@ def get_matching_records_from_file(file, predicate, label, skip_first_line=True)
         return rows
 
 def is_positive(row):
-    positive_bigrams = get_positive_bigrams()    
-    return any(term in row.foi_text.upper() for term in positive_bigrams)
-
-def get_positive_bigrams():
-   return config.known_positive_signals
+    return any(term in row.foi_text.upper() for term in config.known_positive_records_selection_terms)
 
 
 def is_negative(row):
-    return not any(term in row.foi_text.upper() for term in config.potential_positive_signals)
+    return not any(term in row.foi_text.upper() for term in config.potential_positive_records_selection_terms)
 

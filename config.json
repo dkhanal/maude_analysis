@@ -1,5 +1,5 @@
 {
-  "known_positive_signals": {
+  "known_positive_records_selection_terms": {
     "prefix_terms": [ "DEFECTIVE" ],
     "main_terms": [
       "SOFTWARE",
@@ -86,7 +86,7 @@
       "MALFUNCTION"
     ]
   },
-  "potential_positive_signals": {
+  "potential_positive_records_selection_terms": {
     "main_terms": [
       "DISPLAY",
       "SCREEN",
@@ -98,6 +98,28 @@
       "ERROR MESSAGE"
     ]
   },
+  "fixed_features": [
+    {
+      "name": "contains ~software",
+      "words": [ "SOFTWARE", "FIRMWARE", "COMPUTER", "LAPTOP", "ROBOT", "SERVER", "DATABASE", "SCREEN" ],
+      "min_matches_required": 2
+    },
+    {
+      "name": "contains ~error",
+      "words": [ "ERROR", "DEFECT", "MALFUNCTION", "CRASH", "HANG", "FAILED", "FAILURE", "BUG"],
+      "min_matches_required": 2
+    },
+    {
+      "name": "contains ~message",
+      "words": [ "MESSAGE", "CODE", "INDICATOR", "ERR", "ALARM", "BEEP", "MSG"],
+      "min_matches_required": 2
+    },
+    {
+      "name": "contains ~data",
+      "words": [ "DATA", "INFO", "RECORD", "LOG"],
+      "min_matches_required": 1
+    }
+  ],
   "noise_words": [
     "2007",
     "2008",
@@ -120,14 +142,14 @@
     "INJURY"
   ],
   "output_files": {
-    "known_positive_signals": "../out/known_positive_signals.txt",
-    "potential_positive_signals": "../out/potential_positive_signals.txt",
+    "known_positive_records_selection_terms": "../out/known_positive_records_selection_terms.txt",
+    "potential_positive_records_selection_terms": "../out/known_negative_records_disqualifying_terms.txt",
     "known_positive_records": "../out/known_positive_records.txt",
     "known_negative_records": "../out/known_negative_records.txt",
-    "known_positive_words": "../out/known_positive_words.txt",
-    "known_negative_words": "../out/known_negative_words.txt",
-    "feature_words": "../out/feature_words.txt",
-    "feature_words_pickle": "../pickles/feature_words.pickle",
+    "words_in_known_positive_records": "../out/words_in_known_positive_records.txt",
+    "words_in_known_negative_records": "../out/words_in_known_negative_records.txt",
+    "features_definition": "../out/features_definition.json",
+    "features_definition_pickle": "../pickles/features_definition.pickle",
     "predicted_positive_records": "../out/predicted_positive_records.txt"
   },
   "data_files_for_featureset": [
@@ -139,14 +161,15 @@
   "pickles_save_dir": "../pickles/",
   "tag_positive": "SW_CAUSED",
   "tag_negative": "SW_NOT_CAUSED",
-  "known_positive_records_limit": 2000,
-  "known_negative_records_limit": 2000,
+  "known_positive_records_limit": 1000,
+  "known_negative_records_limit": 1000,
   "data_file_max_num_rows_for_featureset": 100000,
-  "data_file_max_num_rows_to_classify": 100000,
-  "positive_probability_threshold": 0.8,
+  "data_file_max_num_rows_to_classify": 1000,
+  "positive_probability_threshold": 0.5,
   "output_positive_record_id_only": false,
   "most_common_words_limit": 100,
+  "use_fixed_features":  true,
   "pickle_models": true,
-  "use_pickeled_models_if_present": true,
+  "use_pickeled_models_if_present": false,
   "verbose": false
 }
