@@ -142,11 +142,11 @@
   "known_positive_records_limit": 2000,
   "known_negative_records_limit": 2000,
   "data_file_max_num_rows_for_featureset": 100000,
-  "data_file_max_num_rows_to_classify": 100,
-  "positive_probability_threshold": 0.5,
+  "data_file_max_num_rows_to_classify": 100000,
+  "positive_probability_threshold": 0.8,
   "output_positive_record_id_only": false,
   "most_common_words_limit": 100,
   "pickle_models": true,
-  "use_pickeled_models_if_present": false,
+  "use_pickeled_models_if_present": true,
   "verbose": false
 }

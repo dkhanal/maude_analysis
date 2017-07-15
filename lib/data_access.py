@@ -2,7 +2,6 @@
 # dkhanal@gmail.com
 
 import os
-import sys
 import random
 import config
 from foi_text import FoiTextRow
@@ -52,7 +51,6 @@ def get_matching_records_from_file(file, predicate, label, skip_first_line=True)
 
             if config.verbose == True or total_lines % 10000 == 0:
                 print('{}=>, {} {} records in total {} ({}%) so far. Checking row (report key: {} text key {})...'.format(file_name, rows_length, label, lines_so_far, percent, row.mdr_report_key, row.mdr_text_key))
-                sys.stdout.flush()
 
             if predicate(row):
                 rows.append(row)

@@ -26,8 +26,12 @@ def extract_most_common_words(list_of_words, max):
     if list_of_words is None or  len(list_of_words) == 0:
         return []
     
-    # Eliminate punctuations, 'words' with less than 3 letters, and noise words
-    list_of_words = [w for w in list_of_words if len(w) > 2 and not w in config.noise_words]
+    # list_of_words is stemmed, so we stem the noise words too
+    stemmer = nltk.stem.PorterStemmer()
+    stemmed_noise_words = [stemmer.stem(w) for w in config.noise_words]
+
+    # Eliminate punctuations, 'words' with less than 3 letters, and noise words    
+    list_of_words = [w for w in list_of_words if len(w) > 2 and not w in stemmed_noise_words]
 
     all_words_fd = nltk.FreqDist(list_of_words)
     return [w for (w, f) in all_words_fd.most_common(max)]
@@ -153,7 +157,6 @@ def classify_file(file_path, classifier_name, classifier, feature_words, skip_fi
 
             if config.verbose == True or total_lines % 10000 == 0: # Unless in verbose mode, we write progress every 10000th record
                 print('{}=>, {} {} records in total {} ({}%) so far. Checking row (report key: {} text key {})...'.format(file_name, positive_records_count, config.tag_positive, lines_so_far, percent, row.mdr_report_key, row.mdr_text_key))
-                sys.stdout.flush()
 
             if len(row.foi_text.strip()) < 50: # Insufficient size of narrative text
                 continue
@@ -163,7 +166,10 @@ def classify_file(file_path, classifier_name, classifier, feature_words, skip_fi
             
             stemmer = nltk.stem.PorterStemmer()
 
-            stemed_words_to_classify = [stemmer.stem(w) for w in words_to_classify]
+            stop_words = stopwords.words('english')
+            words_to_classify_without_stopwords = [word for word in words_to_classify if len(word) > 1 and word.lower() not in stop_words]
+            stemed_words_to_classify = [stemmer.stem(w) for w in words_to_classify_without_stopwords]
+
             line_features = build_features(stemed_words_to_classify, feature_words)
 
             predicted_classification = classifier.classify(line_features)
