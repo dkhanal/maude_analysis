@@ -7,10 +7,3 @@ More specifically, each record of narrative text that describes a medical device
 
 * Software-related event
 * Non software-related event
-
-
-
-
-The goal of the classification is boolean:
-
-Is a
