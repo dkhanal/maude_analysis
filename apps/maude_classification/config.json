@@ -1,0 +1,22 @@
+{
+  "output_dir": "../out",
+  "pickles_dir": "../pickles",
+  "input_data_file_sets": [
+    {
+      "name": "2007",
+      "positive_records": "../data/foitext2007.pos.txt",
+      "negative_records": "../data/foitext2007.neg.txt",
+      "unknown_records": "../data/foitext2007.txt"
+    }
+  ],
+  "classifiers": [
+    {
+      "name": "naive_bayes_bow"
+    }
+  ],
+  "labeled_files_max_num_records_to_read": 10000,
+  "target_file_max_num_records_to_classify": 10000,
+  "positive_probability_threshold": 0.95,
+  "use_pickeled_models_if_present": true,
+  "verbose": false
+}

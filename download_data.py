@@ -2,41 +2,20 @@
 # dkhanal@gmail.com
 
 # To manually execute:
-# >> exec(open('C:\\Users\\dkhan\\Google Drive\\Dissertation\\Machine Learning\\maude_sw_causes\\setup.py').read())
+# >> exec(open('C:\\Users\\dkhan\\Google Drive\\Dissertation\\Machine Learning\\maude_sw_causes\\download_data.py').read())
 
 import sys
 import os
 import urllib.request
-import multiprocessing
 
 def create_dirs():
     base_path = os.path.dirname(__file__)
 
     data_dir = os.path.join(base_path, 'data')
-    out_dir = os.path.join(base_path, 'out')
-    pickles_dir = os.path.join(base_path, 'pickles')
 
     if not os.path.exists(data_dir):
         print('Creating directory: {}'.format(data_dir))
         os.makedirs(data_dir)
-
-    if not os.path.exists(out_dir):
-        print('Creating directory: {}'.format(out_dir))
-        os.makedirs(out_dir)
-
-    if not os.path.exists(pickles_dir):
-        print('Creating directory: {}'.format(pickles_dir))
-        os.makedirs(pickles_dir)
-
-def add_lib_to_path():
-    base_path = os.path.dirname(__file__)
-    lib = os.path.join(base_path, 'lib')
-
-    if lib not in sys.path:
-        print('Adding to sys.path: {}'.format(lib))
-        sys.path.append(lib)
-    else:
-        print('Already in sys.path: {}'.format(lib))
 
 def download_file(args):
     url, destination_path = args
@@ -71,5 +50,4 @@ def download_data_files():
 
 # Setup process:
 create_dirs()
-add_lib_to_path()
 download_data_files()
