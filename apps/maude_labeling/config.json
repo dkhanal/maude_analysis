@@ -141,6 +141,6 @@
     "../../../data/foitext2016.txt"
   ],
   "output_dir": "../out/",
-  "max_records_to_extract": 10,
+  "max_records_to_extract": null,
   "verbose": false
 }
