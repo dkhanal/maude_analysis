@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import codecs
 import config
 import util
 
@@ -68,43 +69,44 @@ def extract_matching_records_from_file(input_file,
     negative_out_file = open(negative_records_output_file, 'w')
     maybe_negative_out_file = open(maybe_negative_records_output_file, 'w')
     qualification_process_log_file_handle = open(process_log_file, 'w')
-    with open(input_file) as fin:
-        for line in fin:
-            sys.stdout.write("POS: {} NEG: {}. Now looking at record: {}... \r".format(total_positive_data_lines, total_negative_data_lines, total_data_lines))
-            sys.stdout.flush()
-            total_lines += 1
-            if total_lines == 1 and skip_first_line:
-                continue
-            if max is not None and total_positive_data_lines >= max and total_negative_data_lines >= max:
-                break;
+    fin = codecs.open(input_file, encoding='utf-8', errors='ignore')
+    for line in fin:
+        sys.stdout.write("POS: {} NEG: {}. Now looking at record: {}... \r".format(total_positive_data_lines, total_negative_data_lines, total_data_lines))
+        sys.stdout.flush()
+        total_lines += 1
+        if total_lines == 1 and skip_first_line:
+            continue
+        if max is not None and total_positive_data_lines >= max and total_negative_data_lines >= max:
+            break;
 
-            total_data_lines += 1
+        total_data_lines += 1
 
-            if (max is None or total_positive_data_lines < max) and positive_predicate(line, maybe_positive_out_file, qualification_process_log_file_handle):
-                positive_out_file.write(line)
-                total_positive_data_lines += 1
-                pass
-            elif (max is None or total_negative_data_lines < max) and negative_predicate(line, maybe_negative_out_file, qualification_process_log_file_handle):
-                negative_out_file.write(line)
-                total_negative_data_lines += 1
-                pass
+        if (max is None or total_positive_data_lines < max) and positive_predicate(line, maybe_positive_out_file, qualification_process_log_file_handle):
+            positive_out_file.write(line)
+            total_positive_data_lines += 1
+            pass
+        elif (max is None or total_negative_data_lines < max) and negative_predicate(line, maybe_negative_out_file, qualification_process_log_file_handle):
+            negative_out_file.write(line)
+            total_negative_data_lines += 1
+            pass
 
-            if config.verbose == True or total_lines % 10000 == 0:
-                positive_percent = round(total_positive_data_lines / total_data_lines * 100, 2)
-                negative_percent = round(total_negative_data_lines / total_data_lines * 100, 2)
-                print('{}=>, {} ({}%) positive and {} ({}%) negative records in total {} records so far...'.format(file_name, total_positive_data_lines, positive_percent, total_negative_data_lines, negative_percent, total_data_lines))
+        if config.verbose == True or total_lines % 10000 == 0:
+            positive_percent = round(total_positive_data_lines / total_data_lines * 100, 2)
+            negative_percent = round(total_negative_data_lines / total_data_lines * 100, 2)
+            print('{}=>, {} ({}%) positive and {} ({}%) negative records in total {} records so far...'.format(file_name, total_positive_data_lines, positive_percent, total_negative_data_lines, negative_percent, total_data_lines))
 
-        positive_percent = round(total_positive_data_lines / total_data_lines * 100, 2)
-        negative_percent = round(total_negative_data_lines / total_data_lines * 100, 2)
-        message = '{}=>, {} ({}%) positive and {} ({}%) negative records in the {} records examined in this file'.format(file_name, total_positive_data_lines, positive_percent, total_negative_data_lines, negative_percent, total_data_lines)
-        print(message)
-        qualification_process_log_file_handle.write(message + '\n')
-        positive_out_file.close()
-        maybe_positive_out_file.close()
-        negative_out_file.close()
-        maybe_negative_out_file.close()
-        qualification_process_log_file_handle.close()
-        return (total_positive_data_lines, total_negative_data_lines)
+    positive_percent = round(total_positive_data_lines / total_data_lines * 100, 2)
+    negative_percent = round(total_negative_data_lines / total_data_lines * 100, 2)
+    message = '{}=>, {} ({}%) positive and {} ({}%) negative records in the {} records examined in this file'.format(file_name, total_positive_data_lines, positive_percent, total_negative_data_lines, negative_percent, total_data_lines)
+    print(message)
+    qualification_process_log_file_handle.write(message + '\n')
+    fin.close()
+    positive_out_file.close()
+    maybe_positive_out_file.close()
+    negative_out_file.close()
+    maybe_negative_out_file.close()
+    qualification_process_log_file_handle.close()
+    return (total_positive_data_lines, total_negative_data_lines)
 
 def is_positive(line, questionable_records_file, qualification_process_log_file_handle):
     likely_positive = False

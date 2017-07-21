@@ -2,6 +2,7 @@ import os
 import sys
 import datetime
 import pickle
+import codecs
 
 import nltk
 from nltk import word_tokenize
@@ -119,49 +120,50 @@ def classify_file(data_file_set, classifier_config, skip_first_record=True, max_
     
     positive_output_file = open(predicted_positive_records_file, 'w')
     negative_output_file = open(predicted_negative_records_file, 'w')
-    with open(unknown_records_file, 'r') as f:
-        for record in f:
-            total_records += 1
-            sys.stdout.write('{} => POS: {}/{:.2f}% NEG: {}/{:.2f}% . Next: {}...\r'.format(file_base_name, 
-                                                                                                             total_positive, positive_percent, 
-                                                                                                             total_negative, negative_percent, 
-                                                                                                             total_data_records))
-            sys.stdout.flush()
+    fin = codecs.open(unknown_records_file, encoding='utf-8', errors='ignore')
+    for record in fin:
+        total_records += 1
+        sys.stdout.write('{} => POS: {}/{:.2f}% NEG: {}/{:.2f}% . Next: {}...\r'.format(file_base_name, 
+                                                                                                            total_positive, positive_percent, 
+                                                                                                            total_negative, negative_percent, 
+                                                                                                            total_data_records))
+        sys.stdout.flush()
 
-            if total_records == 1 and skip_first_record == True:
-                continue
+        if total_records == 1 and skip_first_record == True:
+            continue
             
-            total_data_records += 1
+        total_data_records += 1
 
-            if max_records is not None and total_data_records > max_records:
-                break
+        if max_records is not None and total_data_records > max_records:
+            break
 
-            record_lower_case = record.lower()
-            record_words = word_tokenize(record_lower_case)
-            record_features = extract_features(record_words)
+        record_lower_case = record.lower()
+        record_words = word_tokenize(record_lower_case)
+        record_features = extract_features(record_words)
 
-            predicted_classification = classifier.classify(record_features)
+        predicted_classification = classifier.classify(record_features)
 
-            probabilities = classifier.prob_classify(record_features)
-            positive_probability = probabilities.prob('pos')
+        probabilities = classifier.prob_classify(record_features)
+        positive_probability = probabilities.prob('pos')
 
-            is_positive = predicted_classification == 'pos' and positive_probability > config.positive_probability_threshold
+        is_positive = predicted_classification == 'pos' and positive_probability > config.positive_probability_threshold
 
-            if config.verbose == True:
-                print('Classification is {}'.format(predicted_classification))
-                print('Probabilities: pos: {}, neg: {}'.format(positive_probability, probabilities.prob(config.tag_negative)))
+        if config.verbose == True:
+            print('Classification is {}'.format(predicted_classification))
+            print('Probabilities: pos: {}, neg: {}'.format(positive_probability, probabilities.prob(config.tag_negative)))
     
-            if is_positive:
-                total_positive +=1
-                positive_output_file.write(record)
-            else:
-                total_negative +=1
-                negative_output_file.write(record)
+        if is_positive:
+            total_positive +=1
+            positive_output_file.write(record)
+        else:
+            total_negative +=1
+            negative_output_file.write(record)
 
-            positive_percent = (total_positive / total_data_records) * 100
-            negative_percent = (total_negative / total_data_records) * 100
+        positive_percent = (total_positive / total_data_records) * 100
+        negative_percent = (total_negative / total_data_records) * 100
 
     print('{}=> {} POS records in total {} ({:.2f}%) with a probability of {} or higher.'.format(file_base_name, total_positive, total_data_records, positive_percent, config.positive_probability_threshold))    
+    fin.close()
     positive_output_file.close()
     negative_output_file.close()
 
@@ -177,28 +179,29 @@ def build_labeled_features(file, label, skip_first_record=False, max_records = N
     file_base_name = os.path.basename(file)
     total_records = 0
     total_data_records = 0
-    with open(file, 'r') as f:
-        for record in f:
-            total_records += 1
-            sys.stdout.write('{} => Now processing record: {}...\r'.format(file_base_name, total_records))
-            sys.stdout.flush()
+    fin = codecs.open(unknown_records_file, encoding='utf-8', errors='ignore')
+    for record in fin:
+        total_records += 1
+        sys.stdout.write('{} => Now processing record: {}...\r'.format(file_base_name, total_records))
+        sys.stdout.flush()
 
-            if total_records == 1 and skip_first_record == True:
-                continue
+        if total_records == 1 and skip_first_record == True:
+            continue
             
-            total_data_records += 1
+        total_data_records += 1
 
-            if max_records is not None and total_data_records > max_records:
-                break
+        if max_records is not None and total_data_records > max_records:
+            break
 
-            record_lower_case = record.lower()
-            record_words = word_tokenize(record_lower_case)
-            record_features = extract_features(record_words)
+        record_lower_case = record.lower()
+        record_words = word_tokenize(record_lower_case)
+        record_features = extract_features(record_words)
 
-            if label == None:
-                file_features.append(record_features)
-            else:
-                file_features.append((record_features, label))
+        if label == None:
+            file_features.append(record_features)
+        else:
+            file_features.append((record_features, label))
     
+    fin.close()
     print('{} => Total {} record(s) processed.'.format(file_base_name, total_data_records))
     return file_features
