@@ -1,47 +1,49 @@
 # maude_sw_causes
 
 
-This repository contains a program that implements natural-language-processing (NLP)-based machine learning techniques to classify the Manufacturer and User Facility Device Experience (MAUDE) dataset published by the US Food and Drugs Administration.
+This repository contains a program that implements natural-language-processing (NLP)-based machine learning techniques to classify the Manufacturer and User Facility Device Experience (MAUDE) dataset published by the US Food and Drugs Administration (FDA).
 
-More specifically, each record of narrative text that describes a medical device adverse event in the MAUDE dataset is classified in terms of its causality as either:
+Each MAUDE record contains an open-ended texual narrative entered by the submitter of the adverse event. Using the NLP techniques against this narrative, we try to classifiy the record as either:
 
-* Software-related event
-* Non software-related event
+* Software-related event (aka 'positive')
+* Non software-related event (aka 'negative')
 
-At a high-level, this program supports two methods:
+The input data set is available on https://maude.blob.core.windows.net/narratives. Alternatively, you could run the following script to download the files:
 
-1. Fixed Features:
-A set of NLP features can be defined in the configuration file. Each feature has a name, words to match and minimumum required matches. All three attributes are pre-defined by the researcher and specified in the config file. Then model is trained using this feature definition. The trained model, then is used to classify the corpus.
+```
+$ python download_data.py 
+```
 
-2. Dynamic Features
-Features are dynamically extracted from 'known' positive records. Essentially, most common n words (where n is configurable) that occur in the known positive records are defined as the features. The model is trained using this dynamic feature definition. The trained model, then is used to classify the corpus.
+This repository is divided mainly into two apps:
 
-Regardless of the methods used, the following is the high level process:
+1. Labeling Application (maude_labeling)
 
-Model Creation
+The MAUDE dataset published by the FDA is not labeled. The Labeling application goes through each file in the MAUDE dataset and determines if a particular record is 'positive' or 'negative' with a reasonably high degree of certainty. To achieve this level of certainty, explict and strong string matches are performed. The output of this application are a set of these files:
 
-1. Configuration is loaded (note, the program supports a variety of configuration options)
-2. 'Known' positive records are loaded. This is done by scanning a subset of the corpus, with explicit, traditional form of string comparison that yields a strong match. Configuration file contains parameters used to perform this match. The number of positive records to extract from the corpus is also configurable.
-3. 'Known' negative records are loaded. Similar to the previous step, this is also done by scanning a subset of the corpus, with explicit, traditional form of string comparison that yields a strong match. Configuration file contains parameters used to perform this match. Essentially, a negative record is selected by determining that none of the potention signals that could qualify the record to be positive is present.
-4. Records (known-positive and known-negative) are word-tokenized.
-5. Stop words are removed from both word-tokenized known-positive and known-negative records.
-6. Words are stemmed for both known positive and known-negative records.
-7. Known positive and known-negative records are appropriately tagged.
-8. Feature definition is built (using either Fixed or Dyanamic option).
-9. Featureset is built using the Feature definition and the known records (positive and negative)
-10. Model is trained using a subset of the featureset. Currently, Naive Bayes Classifier is used as the model. However, the design allows for additional models to be supported.
+`<input_filename>.pos.txt` => Positive records
+`<input_filename>.neg.txt` => Negative records
+`<input_filename>.maybe.neg.txt` => Potentially negative records, but were rejected due to a potential positive signal.
+`<input_filename>.maybe.pos.txt` => Potentially positive records, but were rejected due to a potential negative signal.
+`<input_filename>.process.txt` => A processing log file with a specific reason for why a particular record was deemed positive or negative.
 
-Trained models can be 'pickled' for future use. Configuration options are available for pickling and using pickled models.
+To run this application, simply execute the main script:
+```
+$ python main.py
+```
 
-Text Classification
+This application also conains script that goes through the process log file and instantly provide answer on why a record was selected:
 
-1. Model is loaded (either by the virtue of Model Creation or loading from the pickled copy)
-2. Corpus is loaded (one record at a time)
-3. Corpus record is word tokenized.
-4. Stopwords are removed from the corpus record.
-5. Corpus record is stemmed.
-6. Features are built for the corpus record.
-7. Features are provided to the model for classification.
-8. Final classification is based on the model's categorical response and the probability reported on the response. Only classification meeting a probability threshold (configurable) are finally classified as positive.
+```
+$ python why.py <record id>
+```
 
 
+2. Classification Application (maude_classification)
+
+The classification applicatin takes a set of files as input and creates models and performs classification using supported NLP algoritms. To run the classification application, simply run the main script:
+
+```
+$ python main.py
+```
+
+See configuration file for the input, ouput and processing parameters.
