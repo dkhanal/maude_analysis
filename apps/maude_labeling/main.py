@@ -16,7 +16,12 @@ def main(args=None):
     start_time = datetime.datetime.now()
     print('Extracting known positive and known negative records starting at {}'.format(start_time))
     
-    extractor.extract_records(config.input_data_files, config.output_dir, config.max_records_to_extract)
+    input_data_files = config.input_data_files
+    if len(args) > 0:
+        print('Extracting for {}'.format(args[0]))
+        input_data_files = [s for s in config.input_data_files if args[0] in s]
+        print(input_data_files)
+    extractor.extract_records(input_data_files, config.output_dir, config.max_records_to_extract)
 
     end_time = datetime.datetime.now()
     print('Extraction completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))

@@ -96,7 +96,9 @@ def extract_matching_records_from_file(input_file,
 
         positive_percent = round(total_positive_data_lines / total_data_lines * 100, 2)
         negative_percent = round(total_negative_data_lines / total_data_lines * 100, 2)
-        print('{}=>, {} ({}%) positive and {} ({}%) negative records in first {} records examined in this file'.format(file_name, total_positive_data_lines, positive_percent, total_negative_data_lines, negative_percent, total_data_lines))
+        message = '{}=>, {} ({}%) positive and {} ({}%) negative records in the {} records examined in this file'.format(file_name, total_positive_data_lines, positive_percent, total_negative_data_lines, negative_percent, total_data_lines)
+        print(message)
+        qualification_process_log_file_handle.write(message + '\n')
         positive_out_file.close()
         maybe_positive_out_file.close()
         negative_out_file.close()
