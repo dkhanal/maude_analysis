@@ -75,16 +75,16 @@ def extract_matching_records_from_file(input_file,
             total_lines += 1
             if total_lines == 1 and skip_first_line:
                 continue
-            if max != None and total_positive_data_lines >= max and total_negative_data_lines >= max:
+            if max is not None and total_positive_data_lines >= max and total_negative_data_lines >= max:
                 break;
 
             total_data_lines += 1
 
-            if total_positive_data_lines < max and positive_predicate(line, maybe_positive_out_file, qualification_process_log_file_handle):
+            if (max is None or total_positive_data_lines < max) and positive_predicate(line, maybe_positive_out_file, qualification_process_log_file_handle):
                 positive_out_file.write(line)
                 total_positive_data_lines += 1
                 pass
-            elif total_negative_data_lines < max and negative_predicate(line, maybe_negative_out_file, qualification_process_log_file_handle):
+            elif (max is None or total_negative_data_lines < max) and negative_predicate(line, maybe_negative_out_file, qualification_process_log_file_handle):
                 negative_out_file.write(line)
                 total_negative_data_lines += 1
                 pass
