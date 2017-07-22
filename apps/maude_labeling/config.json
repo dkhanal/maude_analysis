@@ -156,6 +156,6 @@
   "output_dir": "../out/",
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "labeled",
-  "max_records_to_extract": None,
+  "max_records_to_extract": null,
   "verbose": false
 }
