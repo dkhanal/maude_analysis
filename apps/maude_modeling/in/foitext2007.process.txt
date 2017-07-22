@@ -1,0 +1,4 @@
+MAUDE Labeling Process Log. Computer: DKLAPTOP. OS: Windows 10  Date/Time: 2017-07-22 14:06:26.285442
+866131|652294|D|1||A CUSTOMER REPORTED RECEIVING A... POSITIVE MATCHED ON:  MEMORY OVERWRITE MALFUNCTION
+foitext2007.txt=>, 1 (5.56%) positive and 1 (5.56%) negative records in the 18 records examined in this file
+Labeling completed at 2017-07-22 14:06:29.783427. Duration: 0:00:03.497985 

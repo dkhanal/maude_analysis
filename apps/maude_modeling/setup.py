@@ -3,11 +3,18 @@
 
 import sys
 import os
+import urllib.request
+import multiprocessing
 
 def create_dirs():
     base_path = os.path.dirname(__file__)
 
+    in_dir = os.path.join(base_path, 'in')
     out_dir = os.path.join(base_path, 'out')
+
+    if not os.path.exists(in_dir):
+        print('Creating directory: {}'.format(in_dir))
+        os.makedirs(in_dir)
 
     if not os.path.exists(out_dir):
         print('Creating directory: {}'.format(out_dir))
@@ -22,6 +29,7 @@ def add_lib_to_path():
         sys.path.append(lib)
     else:
         print('Already in sys.path: {}'.format(lib))
+
 
 def set_environment_vars():
     env_script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '.setenv.py'))

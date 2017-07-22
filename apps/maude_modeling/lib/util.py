@@ -5,7 +5,6 @@ import os
 import pickle
 import zipfile
 
-
 def dump_list_to_file(list_to_dump, output_dump_file):
     if output_dump_file != None:
         output_dump_file = os.path.join(os.path.dirname(__file__), output_dump_file)
@@ -44,3 +43,4 @@ def unzip(zip_file_path, target_dir):
     compressed = zipfile.ZipFile(zip_file_path, 'r')
     compressed.extractall(target_dir)
     compressed.close()
+
