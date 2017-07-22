@@ -27,6 +27,10 @@ def load_config():
     global input_data_files
     global output_dir
     global max_records_to_extract
+    global upload_output_to_cloud
+    global cloud_blob_container_name
+    global azure_account_name
+    global azure_account_key
     global verbose
 
     config_data_pos_section = config_data['known_positive_records_selection_terms']
@@ -43,6 +47,16 @@ def load_config():
     output_dir = config_data['output_dir']
     max_records_to_extract = config_data['max_records_to_extract']
     verbose = config_data['verbose']
+
+    upload_output_to_cloud = config_data['upload_output_to_cloud']
+    cloud_blob_container_name = config_data['cloud_blob_container_name']
+
+    if upload_output_to_cloud == True and ('azure_account_name' not in os.environ or 'azure_account_key' not in os.environ):
+        print('CONFIGURATION ERROR: Environment variable (azure_account_name) must be set to upload output files.')
+    
+    if upload_output_to_cloud == True:
+        azure_account_name = os.environ['azure_account_name']    
+        azure_account_key = os.environ['azure_account_key']
 
     print('Configuration loaded.')
 

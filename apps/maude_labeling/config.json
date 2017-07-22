@@ -5,6 +5,8 @@
     "qualifying_prefix_terms": [ "CORRUPT", "CORRUPTED", "DAMAGED", "DEFECTIVE", "FAILED", "FAULTY", "UNSTABLE" ],
     "qualifying_main_terms": [
       "ALGORITHM",
+      "BLANK SCREEN",
+      "BLANKSCREEN",
       "BLUE SCREEN",
       "BLUESCREEN",
       "BUFFER OVER FLOW",
@@ -140,6 +142,9 @@
     ]
   },
   "input_data_files": [
+    "../../../data/foitext2007.txt"
+  ],
+  "__input_data_files": [
     "../../../data/foitext2007.txt",
     "../../../data/foitext2008.txt",
     "../../../data/foitext2009.txt",
@@ -152,6 +157,8 @@
     "../../../data/foitext2016.txt"
   ],
   "output_dir": "../out/",
-  "max_records_to_extract": null,
+  "upload_output_to_cloud": true,
+  "cloud_blob_container_name": "labeled",
+  "max_records_to_extract": 1,
   "verbose": false
 }

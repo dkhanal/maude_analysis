@@ -23,6 +23,15 @@ def add_lib_to_path():
     else:
         print('Already in sys.path: {}'.format(lib))
 
+def set_environment_vars():
+    env_script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '.setenv.py'))
+    if os.path.isfile(env_script_path):
+        script = open(env_script_path)
+        exec(script.read())
+    else:
+        print ('WARN: No environment variables set (.setenv.py not found). Configuration may be incomplete')
+
 # Setup process:
 create_dirs()
 add_lib_to_path()
+set_environment_vars()

@@ -2,7 +2,10 @@ import os
 import re
 import sys
 import codecs
+import datetime
 import config
+import platform
+import uploader
 import util
 
 def extract_records(input_files, output_dir, max = None):    
@@ -69,6 +72,9 @@ def extract_matching_records_from_file(input_file,
     negative_out_file = open(negative_records_output_file, 'w')
     maybe_negative_out_file = open(maybe_negative_records_output_file, 'w')
     qualification_process_log_file_handle = open(process_log_file, 'w')
+    start_time = datetime.datetime.now()
+    process_log_first_line = 'MAUDE Labeling Process Log. Computer: {}. OS: {} {}  Date/Time: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time)
+    qualification_process_log_file_handle.write(process_log_file)
     fin = codecs.open(input_file, encoding='utf-8', errors='ignore')
     for line in fin:
         sys.stdout.write("POS: {} NEG: {}. Now looking at record: {}... \r".format(total_positive_data_lines, total_negative_data_lines, total_data_lines))
@@ -100,12 +106,23 @@ def extract_matching_records_from_file(input_file,
     message = '{}=>, {} ({}%) positive and {} ({}%) negative records in the {} records examined in this file'.format(file_name, total_positive_data_lines, positive_percent, total_negative_data_lines, negative_percent, total_data_lines)
     print(message)
     qualification_process_log_file_handle.write(message + '\n')
+    end_time = datetime.datetime.now()
+    qualification_process_log_file_handle.write('Labeling completed at {}. Duration: {} \n'.format(end_time, end_time - start_time))
     fin.close()
     positive_out_file.close()
     maybe_positive_out_file.close()
     negative_out_file.close()
     maybe_negative_out_file.close()
     qualification_process_log_file_handle.close()
+
+    if config.upload_output_to_cloud == True:
+        list_of_files_to_upload = [positive_records_output_file,
+                                   negative_records_output_file,
+                                   maybe_positive_records_output_file,
+                                   maybe_negative_records_output_file,
+                                   process_log_file]
+        uploader.upload_files(list_of_files_to_upload, os.path.dirname(positive_records_output_file) , os.path.join(os.path.dirname(positive_records_output_file), os.path.splitext(file_name)[0]+'.zip'))
+
     return (total_positive_data_lines, total_negative_data_lines)
 
 def is_positive(line, questionable_records_file, qualification_process_log_file_handle):

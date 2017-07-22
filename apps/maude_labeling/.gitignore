@@ -6,6 +6,7 @@
 # Application specific
 [Dd]ata/*
 [Oo]ut/*
+.setenv.py
 
 # User-specific files
 *.suo
