@@ -32,7 +32,8 @@ def load_config():
     config_data_pos_section = config_data['known_positive_records_selection_terms']
     known_positive_records_qualifying_terms = [pre + ' ' + main for pre in config_data_pos_section['qualifying_prefix_terms'] for main in config_data_pos_section['qualifying_main_terms']]
     known_positive_records_qualifying_terms += [' ' +main + ' ' + post for post in config_data_pos_section['qualifying_postfix_terms'] for main in config_data_pos_section['qualifying_main_terms']]
-
+    known_positive_records_qualifying_terms += config_data_pos_section['standalone_patterns'] 
+ 
     known_positive_records_disqualifying_terms = [pre + term for pre in config_data_pos_section['disqualifying_negative_prefix_patterns'] for term in  known_positive_records_qualifying_terms]
     known_positive_records_disqualifying_terms += [term + post for post in config_data_pos_section['disqualifying_negative_postfix_patterns'] for term in  known_positive_records_qualifying_terms]
 

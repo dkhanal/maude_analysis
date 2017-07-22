@@ -2,9 +2,11 @@
   "known_positive_records_selection_terms": {
     "disqualifying_negative_prefix_patterns": [ "NO\\s+(\\w+\\s+)?" ],
     "disqualifying_negative_postfix_patterns": [ "[S]?\\s+\\w+\\s+NOT" ],
-    "qualifying_prefix_terms": [ "DEFECTIVE" ],
+    "qualifying_prefix_terms": [ "CORRUPT", "CORRUPTED", "DAMAGED", "DEFECTIVE", "FAILED", "FAULTY", "UNSTABLE" ],
     "qualifying_main_terms": [
       "ALGORITHM",
+      "BLUE SCREEN",
+      "BLUESCREEN",
       "BUFFER OVER FLOW",
       "BUFFER OVER-FLOW",
       "BUFFER OVERFLOW",
@@ -100,15 +102,20 @@
       "VOICE RECOGNITION",
       "WEB SITE",
       "WEBSITE",
+      "WHITE SCREEN",
+      "WHITESCREEN",
       "WINDOWS"
     ],
     "qualifying_postfix_terms": [
       "ANOMALY",
       "BUG",
+      "CORRUPT",
       "CRASH",
+      "DAMAGE",
       "DEFECT",
       "ERROR",
       "FAIL",
+      "FAULT",
       "FREEZE",
       "FROZE",
       "HANG",
@@ -116,6 +123,10 @@
       "ISSUE",
       "MALFUNCTION",
       "PROBLEM"
+    ],
+    "standalone_patterns": [
+      "NEED\\w+\\s(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE",
+      "(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE\\s(UPDATE\\s)?(UPGRADE\\s)?(\\w+\\s)?NEED"
     ]
   },
   "potential_positive_records_selection_terms": {
