@@ -142,9 +142,6 @@
     ]
   },
   "input_data_files": [
-    "../../../data/foitext2007.txt"
-  ],
-  "__input_data_files": [
     "../../../data/foitext2007.txt",
     "../../../data/foitext2008.txt",
     "../../../data/foitext2009.txt",
@@ -159,6 +156,6 @@
   "output_dir": "../out/",
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "labeled",
-  "max_records_to_extract": 1,
+  "max_records_to_extract": None,
   "verbose": false
 }
