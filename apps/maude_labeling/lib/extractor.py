@@ -73,7 +73,7 @@ def extract_matching_records_from_file(input_file,
     maybe_negative_out_file = open(maybe_negative_records_output_file, 'w')
     qualification_process_log_file_handle = open(process_log_file, 'w')
     start_time = datetime.datetime.now()
-    process_log_first_line = 'MAUDE Labeling Process Log. Computer: {}. OS: {} {}  Date/Time: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time)
+    process_log_first_line = 'MAUDE Labeling Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
     qualification_process_log_file_handle.write(process_log_first_line)
     fin = codecs.open(input_file, encoding='utf-8', errors='ignore')
     for line in fin:
