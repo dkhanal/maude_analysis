@@ -3,12 +3,15 @@ import sys
 import datetime
 import pickle
 import codecs
+import platform
+import urllib
 
 import nltk
 from nltk import word_tokenize
 
 import config
 import util
+import uploader
 
 def extract_features(list_of_words):
     features = {}
@@ -16,6 +19,11 @@ def extract_features(list_of_words):
         features[w] = True
     
     return features
+
+def download_file(url, destination_path):
+    file_path = os.path.abspath(destination_path)
+    log('Downloading {} to {}. This may take a while...'.format(url, file_path))
+    urllib.request.urlretrieve(url, file_path)
 
 def classify(input_data_files):
     output_dir = util.fix_path(config.output_dir)
@@ -26,11 +34,12 @@ def classify(input_data_files):
     __log_file_handle = open(log_file_path, 'w')
 
     start_time = datetime.datetime.now()
+    process_log_first_line = 'MAUDE Classification Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
+    log(process_log_first_line)
     log('classifier::classify_files() starting at {}'.format(start_time))
 
-    input_data_file_sets = config.input_data_file_sets
-    models_config = config.model
-
+    models_config = config.models
+    models = []
     log('Checking if model(s) need to be downloaded...')
     for model_config in models_config:
         model_name = model_config['name'] 
@@ -44,10 +53,14 @@ def classify(input_data_files):
             log('Model extracted.')
         
         log('Model pickle file: {}'.format(os.path.basename(model_pickle_file)))
-        
+        log('Loading the pickled model...')
+        model = util.load_pickle(model_pickle_file)
+        log('Model ({}) loaded.'.format(model))
+        models.append((model_name, model))
+       
+    log('Total {} model(s) loaded.'.format(len(models)))
     for input_data_file in input_data_files:
-        for model_config in models_config:
-            classify_file(input_data_file, model_config, model_pickle_file, True, config.target_file_max_num_records_to_classify)
+        classify_file(input_data_file, models, True, config.target_file_max_num_records_to_classify)
 
     end_time = datetime.datetime.now()
     log('classifier::classify_files() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
@@ -57,26 +70,33 @@ def classify(input_data_files):
     if config.upload_output_to_cloud == True:
         uploader.upload_files([log_file_path], output_dir, os.path.join(output_dir, 'log_{}.zip'.format(end_time.strftime("%Y%m%d-%H%M%S"))))
 
-def classify_file(input_data_file, model_config, model_pickle_file, skip_first_record=True, max_records = None):
+def classify_file(input_data_file, models, skip_first_record=True, max_records = None):
     start_time = datetime.datetime.now()
     log('classifier::classify_file() starting at {}'.format(start_time))
 
-    model_name = model_config['name']
-    pickle_file = util.fix_path(model_pickle_file)
+    file_base_name = os.path.basename(input_data_file)
+    out_dir = util.fix_path(config.output_dir)
+    predicted_pos_file_ext = '.predicted.pos.txt'
+    predicted_neg_file_ext = '.predicted.neg.txt'
+
+    overall_predicted_pos_records_file_path = os.path.join(out_dir, '{}{}'.format(file_base_name, predicted_pos_file_ext))
+    overall_predicted_neg_records_file_path = os.path.join(out_dir, '{}{}'.format(file_base_name, predicted_neg_file_ext))
+    log('Predicted positive records file (overall): {}'.format(overall_predicted_pos_records_file_path))
+    log('Predicted negative records file (overall): {}'.format(overall_predicted_neg_records_file_path))
+
+    classifiers_info = []
+    for (name, classifier) in models:
+        log('Building classifier parameters for {}...'.format(name))
+        predicted_positive_records_file_path = os.path.join(out_dir, '{}_{}{}'.format(file_base_name, name, predicted_pos_file_ext))
+        predicted_negative_records_file_path = os.path.join(out_dir, '{}_{}{}'.format(file_base_name, name, predicted_neg_file_ext))
+        log('Predicted positive records file for this classifier: {}'.format(predicted_positive_records_file_path))
+        log('Predicted negative records file for this classifier: {}'.format(predicted_negative_records_file_path))
+        classifiers_info.append((name, classifier, predicted_positive_records_file_path, open(predicted_positive_records_file_path, 'w'), predicted_negative_records_file_path, open(predicted_negative_records_file_path, 'w')))
+
     unknown_records_file = util.fix_path(input_data_file)
-    predicted_positive_records_file = util.fix_path(os.path.join(config.output_dir, model_name + '.predicted.pos.txt'))
-    predicted_negative_records_file = util.fix_path(os.path.join(config.output_dir, model_name + '.predicted.neg.txt'))
-
     log('Unknown records file: {}'.format(unknown_records_file))
-    log('Pickle file: {}'.format(pickle_file))
-    log('Predicted positive records file: {}'.format(predicted_positive_records_file))
-    log('Predicted negative records file: {}'.format(predicted_negative_records_file))
-   
-    log('Loading the pickled model...')
-    classifier = util.load_pickle(pickle_file)
-    log('Classifier ({}) loaded. Reading the unknown records file. One record at a time.'.format(classifier))
+    log('Reading the unknown records file. One record at a time.'.format(classifier))
 
-    file_base_name = os.path.basename(unknown_records_file)
     total_records = 0
     total_data_records = 0
     total_positive = 0
@@ -84,8 +104,8 @@ def classify_file(input_data_file, model_config, model_pickle_file, skip_first_r
     positive_percent = 0
     negative_percent = 0
     
-    positive_output_file = open(predicted_positive_records_file, 'w')
-    negative_output_file = open(predicted_negative_records_file, 'w')
+    overall_predicted_pos_records_file = open(overall_predicted_pos_records_file_path, 'w')
+    overall_predicted_neg_records_file = open(overall_predicted_neg_records_file_path, 'w')
     fin = codecs.open(unknown_records_file, encoding='utf-8', errors='ignore')
     for record in fin:
         total_records += 1
@@ -107,31 +127,64 @@ def classify_file(input_data_file, model_config, model_pickle_file, skip_first_r
         record_words = word_tokenize(record_lower_case)
         record_features = extract_features(record_words)
 
-        predicted_classification = classifier.classify(record_features)
+        positive_per_at_least_one_classifier = False
+        negative_per_at_least_one_classifier = False
 
-        probabilities = classifier.prob_classify(record_features)
-        positive_probability = probabilities.prob('pos')
+        for (name, classifier, pos_file_path, pos_file, neg_file_path, neg_file) in classifiers_info:
+            predicted_classification = classifier.classify(record_features)
 
-        is_positive = predicted_classification == 'pos' and positive_probability > config.positive_probability_threshold
+            probabilities = classifier.prob_classify(record_features)
+            positive_probability = probabilities.prob('pos')
 
-        if config.verbose == True:
-            log('Classification is {}'.format(predicted_classification))
-            log('Probabilities: pos: {}, neg: {}'.format(positive_probability, probabilities.prob(config.tag_negative)))
+            is_positive = predicted_classification == 'pos' and positive_probability > config.positive_probability_threshold
+
+            if config.verbose == True:
+                log('Classification by {} is {}'.format(name, predicted_classification))
+                log('Probabilities: pos: {}, neg: {}'.format(positive_probability, probabilities.prob(config.tag_negative)))
     
-        if is_positive:
-            total_positive +=1
-            positive_output_file.write(record)
-        else:
-            total_negative +=1
-            negative_output_file.write(record)
+            if is_positive:
+                total_positive +=1
+                pos_file.write(record)
+                if positive_per_at_least_one_classifier == False:
+                    overall_predicted_pos_records_file.write(record)
+                    positive_per_at_least_one_classifier = True
+            else:
+                total_negative +=1
+                neg_file.write(record)
+                if negative_per_at_least_one_classifier == False:
+                    overall_predicted_neg_records_file.write(record)
+                    negative_per_at_least_one_classifier = True
 
-        positive_percent = (total_positive / total_data_records) * 100
-        negative_percent = (total_negative / total_data_records) * 100
+            positive_percent = (total_positive / total_data_records) * 100
+            negative_percent = (total_negative / total_data_records) * 100
+
 
     log('{}=> {} POS records in total {} ({:.2f}%) with a probability of {} or higher.'.format(file_base_name, total_positive, total_data_records, positive_percent, config.positive_probability_threshold))    
     fin.close()
-    positive_output_file.close()
-    negative_output_file.close()
+
+    log('Closing output files...')
+    overall_predicted_pos_records_file.close()
+    overall_predicted_neg_records_file.close()
+
+    files_to_zip = []
+    for (name, classifier, pos_file_path, pos_file_handle, neg_file_path, neg_file_handle) in classifiers_info:
+        files_to_zip.append(pos_file_path)
+        if config.upload_positive_files_only == False:
+            files_to_zip.append(neg_file_path)
+        log('Closing...'.format(pos_file_path))
+        pos_file_handle.close()
+        log('Closing...'.format(neg_file_path))
+        neg_file_handle.close()
+
+    files_to_zip.append(overall_predicted_pos_records_file_path)
+    if config.upload_positive_files_only == False:
+        files_to_zip.append(overall_predicted_neg_records_file_path)
+
+    if config.upload_output_to_cloud == True:
+        archive_name = os.path.splitext(file_base_name)[0]+'.zip'
+        log('Uploading the output files ({}) to the Cloud...'.format(archive_name))
+        uploader.upload_files(files_to_zip, out_dir, os.path.join(out_dir, archive_name))
+
 
     end_time = datetime.datetime.now()
     log('classifier::classify_file() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
@@ -174,4 +227,4 @@ def build_labeled_features(file, label, skip_first_record=False, max_records = N
 
 def log(line):
     __log_file_handle.write(line + '\n')
-    log(line)
+    print(line)

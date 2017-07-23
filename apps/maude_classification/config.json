@@ -22,5 +22,8 @@
   ],
   "target_file_max_num_records_to_classify": 10000,
   "positive_probability_threshold": 0.95,
+  "upload_output_to_cloud": true,
+  "upload_positive_files_only":  true,
+  "cloud_blob_container_name": "classification",
   "verbose": false
 }

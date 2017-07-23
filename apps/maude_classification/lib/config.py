@@ -22,26 +22,28 @@ def load_config():
 
     # Configuration items
     global input_data_files
-    global model_dir
+    global models_dir
     global output_dir
     global target_file_max_num_records_to_classify
     global models
     global positive_probability_threshold
     global upload_output_to_cloud
+    global upload_positive_files_only
     global cloud_blob_container_name
     global azure_account_name
     global azure_account_key
     global verbose
 
     input_data_files = config_data['input_data_files']
-    pickles_dir = config_data['pickles_dir']
     output_dir = config_data['output_dir']
+    models_dir = config_data['models_dir']
     models = config_data['models']
     target_file_max_num_records_to_classify = config_data['target_file_max_num_records_to_classify']
     positive_probability_threshold = config_data['positive_probability_threshold']
     verbose = config_data['verbose']
 
     upload_output_to_cloud = config_data['upload_output_to_cloud']
+    upload_positive_files_only = config_data['upload_positive_files_only']
     cloud_blob_container_name = config_data['cloud_blob_container_name']
 
     if upload_output_to_cloud == True and ('azure_account_name' not in os.environ or 'azure_account_key' not in os.environ):

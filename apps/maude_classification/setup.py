@@ -10,15 +10,15 @@ def create_dirs():
     base_path = os.path.dirname(__file__)
 
     out_dir = os.path.join(base_path, 'out')
-    pickles_dir = os.path.join(base_path, 'pickles')
+    models_dir = os.path.join(base_path, 'models')
 
     if not os.path.exists(out_dir):
         print('Creating directory: {}'.format(out_dir))
         os.makedirs(out_dir)
 
-    if not os.path.exists(pickles_dir):
-        print('Creating directory: {}'.format(pickles_dir))
-        os.makedirs(pickles_dir)
+    if not os.path.exists(models_dir):
+        print('Creating directory: {}'.format(models_dir))
+        os.makedirs(models_dir)
 
 def add_lib_to_path():
     base_path = os.path.dirname(__file__)
@@ -30,6 +30,16 @@ def add_lib_to_path():
     else:
         print('Already in sys.path: {}'.format(lib))
 
+
+def set_environment_vars():
+    env_script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '.setenv.py'))
+    if os.path.isfile(env_script_path):
+        script = open(env_script_path)
+        exec(script.read())
+    else:
+        print ('WARN: No environment variables set (.setenv.py not found). Configuration may be incomplete.')
+
 # Setup process:
 create_dirs()
 add_lib_to_path()
+set_environment_vars()
