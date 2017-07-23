@@ -78,7 +78,7 @@
       "name": "naive_bayes_bow"
     }
   ],
-  "labeled_files_max_num_records_to_read": 10000,
+  "labeled_files_max_num_records_to_read": null,
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "models",
   "verbose": false
