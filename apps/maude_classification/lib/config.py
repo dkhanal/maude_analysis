@@ -21,25 +21,35 @@ def load_config():
         config_data = json.load(config_file)
 
     # Configuration items
-    global input_data_file_sets
-    global pickles_dir
+    global input_data_files
+    global model_dir
     global output_dir
-    global labeled_files_max_num_records_to_read
     global target_file_max_num_records_to_classify
-    global classifiers
-    global use_pickeled_models_if_present
+    global models
     global positive_probability_threshold
+    global upload_output_to_cloud
+    global cloud_blob_container_name
+    global azure_account_name
+    global azure_account_key
     global verbose
 
-    input_data_file_sets = config_data['input_data_file_sets']
+    input_data_files = config_data['input_data_files']
     pickles_dir = config_data['pickles_dir']
     output_dir = config_data['output_dir']
-    classifiers = config_data['classifiers']
-    labeled_files_max_num_records_to_read = config_data['labeled_files_max_num_records_to_read']
+    models = config_data['models']
     target_file_max_num_records_to_classify = config_data['target_file_max_num_records_to_classify']
-    use_pickeled_models_if_present = config_data['use_pickeled_models_if_present']
     positive_probability_threshold = config_data['positive_probability_threshold']
     verbose = config_data['verbose']
+
+    upload_output_to_cloud = config_data['upload_output_to_cloud']
+    cloud_blob_container_name = config_data['cloud_blob_container_name']
+
+    if upload_output_to_cloud == True and ('azure_account_name' not in os.environ or 'azure_account_key' not in os.environ):
+        print('CONFIGURATION ERROR: Environment variable (azure_account_name) must be set to upload output files.')
+    
+    if upload_output_to_cloud == True:
+        azure_account_name = os.environ['azure_account_name']    
+        azure_account_key = os.environ['azure_account_key']
 
     print('Configuration loaded.')
 

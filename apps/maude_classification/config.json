@@ -1,22 +1,26 @@
 {
   "output_dir": "../out",
-  "pickles_dir": "../pickles",
-  "input_data_file_sets": [
+  "models_dir": "../models",
+  "input_data_files": [
+    "../../../data/foitext2007.txt",
+    "../../../data/foitext2008.txt",
+    "../../../data/foitext2009.txt",
+    "../../../data/foitext2010.txt",
+    "../../../data/foitext2011.txt",
+    "../../../data/foitext2012.txt",
+    "../../../data/foitext2013.txt",
+    "../../../data/foitext2014.txt",
+    "../../../data/foitext2015.txt",
+    "../../../data/foitext2016.txt"
+  ],
+  "models": [
     {
-      "name": "2007",
-      "positive_records": "../data/foitext2007.pos.txt",
-      "negative_records": "../data/foitext2007.neg.txt",
-      "unknown_records": "../data/foitext2007.txt"
+      "name": "naive_bayes_bow",
+      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow.zip",
+      "always_download": true
     }
   ],
-  "classifiers": [
-    {
-      "name": "naive_bayes_bow"
-    }
-  ],
-  "labeled_files_max_num_records_to_read": 10000,
   "target_file_max_num_records_to_classify": 10000,
   "positive_probability_threshold": 0.95,
-  "use_pickeled_models_if_present": true,
   "verbose": false
 }

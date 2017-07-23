@@ -73,7 +73,7 @@
       "always_download": true
     }
   ],
-  "classifiers": [
+  "models": [
     {
       "name": "naive_bayes_bow"
     }

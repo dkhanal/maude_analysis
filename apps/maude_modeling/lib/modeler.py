@@ -4,6 +4,7 @@ import datetime
 import pickle
 import codecs
 import urllib
+import platform
 
 import nltk
 from nltk import word_tokenize
@@ -32,12 +33,13 @@ def create_models(input_data_files):
     __log_file_handle = open(log_file_path, 'w')
 
     start_time = datetime.datetime.now()
+    process_log_first_line = 'MAUDE Modeling Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
+    log(process_log_first_line)
     log('modeler::create_models() starting at {}'.format(start_time))
-
     output_dir = util.fix_path(config.output_dir)
     input_dir = util.fix_path(config.input_dir)
     input_data_file_sets = config.input_data_file_sets
-    classifiers_config = config.classifiers
+    models_config = config.models
 
     positive_file_features = []
     negative_file_features = []
@@ -69,8 +71,9 @@ def create_models(input_data_files):
     testing_featureset = positive_file_features[training_set_cut_off_positive:] + negative_file_features[training_set_cut_off_negative:]
     log('Model(s) will be trained on {} and tested on {} featureset instances. Training the model now (this may take a while)...'.format(len(training_featureset), len(testing_featureset)))
 
-    for classifier_config in classifiers_config:
-        if classifier_config['name'] == 'naive_bayes_bow':
+    for model_config in models_config:
+        model_name = model_config['name'] 
+        if model_name == 'naive_bayes_bow':
             log('Model in training:  nltk.classify.NaiveBayesClassifier')
             classifier = nltk.classify.NaiveBayesClassifier.train(training_featureset)
 
@@ -80,13 +83,13 @@ def create_models(input_data_files):
             log('Model accuracy is: {}. '.format(accuracy))
             classifier.show_most_informative_features()
 
-            pickle_file = util.fix_path(os.path.join(output_dir, classifier_config['name'] + '.pickle'))
+            pickle_file = util.fix_path(os.path.join(output_dir, model_name + '.pickle'))
             log('Pickling the model as: {}...'.format(os.path.basename(pickle_file)))
             util.pickle_object(classifier, pickle_file)
             log('Model pickled. '.format(accuracy))
 
             if config.upload_output_to_cloud == True:
-                model_archive_name = classifier_config['name']+'.zip'
+                model_archive_name = model_name+'.zip'
                 log('Uploading the pickled model ({}) to the Cloud...'.format(model_archive_name))
                 uploader.upload_files([pickle_file], output_dir, os.path.join(output_dir, model_archive_name))
 

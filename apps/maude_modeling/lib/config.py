@@ -25,7 +25,7 @@ def load_config():
     global input_dir
     global output_dir
     global labeled_files_max_num_records_to_read
-    global classifiers
+    global models
     global upload_output_to_cloud
     global cloud_blob_container_name
     global azure_account_name
@@ -35,7 +35,7 @@ def load_config():
     input_data_file_sets = config_data['input_data_file_sets']
     input_dir = config_data['input_dir']
     output_dir = config_data['output_dir']
-    classifiers = config_data['classifiers']
+    models = config_data['models']
     upload_output_to_cloud = config_data['upload_output_to_cloud']
     cloud_blob_container_name = config_data['cloud_blob_container_name']
     labeled_files_max_num_records_to_read = config_data['labeled_files_max_num_records_to_read']
