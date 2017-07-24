@@ -5,6 +5,7 @@ import pickle
 import codecs
 import urllib
 import platform
+import random
 
 import nltk
 from nltk import word_tokenize
@@ -63,6 +64,17 @@ def create_models(input_data_files):
 
         log('Building negative features...')
         negative_file_features += build_labeled_features(negative_records_file, 'neg', False, config.labeled_files_max_num_records_to_read)
+
+    max_labeled_records_to_use = config.max_num_labeled_records_to_use
+    if max_labeled_records_to_use is not None and len(positive_file_features) > max_labeled_records_to_use:
+        log('Randomly taking {} records from {} positive features records...'.format(max_labeled_records_to_use, len(positive_file_features)))
+        random.shuffle(positive_file_features)
+        positive_file_features = positive_file_features[:max_labeled_records_to_use]
+
+    if max_labeled_records_to_use is not None and len(negative_file_features) > max_labeled_records_to_use:
+        log('Randomly taking {} records from {} negative features records...'.format(max_labeled_records_to_use, len(negative_file_features)))
+        random.shuffle(negative_file_features)
+        negative_file_features = negative_file_features[:max_labeled_records_to_use]
 
     training_set_cut_off_positive = int(len(positive_file_features) * .75)
     training_set_cut_off_negative = int(len(negative_file_features) * .75)

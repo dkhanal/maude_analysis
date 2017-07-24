@@ -91,7 +91,12 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
         predicted_negative_records_file_path = os.path.join(out_dir, '{}_{}{}'.format(file_base_name, name, predicted_neg_file_ext))
         log('Predicted positive records file for this classifier: {}'.format(predicted_positive_records_file_path))
         log('Predicted negative records file for this classifier: {}'.format(predicted_negative_records_file_path))
-        classifiers_info.append((name, classifier, predicted_positive_records_file_path, open(predicted_positive_records_file_path, 'w'), predicted_negative_records_file_path, open(predicted_negative_records_file_path, 'w')))
+        classifiers_info.append((name, 
+                                 classifier, 
+                                 predicted_positive_records_file_path, 
+                                 open(predicted_positive_records_file_path, 'w', encoding='utf-8', errors='ignore'), 
+                                 predicted_negative_records_file_path, 
+                                 open(predicted_negative_records_file_path, 'w', encoding='utf-8', errors='ignore')))
 
     unknown_records_file = util.fix_path(input_data_file)
     log('Unknown records file: {}'.format(unknown_records_file))
@@ -104,8 +109,8 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     positive_percent = 0
     negative_percent = 0
     
-    overall_predicted_pos_records_file = open(overall_predicted_pos_records_file_path, 'w')
-    overall_predicted_neg_records_file = open(overall_predicted_neg_records_file_path, 'w')
+    overall_predicted_pos_records_file = open(overall_predicted_pos_records_file_path, 'w', encoding='utf-8', errors='ignore')
+    overall_predicted_neg_records_file = open(overall_predicted_neg_records_file_path, 'w', encoding='utf-8', errors='ignore')
     fin = codecs.open(unknown_records_file, encoding='utf-8', errors='ignore')
     for record in fin:
         total_records += 1
