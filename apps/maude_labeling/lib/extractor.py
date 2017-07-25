@@ -3,6 +3,8 @@ import re
 import sys
 import codecs
 import datetime
+import multiprocessing
+
 import config
 import platform
 import uploader
@@ -91,7 +93,7 @@ def extract_records(input_files, output_dir, max = None):
     maybe_negative_records_output_files = []
     process_log_files = []
 
-    max_records_per_file = 20000
+    max_records_per_file = config.file_split_lines_per_file
     chunk_max = round(max/max_records_per_file, 0)
 
     for file_name in input_files:
@@ -99,6 +101,9 @@ def extract_records(input_files, output_dir, max = None):
         # Split each file for parallelization
         chunks = split_file(file_name, config.file_split_dir, max_records_per_file)
         chunk_max = int(round(max/len(chunks), 0))
+
+        processes = []
+        process_return_values = []
 
         is_first_chunk = True
         for chunk in chunks:
@@ -116,18 +121,32 @@ def extract_records(input_files, output_dir, max = None):
             maybe_negative_records_output_files.append(maybe_negative_records_output_file)
             process_log_files.append(process_log_file)
 
-            positive_count, negative_count = extract_matching_records_from_file(chunk, 
-                                                                                positive_records_output_file, 
-                                                                                negative_records_output_file, 
-                                                                                maybe_positive_records_output_file,
-                                                                                maybe_negative_records_output_file,
-                                                                                process_log_file, 
-                                                                                is_positive, 
-                                                                                is_negative, 
-                                                                                is_first_chunk, 
-                                                                                chunk_max
-                                                                                )
+           
+            args = (chunk,
+                    positive_records_output_file, 
+                    negative_records_output_file, 
+                    maybe_positive_records_output_file,
+                    maybe_negative_records_output_file,
+                    process_log_file, 
+                    is_positive, 
+                    is_negative, 
+                    process_return_values,
+                    is_first_chunk, 
+                    chunk_max, )
+
+            process = multiprocessing.Process(name=chunk_name_without_ext, target=extract_matching_records_from_file, args=args)
+            processes.append(process)
+
             is_first_chunk = False
+
+        for process in processes:
+            print('Starting process: {}...'.format(process.name))
+            process.start()
+
+        for process in processes:
+            process.join()
+
+        for (positive_count, negative_count) in process_return_values:
             total_positive_count += positive_count
             total_negative_count += negative_count
 
@@ -156,6 +175,7 @@ def extract_matching_records_from_file(input_file,
                                        process_log_file, 
                                        positive_predicate, 
                                        negative_predicate, 
+                                       return_values_array,
                                        skip_first_line=True,
                                        max=None
                                        ):
@@ -221,7 +241,7 @@ def extract_matching_records_from_file(input_file,
     maybe_negative_out_file.close()
     qualification_process_log_file_handle.close()
 
-    return (total_positive_data_lines, total_negative_data_lines)
+    return_values_array.append((total_positive_data_lines, total_negative_data_lines))
 
 def is_positive(line, questionable_records_file, qualification_process_log_file_handle):
     likely_positive = False

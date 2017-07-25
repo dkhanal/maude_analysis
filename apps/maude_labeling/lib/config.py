@@ -27,6 +27,7 @@ def load_config():
     global input_data_files
     global output_dir
     global file_split_dir
+    global file_split_lines_per_file
     global max_records_to_extract
     global upload_output_to_cloud
     global cloud_blob_container_name
@@ -47,6 +48,7 @@ def load_config():
     input_data_files = config_data['input_data_files']
     output_dir = config_data['output_dir']
     file_split_dir = config_data['file_split_dir']
+    file_split_lines_per_file = config_data['file_split_lines_per_file']
 
     max_records_to_extract = config_data['max_records_to_extract']
     verbose = config_data['verbose']
