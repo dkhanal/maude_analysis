@@ -6,6 +6,8 @@
 # Application specific
 [Dd]ata/*
 [Ii]n/*
+[Ii]nput_[Cc]hunks/*
+[Ff]ile_[Cc]hunks/*
 [Oo]ut/*
 .setenv.py
 

@@ -8,11 +8,76 @@ import platform
 import uploader
 import util
 
+def split_file(large_file, split_dir, max_records_per_file=50000):
+    print('Splitting file {} into mutiple files with max {} records each'.format(large_file, max_records_per_file))
+    input_file = util.fix_path(large_file)
+    split_dir = util.fix_path(split_dir)
+    input_file_base_name = os.path.basename(input_file)
+
+    chunk_number = 0
+    line_number = 0
+    output_file = None
+    chunks = []
+    with open(input_file, 'r', encoding='utf-8', errors='ignore') as f:
+        for line in f:
+            if line_number == 0 or line_number == max_records_per_file:
+                # Reset
+                line_number = 0 
+                chunk_number += 1
+                if output_file is not None:
+                    output_file.close()
+                input_file_name_without_ext = os.path.splitext(input_file_base_name)[0]
+                chunk_path = os.path.join(split_dir, input_file_name_without_ext + '.{:02d}.txt'.format(chunk_number))
+                print('Creating new file: {}...'.format(chunk_path))
+                output_file = open(chunk_path, 'w', encoding='utf-8', errors='ignore')
+                chunks.append(chunk_path)
+
+            line_number += 1            
+            output_file.write(line)
+
+    print('{} split into {} smaller files.'.format(input_file_base_name, len(chunks)))
+    output_file.close()
+    return chunks
+
+def merge_file_sets(file_base_name, out_dir, positive_files, negative_files, maybe_positive_files, maybe_negative_files, process_log_files):
+    output_dir = util.fix_path(out_dir)
+    file_name_without_ext = os.path.splitext(file_base_name)[0]
+    positive_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.pos.txt')
+    negative_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.neg.txt')
+    maybe_positive_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.maybe.pos.txt')
+    maybe_negative_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.maybe.neg.txt')
+    process_log_file =  os.path.join(output_dir,  file_name_without_ext + '.process.txt')
+
+    print('Merging {} positive labeled files into: {}...'.format(len(positive_files), positive_records_output_file))
+    merge_files(positive_files, positive_records_output_file)
+    print('Merging {} negative labeled files into: {}...'.format(len(negative_files), negative_records_output_file))
+    merge_files(negative_files, negative_records_output_file)
+    print('Merging {} maybe positive labeled files into: {}...'.format(len(maybe_positive_files), maybe_positive_records_output_file))
+    merge_files(maybe_positive_files, maybe_positive_records_output_file)
+    print('Merging {} maybe negative labeled files into: {}...'.format(len(maybe_negative_files), maybe_negative_records_output_file))
+    merge_files(maybe_negative_files, maybe_negative_records_output_file)
+    print('Merging {} process log files into: {}...'.format(len(process_log_files), process_log_file))
+    merge_files(process_log_files, process_log_file)
+
+    return (positive_records_output_file, negative_records_output_file, maybe_positive_records_output_file, maybe_negative_records_output_file, process_log_file)
+
+def merge_files(source_files, destination_file_path):
+    # Merge positive files
+    with open(destination_file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
+        for file_chunk in source_files:
+            print('Merging {} into {}...'.format(os.path.basename(file_chunk), destination_file_path))
+            with open(file_chunk, 'r',  encoding='utf-8', errors='ignore') as fin:
+                line_number = 0
+                for line in fin:
+                    line_number += 1
+                    sys.stdout.write("Merging record {}... \r".format(line_number))
+                    sys.stdout.flush()
+                    fout.write(line)
+
 def extract_records(input_files, output_dir, max = None):    
     print('Extracting known positive and negative records from {} file(s)...'.format(len(input_files)))
 
-    if not os.path.isabs(output_dir):
-        output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), output_dir))
+    output_dir = util.fix_path(output_dir)
 
     util.dump_list_to_file(config.known_positive_records_qualifying_terms, os.path.join(output_dir,  'positive_qualifying_criteria.txt'))
     util.dump_list_to_file(config.known_positive_records_disqualifying_terms, os.path.join(output_dir,  'positive_disqualifying_criteria.txt'))
@@ -20,17 +85,38 @@ def extract_records(input_files, output_dir, max = None):
     total_positive_count = 0
     total_negative_count = 0
     
-    for file_name in input_files:
-        if file_name.endswith('.txt'): 
-            print('Extracting known positive and negative records from {}...'.format(file_name))
-            file_name_without_ext = os.path.splitext(os.path.basename(file_name))[0]
-            positive_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.pos.txt')
-            negative_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.neg.txt')
-            maybe_positive_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.maybe.pos.txt')
-            maybe_negative_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.maybe.neg.txt')
+    positive_records_output_files = []
+    negative_records_output_files = []
+    maybe_positive_records_output_files = []
+    maybe_negative_records_output_files = []
+    process_log_files = []
 
-            process_log_file =  os.path.join(output_dir,  file_name_without_ext + '.process.txt')
-            positive_count, negative_count = extract_matching_records_from_file(file_name, 
+    max_records_per_file = 20000
+    chunk_max = round(max/max_records_per_file, 0)
+
+    for file_name in input_files:
+
+        # Split each file for parallelization
+        chunks = split_file(file_name, config.file_split_dir, max_records_per_file)
+        chunk_max = int(round(max/len(chunks), 0))
+
+        is_first_chunk = True
+        for chunk in chunks:
+            print('Extracting up to {} known positive and negative records from {}...'.format(chunk_max, chunk))
+            chunk_name_without_ext = os.path.splitext(os.path.basename(chunk))[0]
+            positive_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.pos.txt')
+            negative_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.neg.txt')
+            maybe_positive_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.maybe.pos.txt')
+            maybe_negative_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.maybe.neg.txt')
+            process_log_file =  os.path.join(output_dir,  chunk_name_without_ext + '.process.txt')
+
+            positive_records_output_files.append(positive_records_output_file)
+            negative_records_output_files.append(negative_records_output_file)
+            maybe_positive_records_output_files.append(maybe_positive_records_output_file)
+            maybe_negative_records_output_files.append(maybe_negative_records_output_file)
+            process_log_files.append(process_log_file)
+
+            positive_count, negative_count = extract_matching_records_from_file(chunk, 
                                                                                 positive_records_output_file, 
                                                                                 negative_records_output_file, 
                                                                                 maybe_positive_records_output_file,
@@ -38,10 +124,29 @@ def extract_records(input_files, output_dir, max = None):
                                                                                 process_log_file, 
                                                                                 is_positive, 
                                                                                 is_negative, 
-                                                                                True, 
-                                                                                max)
+                                                                                is_first_chunk, 
+                                                                                chunk_max
+                                                                                )
+            is_first_chunk = False
             total_positive_count += positive_count
             total_negative_count += negative_count
+
+        # Merge output files
+        (positive_records_output_file,
+        negative_records_output_file,
+        maybe_positive_records_output_file,
+        maybe_negative_records_output_file,
+        process_log_file) = merge_file_sets(os.path.basename(file_name), output_dir, positive_records_output_files, negative_records_output_files, maybe_positive_records_output_files, maybe_negative_records_output_files, process_log_files)
+
+        # Upload merged files
+        if config.upload_output_to_cloud == True:
+            list_of_files_to_upload = [positive_records_output_file,
+                                        negative_records_output_file,
+                                        maybe_positive_records_output_file,
+                                        maybe_negative_records_output_file,
+                                        process_log_file]
+            uploader.upload_files(list_of_files_to_upload, os.path.dirname(positive_records_output_file) , os.path.join(os.path.dirname(positive_records_output_file), os.path.splitext(file_name)[0]+'.zip'))
+
 
 def extract_matching_records_from_file(input_file, 
                                        positive_records_output_file, 
@@ -52,7 +157,8 @@ def extract_matching_records_from_file(input_file,
                                        positive_predicate, 
                                        negative_predicate, 
                                        skip_first_line=True,
-                                       max=None):
+                                       max=None
+                                       ):
     print('Extracting {} known positive and negative records from file: {}...'.format('ALL' if max == None else max, input_file))
 
     if not os.path.isabs(input_file):
@@ -77,7 +183,7 @@ def extract_matching_records_from_file(input_file,
     qualification_process_log_file_handle.write(process_log_first_line)
     fin = codecs.open(input_file, encoding='utf-8', errors='ignore')
     for line in fin:
-        sys.stdout.write("POS: {} NEG: {}. Now looking at record: {}... \r".format(total_positive_data_lines, total_negative_data_lines, total_data_lines))
+        sys.stdout.write("{} => POS: {} NEG: {}. Now looking at record: {}... \r".format(file_name, total_positive_data_lines, total_negative_data_lines, total_data_lines))
         sys.stdout.flush()
         total_lines += 1
         if total_lines == 1 and skip_first_line:
@@ -114,14 +220,6 @@ def extract_matching_records_from_file(input_file,
     negative_out_file.close()
     maybe_negative_out_file.close()
     qualification_process_log_file_handle.close()
-
-    if config.upload_output_to_cloud == True:
-        list_of_files_to_upload = [positive_records_output_file,
-                                   negative_records_output_file,
-                                   maybe_positive_records_output_file,
-                                   maybe_negative_records_output_file,
-                                   process_log_file]
-        uploader.upload_files(list_of_files_to_upload, os.path.dirname(positive_records_output_file) , os.path.join(os.path.dirname(positive_records_output_file), os.path.splitext(file_name)[0]+'.zip'))
 
     return (total_positive_data_lines, total_negative_data_lines)
 

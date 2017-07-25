@@ -6,12 +6,16 @@ import os
 
 def create_dirs():
     base_path = os.path.dirname(__file__)
-
     out_dir = os.path.join(base_path, 'out')
+    split_dir = os.path.join(base_path, 'file_chunks')
 
     if not os.path.exists(out_dir):
         print('Creating directory: {}'.format(out_dir))
         os.makedirs(out_dir)
+
+    if not os.path.exists(split_dir):
+        print('Creating directory: {}'.format(split_dir))
+        os.makedirs(split_dir)
 
 def add_lib_to_path():
     base_path = os.path.dirname(__file__)
