@@ -65,7 +65,7 @@ def create_models(input_data_files):
         log('Building negative features...')
         negative_file_features += build_labeled_features(negative_records_file, 'neg', False, config.labeled_files_max_num_records_to_read)
 
-    max_labeled_records_to_use = config.max_num_labeled_records_to_use
+    max_labeled_records_to_use = config.labeled_files_max_num_records_to_read
     if max_labeled_records_to_use is not None and len(positive_file_features) > max_labeled_records_to_use:
         log('Randomly taking {} records from {} positive features records...'.format(max_labeled_records_to_use, len(positive_file_features)))
         random.shuffle(positive_file_features)

@@ -9,6 +9,7 @@
       "BLANKSCREEN",
       "BLUE SCREEN",
       "BLUESCREEN",
+      "BOOT",
       "BUFFER OVER FLOW",
       "BUFFER OVER-FLOW",
       "BUFFER OVERFLOW",
@@ -94,7 +95,6 @@
       "SOFTWARE",
       "SOFTWARE SYSTEM",
       "SQL",
-      "SW",
       "TCP",
       "TCP/IP",
       "TRASNSMISSION",
@@ -128,7 +128,15 @@
     ],
     "standalone_patterns": [
       "NEED\\w+\\s(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE",
-      "(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE\\s(UPDATE\\s)?(UPGRADE\\s)?(\\w+\\s)?NEED"
+      "(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE\\s(UPDATE\\s)?(UPGRADE\\s)?(\\w+\\s)?NEED",
+      "ERROR MESSAGE.*SOFTWARE",
+      "ERROR MESSAGE.*SOFT WARE",
+      "ERROR MESSAGE.*FIRMWARE",
+      "ERROR MESSAGE.*FIRM WARE",
+      "SOFTWARE.*ERROR MESSAGE",
+      "SOFT WARE.*ERROR MESSAGE",
+      "FIRMWARE.*ERROR MESSAGE",
+      "FIRM WARE.*ERROR MESSAGE"
     ]
   },
   "potential_positive_records_selection_terms": {
