@@ -96,6 +96,10 @@ def extract_records(input_files, output_dir, max = None):
     max_records_per_file = config.file_split_lines_per_file
     chunk_max = round(max/max_records_per_file, 0)
 
+    known_positive_records_qualifying_terms_regex_list = build_compiled_regex_list(config.known_positive_records_qualifying_terms)
+    known_positive_records_disqualifying_terms_regex_list = build_compiled_regex_list(config.known_positive_records_disqualifying_terms)
+    potential_positive_records_qualifying_terms_regex_list = build_compiled_regex_list(config.potential_positive_records_qualifying_terms)
+
     for file_name in input_files:
 
         # Split each file for parallelization
@@ -129,7 +133,10 @@ def extract_records(input_files, output_dir, max = None):
                     maybe_negative_records_output_file,
                     process_log_file, 
                     is_positive, 
-                    is_negative, 
+                    is_negative,
+                    known_positive_records_qualifying_terms_regex_list,
+                    known_positive_records_disqualifying_terms_regex_list,
+                    potential_positive_records_qualifying_terms_regex_list,
                     process_return_values,
                     is_first_chunk, 
                     chunk_max, )
@@ -173,8 +180,11 @@ def extract_matching_records_from_file(input_file,
                                        maybe_positive_records_output_file,
                                        maybe_negative_records_output_file,
                                        process_log_file, 
-                                       positive_predicate, 
-                                       negative_predicate, 
+                                       positive_predicate,
+                                       negative_predicate,
+                                       known_positive_records_qualifying_terms_regexes,
+                                       known_positive_records_disqualifying_terms_regexes,
+                                       potential_positive_records_qualifying_terms_regexes,
                                        return_values_array,
                                        skip_first_line=True,
                                        max=None
@@ -213,11 +223,11 @@ def extract_matching_records_from_file(input_file,
 
         total_data_lines += 1
 
-        if (max is None or total_positive_data_lines < max) and positive_predicate(line, maybe_positive_out_file, qualification_process_log_file_handle):
+        if (max is None or total_positive_data_lines < max) and positive_predicate(line, known_positive_records_qualifying_terms_regexes, known_positive_records_disqualifying_terms_regexes, maybe_positive_out_file, qualification_process_log_file_handle):
             positive_out_file.write(line)
             total_positive_data_lines += 1
             pass
-        elif (max is None or total_negative_data_lines < max) and negative_predicate(line, maybe_negative_out_file, qualification_process_log_file_handle):
+        elif (max is None or total_negative_data_lines < max) and negative_predicate(line, potential_positive_records_qualifying_terms_regexes, maybe_negative_out_file, qualification_process_log_file_handle):
             negative_out_file.write(line)
             total_negative_data_lines += 1
             pass
@@ -243,10 +253,13 @@ def extract_matching_records_from_file(input_file,
 
     return_values_array.append((total_positive_data_lines, total_negative_data_lines))
 
-def is_positive(line, questionable_records_file, qualification_process_log_file_handle):
+def build_compiled_regex_list(list_of_patterns):
+    return [re.compile(p, re.IGNORECASE) for p in list_of_patterns]
+
+def is_positive(line, known_positive_records_qualifying_terms_regexes, known_positive_records_disqualifying_terms_regexes, questionable_records_file, qualification_process_log_file_handle):
     likely_positive = False
-    for pattern in config.known_positive_records_qualifying_terms:
-        match = re.search(pattern, line, re.IGNORECASE)
+    for pattern in known_positive_records_qualifying_terms_regexes:
+        match = re.search(pattern, line)
         if match is not None:
             likely_positive = True
             qualification_process_log_file_handle.write(line[:50] + '... POSITIVE MATCHED ON: ' + match.group() + '\n')
@@ -255,8 +268,8 @@ def is_positive(line, questionable_records_file, qualification_process_log_file_
     if likely_positive == False:
         return False
 
-    for pattern in config.known_positive_records_disqualifying_terms:
-        match = re.search(pattern, line, re.IGNORECASE)
+    for pattern in known_positive_records_disqualifying_terms_regexes:
+        match = re.search(pattern, line)
         if match is not None:
             questionable_records_file.write(line)
             qualification_process_log_file_handle.write(line[:50] + '... POSITIVE MATCHED BUT DISQUALIFIED DUE TO  MATCH ON: ' + match.group() + '\n')
@@ -264,9 +277,9 @@ def is_positive(line, questionable_records_file, qualification_process_log_file_
 
     return True
 
-def is_negative(line, questionable_records_file, qualification_process_log_file_handle):
-    for pattern in config.potential_positive_records_qualifying_terms:
-        match = re.search(pattern, line, re.IGNORECASE)
+def is_negative(line, potential_positive_records_qualifying_terms_regexes, questionable_records_file, qualification_process_log_file_handle):
+    for pattern in potential_positive_records_qualifying_terms_regexes:
+        match = re.search(pattern, line)
         if match is not None: # No match found on any potential signals
             questionable_records_file.write(line)
             qualification_process_log_file_handle.write(line[:50] + '... LIKELY NEGATIVE BUT DISQUALIFIED DUE TO MATCH ON: ' + match.group() + '\n')
