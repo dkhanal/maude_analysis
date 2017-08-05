@@ -2,7 +2,7 @@
   "known_positive_records_selection_terms": {
     "disqualifying_negative_prefix_patterns": [ "NO\\s+(\\w+\\s+)?" ],
     "disqualifying_negative_postfix_patterns": [ "[S]?\\s+\\w+\\s+NOT" ],
-    "qualifying_prefix_terms": [ "CORRUPT", "CORRUPTED", "DAMAGED", "DEFECTIVE", "FAILED", "FAULTY", "UNSTABLE", "ERROR MESSAGE.*" ],
+    "qualifying_prefix_terms": [ "CORRUPT", "CORRUPTED", "DAMAGED", "DEFECTIVE", "FAILED", "FAULTY", "UNSTABLE", "ERROR (\\w+\\s)?MESSAGE.*", "ERROR (\\w+\\s)?CODE.*", "ERRONEOUS RESULT.*", "INCORRECT RESULT.*"],
     "qualifying_main_terms": [
       "ALGORITHM",
       "BLANK SCREEN",
@@ -129,19 +129,14 @@
       "ISSUE",
       "MALFUNCTION",
       "PROBLEM",
-      ".*ERROR MESSAGE"
+      ".*ERROR (\\w+\\s)?MESSAGE",
+      ".*ERROR (\\w+\\s)?CODE",
+      ".*ERRONEOUS RESULT",
+      ".*INCORRECT RESULT"
     ],
     "standalone_patterns": [
       "NEED\\w+\\s(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE",
-      "(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE\\s(UPDATE\\s)?(UPGRADE\\s)?(\\w+\\s)?NEED",
-      "ERROR MESSAGE.*SOFTWARE",
-      "ERROR MESSAGE.*SOFT WARE",
-      "ERROR MESSAGE.*FIRMWARE",
-      "ERROR MESSAGE.*FIRM WARE",
-      "SOFTWARE.*ERROR MESSAGE",
-      "SOFT WARE.*ERROR MESSAGE",
-      "FIRMWARE.*ERROR MESSAGE",
-      "FIRM WARE.*ERROR MESSAGE"
+      "(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE\\s(UPDATE\\s)?(UPGRADE\\s)?(\\w+\\s)?NEED"
     ]
   },
   "potential_positive_records_selection_terms": {
@@ -167,7 +162,7 @@
   ],
   "output_dir": "../out/",
   "file_split_dir": "../file_chunks",
-  "file_split_lines_per_file": 10000,
+  "file_split_lines_per_file": 50000,
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "labeled",
   "max_records_to_extract": 50000,
