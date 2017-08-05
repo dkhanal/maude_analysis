@@ -1,8 +1,21 @@
 {
   "known_positive_records_selection_terms": {
-    "disqualifying_negative_prefix_patterns": [ "NO\\s+(\\w+\\s+)?" ],
-    "disqualifying_negative_postfix_patterns": [ "[S]?\\s+\\w+\\s+NOT" ],
-    "qualifying_prefix_terms": [ "CORRUPT", "CORRUPTED", "DAMAGED", "DEFECTIVE", "FAILED", "FAULTY", "UNSTABLE", "ERROR (\\w+\\s)?MESSAGE.*", "ERROR (\\w+\\s)?CODE.*", "ERRONEOUS RESULT.*", "INCORRECT RESULT.*"],
+    "disqualifying_prefix_patterns": [ "NO\\s+(\\w+\\s+)?" ],
+    "disqualifying_postfix_patterns": [ "[S]?\\s+\\w+\\s+NOT" ],
+    "disqualifying_standalone_patterns": [ "COMMUNICATION ISSUES" ],
+    "qualifying_prefix_terms": [
+      "CORRUPT",
+      "CORRUPTED",
+      "DAMAGED",
+      "DEFECTIVE",
+      "ERROR (\\w+\\s)?CODE.*",
+      "ERROR (\\w+\\s)?MESSAGE.*",
+      "ERRONEOUS RESULT.*",
+      "FAILED",
+      "FAULTY",
+      "UNSTABLE",
+      "INCORRECT RESULT.*"
+    ],
     "qualifying_main_terms": [
       "ALGORITHM",
       "BLANK SCREEN",
@@ -118,6 +131,10 @@
       "WINDOWS"
     ],
     "qualifying_postfix_terms": [
+      ".*ERROR (\\w+\\s)?CODE",
+      ".*ERROR (\\w+\\s)?MESSAGE",
+      ".*ERRONEOUS RESULT",
+      ".*INCORRECT RESULT",
       "ANOMALY",
       "BUG",
       "CORRUPT",
@@ -133,11 +150,7 @@
       "HUNG",
       "ISSUE",
       "MALFUNCTION",
-      "PROBLEM",
-      ".*ERROR (\\w+\\s)?MESSAGE",
-      ".*ERROR (\\w+\\s)?CODE",
-      ".*ERRONEOUS RESULT",
-      ".*INCORRECT RESULT"
+      "PROBLEM"
     ],
     "standalone_patterns": [
       "NEED\\w+\\s(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE",

@@ -40,8 +40,9 @@ def load_config():
     known_positive_records_qualifying_terms += [' ' +main + ' ' + post for post in config_data_pos_section['qualifying_postfix_terms'] for main in config_data_pos_section['qualifying_main_terms']]
     known_positive_records_qualifying_terms += config_data_pos_section['standalone_patterns'] 
  
-    known_positive_records_disqualifying_terms = [pre + term for pre in config_data_pos_section['disqualifying_negative_prefix_patterns'] for term in  known_positive_records_qualifying_terms]
-    known_positive_records_disqualifying_terms += [term + post for post in config_data_pos_section['disqualifying_negative_postfix_patterns'] for term in  known_positive_records_qualifying_terms]
+    known_positive_records_disqualifying_terms = [pre + term for pre in config_data_pos_section['disqualifying_prefix_patterns'] for term in  known_positive_records_qualifying_terms]
+    known_positive_records_disqualifying_terms += [term + post for post in config_data_pos_section['disqualifying_postfix_patterns'] for term in  known_positive_records_qualifying_terms]
+    known_positive_records_disqualifying_terms += [term for term in config_data_pos_section['disqualifying_standalone_patterns']]
 
     potential_positive_records_qualifying_terms = config_data['known_positive_records_selection_terms']['qualifying_main_terms']  + config_data['potential_positive_records_selection_terms']['qualifying_main_terms']
 
