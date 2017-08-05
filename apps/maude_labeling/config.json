@@ -2,7 +2,19 @@
   "known_positive_records_selection_terms": {
     "disqualifying_negative_prefix_patterns": [ "NO\\s+(\\w+\\s+)?" ],
     "disqualifying_negative_postfix_patterns": [ "[S]?\\s+\\w+\\s+NOT" ],
-    "qualifying_prefix_terms": [ "CORRUPT", "CORRUPTED", "DAMAGED", "DEFECTIVE", "FAILED", "FAULTY", "UNSTABLE", "ERROR (\\w+\\s)?MESSAGE.*", "ERROR (\\w+\\s)?CODE.*", "ERRONEOUS RESULT.*", "INCORRECT RESULT.*"],
+    "qualifying_prefix_terms": [
+      "CORRUPT",
+      "CORRUPTED",
+      "DAMAGED",
+      "DEFECTIVE",
+      "ERROR (\\w+\\s)?MESSAGE.*",
+      "ERROR (\\w+\\s)?CODE.*",
+      "ERRONEOUS RESULT.*",
+      "FAILED",
+      "FAULTED",
+      "FAULTY",
+      "INCORRECT RESULT.*"
+      ],
     "qualifying_main_terms": [
       "ALGORITHM",
       "BLANK SCREEN",
@@ -54,6 +66,7 @@
       "FIRM WARE",
       "FIRM-WARE",
       "FIRMWARE",
+      "FLASH MEMORY",
       "FTP",
       "GRAPHING",
       "GUIDING SYSTEM",
@@ -68,6 +81,7 @@
       "INTEROPERABILITY",
       "IT SYSTEM",
       "JAVA",
+      "LABORATORY INFORMATION SYSTEM",
       "LAPTOP",
       "LIMS",
       "LIS",
@@ -82,8 +96,11 @@
       "MIDDLE WARE",
       "MIDDLEWARE",
       "OPERATING SYSTEM",
+      "OUTPUT",
       "PLOTTING",
+      "PROGRAMMER",
       "PROGRAMMING",
+      "QUERY",
       "RADIOLOGY INFORMATION SYSTEM",
       "REMOTE SYSTEM",
       "ROBOT",
@@ -99,11 +116,16 @@
       "SCRIPT",
       "SCRIPTING",
       "SERVER",
+      "SMART CARD",
+      "SMARTCARD",
       "SOFT WARE",
       "SOFT-WARE",
       "SOFTWARE",
       "SOFTWARE SYSTEM",
       "SQL",
+      "SYNC",
+      "SYNCH",
+      "SYNCHRONIZATION",
       "TCP",
       "TCP/IP",
       "TRASNSMISSION",
@@ -125,6 +147,7 @@
       "DAMAGE",
       "DEFECT",
       "ERROR",
+      "EXCEPTION",
       "FAIL",
       "FAULT",
       "FREEZE",
@@ -141,7 +164,10 @@
     ],
     "standalone_patterns": [
       "NEED\\w+\\s(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE",
-      "(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE\\s(UPDATE\\s)?(UPGRADE\\s)?(\\w+\\s)?NEED"
+      "(NEW\\s)?(SOFT)?(FIRM)?\\s?WARE\\s(UPDATE\\s)?(UPGRADE\\s)?(\\w+\\s)?NEED",
+      "DATE ISSUE",
+      "TIME ISSUE",
+      "DATE/TIME ISSUE"
     ]
   },
   "potential_positive_records_selection_terms": {
@@ -170,6 +196,6 @@
   "file_split_lines_per_file": 100000,
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "labeled",
-  "max_records_to_extract": 50000,
+  "max_records_to_extract": 100000,
   "verbose": false
 }
