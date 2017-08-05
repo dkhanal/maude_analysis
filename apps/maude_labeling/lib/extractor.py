@@ -171,7 +171,7 @@ def extract_records(input_files, output_dir, max = None):
                                         maybe_positive_records_output_file,
                                         maybe_negative_records_output_file,
                                         process_log_file]
-            uploader.upload_files(list_of_files_to_upload, os.path.dirname(positive_records_output_file) , os.path.join(os.path.dirname(positive_records_output_file), os.path.splitext(file_name)[0]+'.zip'))
+            uploader.upload_files(list_of_files_to_upload, os.path.dirname(positive_records_output_file) , os.path.join(os.path.dirname(positive_records_output_file), os.path.splitext(os.path.basename(file_name))[0]+'.zip'))
 
 
 def extract_matching_records_from_file(input_file, 
@@ -203,11 +203,11 @@ def extract_matching_records_from_file(input_file,
     total_data_lines = 0
     total_positive_data_lines = 0
     total_negative_data_lines = 0
-    positive_out_file = open(positive_records_output_file, 'w')
-    maybe_positive_out_file = open(maybe_positive_records_output_file, 'w')
-    negative_out_file = open(negative_records_output_file, 'w')
-    maybe_negative_out_file = open(maybe_negative_records_output_file, 'w')
-    qualification_process_log_file_handle = open(process_log_file, 'w')
+    positive_out_file = open(positive_records_output_file, 'w', encoding='utf-8', errors='ignore')
+    maybe_positive_out_file = open(maybe_positive_records_output_file, 'w', encoding='utf-8', errors='ignore')
+    negative_out_file = open(negative_records_output_file, 'w', encoding='utf-8', errors='ignore')
+    maybe_negative_out_file = open(maybe_negative_records_output_file, 'w', encoding='utf-8', errors='ignore')
+    qualification_process_log_file_handle = open(process_log_file, 'w', encoding='utf-8', errors='ignore')
     start_time = datetime.datetime.now()
     process_log_first_line = 'MAUDE Labeling Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
     qualification_process_log_file_handle.write(process_log_first_line)
