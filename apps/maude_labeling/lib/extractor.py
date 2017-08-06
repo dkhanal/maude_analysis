@@ -94,7 +94,6 @@ def extract_records(input_files, output_dir, max = None):
     process_log_files = []
 
     max_records_per_file = config.file_split_lines_per_file
-    chunk_max = round(max/max_records_per_file, 0)
 
     known_positive_records_qualifying_terms_regex_list = build_compiled_regex_list(config.known_positive_records_qualifying_terms)
     known_positive_records_disqualifying_terms_regex_list = build_compiled_regex_list(config.known_positive_records_disqualifying_terms)

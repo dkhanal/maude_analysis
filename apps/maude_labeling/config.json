@@ -32,6 +32,7 @@
       "CALCULATION",
       "CHECKSUM",
       "COMM",
+      "COMMAND",
       "COMMUNICATION",
       "COMMUNICATIONS",
       "COMPUTATION",
@@ -94,6 +95,8 @@
       "MICROCONTROLLER",
       "MIDDLE WARE",
       "MIDDLEWARE",
+      "MOTHER BOARD",
+      "MOTHERBOARD",
       "OPERATING SYSTEM",
       "PLOTTING",
       "PROGRAMMER",
@@ -126,6 +129,8 @@
       "SYNCHRONIZATION",
       "TCP",
       "TCP/IP",
+      "TOUCHSCREEN",
+      "TOUCH SCREEN",
       "TRASNSMISSION",
       "UNIX",
       "UPLOAD",
@@ -170,7 +175,10 @@
   },
   "potential_positive_records_selection_terms": {
     "qualifying_main_terms": [
+      "CONTROLLER",
+      "DISPLAY",
       "DRIVER",
+      "LCD",
       "ERROR MESSAGE",
       "MONITOR",
       "PASSWORD",
@@ -194,6 +202,6 @@
   "file_split_lines_per_file": 100000,
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "labeled",
-  "max_records_to_extract": 1000000,
+  "max_records_to_extract": 10000000,
   "verbose": false
 }
