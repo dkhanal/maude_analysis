@@ -80,6 +80,12 @@ def create_models(input_data_files):
         random.shuffle(negative_file_features)
         negative_file_features = negative_file_features[:max_labeled_records_to_use]
 
+    total_positive_records_count = len(positive_file_features)
+    if len(positive_file_features) < len(negative_file_features):
+        log('Randomly taking {} records from {} negative features records to match the number of positive records...'.format(total_positive_records_count, len(negative_file_features)))
+        random.shuffle(negative_file_features)
+        negative_file_features = negative_file_features[:total_positive_records_count]
+
     all_pos_records_file.close()
     all_neg_records_file.close()
 
