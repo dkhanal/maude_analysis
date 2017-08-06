@@ -2,7 +2,7 @@
   "known_positive_records_selection_terms": {
     "disqualifying_prefix_patterns": [ "NO\\s+(\\w+\\s+)?" ],
     "disqualifying_postfix_patterns": [ "[S]?\\s+\\w+\\s+NOT" ],
-    "disqualifying_standalone_patterns": [ "COMMUNICATION ISSUES" ],
+    "disqualifying_standalone_patterns": [ ],
     "qualifying_prefix_terms": [
       "CORRUPT",
       "CORRUPTED",
@@ -54,7 +54,6 @@
       "DEVICE DRIVER",
       "DICOM",
       "DISK DRIVE",
-      "DISPLAY",
       "DOWNLOAD",
       "EHR",
       "ELECTRONIC HEALTH RECORD",
@@ -91,13 +90,11 @@
       "LOGIN",
       "MAINFRAME",
       "MEMORY OVERWRITE",
-      "MESSAGING",
       "MICRO CONTROLLER",
       "MICROCONTROLLER",
       "MIDDLE WARE",
       "MIDDLEWARE",
       "OPERATING SYSTEM",
-      "OUTPUT",
       "PLOTTING",
       "PROGRAMMER",
       "PROGRAMMING",
@@ -197,6 +194,6 @@
   "file_split_lines_per_file": 100000,
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "labeled",
-  "max_records_to_extract": 100000,
+  "max_records_to_extract": 1000000,
   "verbose": false
 }
