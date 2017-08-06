@@ -1,0 +1,31 @@
+Instructions for Setting Up Ubuntu Environment for Running Programs in This Project:
+
+$ sudo apt-get install python3
+$ sudo apt-get install python3-pip
+
+Modify ~/.bashrc
+
+alias python=python3
+alias pip=pip3
+
+$ pip install nltk
+$ python
+>>> import nltk
+>>> nltk.download()
+
+Downloader> d
+Identifier> punkt
+Downloader> q
+>>> exit()
+
+$ pip install azure
+
+$ mkdir Projects
+$ cd Projects
+$ git clone http://github.com/dkhanal/maude_experiments
+$ cd maude_experiments
+$ python download_data.py
+
+Copy .setenv.py to each app inside maude_experiments/apps/. Ask Deepak for a copy of .setenv.py.
+
+

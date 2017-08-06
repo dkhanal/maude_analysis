@@ -29,9 +29,14 @@ def download_file(url, destination_path):
 def create_models(input_data_files):
     output_dir = util.fix_path(config.output_dir)
     log_file_path = os.path.join(output_dir, 'process.log')
+    all_pos_records_file_path = os.path.join(output_dir, 'all_positive_records.txt')
+    all_neg_records_file_path = os.path.join(output_dir, 'all_negative_records.txt')
 
     global __log_file_handle
     __log_file_handle = open(log_file_path, 'w')
+
+    all_pos_records_file = codecs.open(all_pos_records_file_path, 'w', encoding='utf-8', errors='ignore')
+    all_neg_records_file = codecs.open(all_neg_records_file_path, 'w', encoding='utf-8', errors='ignore')
 
     start_time = datetime.datetime.now()
     process_log_first_line = 'MAUDE Modeling Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
@@ -39,7 +44,6 @@ def create_models(input_data_files):
     log('modeler::create_models() starting at {}'.format(start_time))
     output_dir = util.fix_path(config.output_dir)
     input_dir = util.fix_path(config.input_dir)
-    input_data_file_sets = config.input_data_file_sets
     models_config = config.models
 
     positive_file_features = []
@@ -60,10 +64,10 @@ def create_models(input_data_files):
         log('Negative records file: {}'.format(os.path.basename(negative_records_file)))
         
         log('Building positive features...')
-        positive_file_features += build_labeled_features(positive_records_file, 'pos', False, config.labeled_files_max_num_records_to_read)
+        positive_file_features += build_labeled_features(positive_records_file, 'pos', False, config.labeled_files_max_num_records_to_read, all_pos_records_file)
 
         log('Building negative features...')
-        negative_file_features += build_labeled_features(negative_records_file, 'neg', False, config.labeled_files_max_num_records_to_read)
+        negative_file_features += build_labeled_features(negative_records_file, 'neg', False, config.labeled_files_max_num_records_to_read, all_neg_records_file)
 
     max_labeled_records_to_use = config.labeled_files_max_num_records_to_read
     if max_labeled_records_to_use is not None and len(positive_file_features) > max_labeled_records_to_use:
@@ -75,6 +79,9 @@ def create_models(input_data_files):
         log('Randomly taking {} records from {} negative features records...'.format(max_labeled_records_to_use, len(negative_file_features)))
         random.shuffle(negative_file_features)
         negative_file_features = negative_file_features[:max_labeled_records_to_use]
+
+    all_pos_records_file.close()
+    all_neg_records_file.close()
 
     training_set_cut_off_positive = int(len(positive_file_features) * .75)
     training_set_cut_off_negative = int(len(negative_file_features) * .75)
@@ -103,7 +110,7 @@ def create_models(input_data_files):
             if config.upload_output_to_cloud == True:
                 model_archive_name = model_name+'.zip'
                 log('Uploading the pickled model ({}) to the Cloud...'.format(model_archive_name))
-                uploader.upload_files([pickle_file], output_dir, os.path.join(output_dir, model_archive_name))
+                uploader.upload_files([pickle_file, all_pos_records_file_path, all_neg_records_file_path], output_dir, os.path.join(output_dir, model_archive_name))
 
     end_time = datetime.datetime.now()
     log('modeler::create_models() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
@@ -113,7 +120,7 @@ def create_models(input_data_files):
     if config.upload_output_to_cloud == True:
         uploader.upload_files([log_file_path], output_dir, os.path.join(output_dir, 'log_{}.zip'.format(end_time.strftime("%Y%m%d-%H%M%S"))))
 
-def build_labeled_features(file, label, skip_first_record=False, max_records = None):
+def build_labeled_features(file, label, skip_first_record=False, max_records = None, output_file=None):
     log('Building ({}) features for file {}...'.format(label, file))
     file_features = []
     file_base_name = os.path.basename(file)
@@ -121,13 +128,19 @@ def build_labeled_features(file, label, skip_first_record=False, max_records = N
     total_data_records = 0
     fin = codecs.open(file, encoding='utf-8', errors='ignore')
     for record in fin:
+        if len(record.strip()) == 0:
+            continue
+
         total_records += 1
         sys.stdout.write('{} => Now processing record: {}...\r'.format(file_base_name, total_records))
         sys.stdout.flush()
 
         if total_records == 1 and skip_first_record == True:
             continue
-            
+
+        if output_file is not None:
+            output_file.write(record)
+
         total_data_records += 1
 
         if max_records is not None and total_data_records > max_records:
