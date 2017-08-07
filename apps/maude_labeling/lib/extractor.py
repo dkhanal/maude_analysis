@@ -4,6 +4,8 @@ import sys
 import codecs
 import datetime
 import multiprocessing
+import random
+import shutil
 
 import config
 import platform
@@ -197,14 +199,17 @@ def extract_matching_records_from_file(input_file,
     print('Negative records output path: {}...'.format(negative_records_output_file))
     print('Process log path: {}...'.format(process_log_file))
 
+    temp_positive_records_output_file = positive_records_output_file + '.tmp'
+    temp_negative_records_output_file = negative_records_output_file + '.tmp'
+
     file_name = os.path.basename(input_file)
     total_lines = 0
     total_data_lines = 0
     total_positive_data_lines = 0
     total_negative_data_lines = 0
-    positive_out_file = open(positive_records_output_file, 'w', encoding='utf-8', errors='ignore')
+    positive_out_file = open(temp_positive_records_output_file, 'w', encoding='utf-8', errors='ignore')
     maybe_positive_out_file = open(maybe_positive_records_output_file, 'w', encoding='utf-8', errors='ignore')
-    negative_out_file = open(negative_records_output_file, 'w', encoding='utf-8', errors='ignore')
+    negative_out_file = open(temp_negative_records_output_file, 'w', encoding='utf-8', errors='ignore')
     maybe_negative_out_file = open(maybe_negative_records_output_file, 'w', encoding='utf-8', errors='ignore')
     qualification_process_log_file_handle = open(process_log_file, 'w', encoding='utf-8', errors='ignore')
     start_time = datetime.datetime.now()
@@ -223,11 +228,11 @@ def extract_matching_records_from_file(input_file,
         total_data_lines += 1
 
         if (max is None or total_positive_data_lines < max) and positive_predicate(line, known_positive_records_qualifying_terms_regexes, known_positive_records_disqualifying_terms_regexes, maybe_positive_out_file, qualification_process_log_file_handle):
-            positive_out_file.write(line)
+            positive_out_file.write(line.rstrip() + '\n')
             total_positive_data_lines += 1
             pass
         elif (max is None or total_negative_data_lines < max) and negative_predicate(line, potential_positive_records_qualifying_terms_regexes, maybe_negative_out_file, qualification_process_log_file_handle):
-            negative_out_file.write(line)
+            negative_out_file.write(line.rstrip() + '\n')
             total_negative_data_lines += 1
             pass
 
@@ -241,16 +246,48 @@ def extract_matching_records_from_file(input_file,
     message = '{}=>, {} ({}%) positive and {} ({}%) negative records in the {} records examined in this file'.format(file_name, total_positive_data_lines, positive_percent, total_negative_data_lines, negative_percent, total_data_lines)
     print(message)
     qualification_process_log_file_handle.write(message + '\n')
-    end_time = datetime.datetime.now()
-    qualification_process_log_file_handle.write('Labeling completed at {}. Duration: {} \n'.format(end_time, end_time - start_time))
     fin.close()
     positive_out_file.close()
     maybe_positive_out_file.close()
     negative_out_file.close()
     maybe_negative_out_file.close()
+
+
+    if config.match_extracted_positive_negative_records_count and total_positive_data_lines != total_negative_data_lines:
+        if total_positive_data_lines < total_negative_data_lines:
+            extract_random_records(temp_negative_records_output_file, negative_records_output_file, total_positive_data_lines, 1, total_negative_data_lines, qualification_process_log_file_handle)
+            shutil.move(temp_positive_records_output_file, positive_records_output_file)
+            os.remove(temp_negative_records_output_file)
+        elif total_negative_data_lines < total_positive_data_lines:
+            extract_random_records(temp_positive_records_output_file, positive_records_output_file, total_negative_data_lines, 1, total_positive_data_lines, qualification_process_log_file_handle)
+            shutil.move(temp_negative_records_output_file, negative_records_output_file)
+            os.remove(temp_positive_records_output_file)
+    else:
+            shutil.move(temp_positive_records_output_file, positive_records_output_file)
+            shutil.move(temp_negative_records_output_file, negative_records_output_file)
+
+    end_time = datetime.datetime.now()
+    qualification_process_log_file_handle.write('Labeling completed at {}. Duration: {} \n'.format(end_time, end_time - start_time))
     qualification_process_log_file_handle.close()
 
     return_values_array.append((total_positive_data_lines, total_negative_data_lines))
+
+def extract_random_records(input_file_path, output_file_path, number_of_records_to_extract, min_record_index, max_record_index, log_file_handle):
+    msg = 'Extracting random {} records from {} into {}\n'.format(number_of_records_to_extract, input_file_path, output_file_path)
+    log_file_handle.write(msg) 
+    print(msg)
+
+    lines_to_extract = random.sample(xrange(min_record_index, max_record_index), number_of_records_to_extract)
+
+    line_number = 0
+    with open(output_file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
+        with open(input_file_path, 'r',  encoding='utf-8', errors='ignore') as fin:
+            for line in fin:
+                line_number += 1
+                if line_number in lines_to_extract:
+                    fout.write(line)
+    
+
 
 def build_compiled_regex_list(list_of_patterns):
     return [re.compile(p, re.IGNORECASE) for p in list_of_patterns]

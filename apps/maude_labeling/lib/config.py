@@ -29,6 +29,7 @@ def load_config():
     global file_split_dir
     global file_split_lines_per_file
     global max_records_to_extract
+    global match_extracted_positive_negative_records_count
     global upload_output_to_cloud
     global cloud_blob_container_name
     global azure_account_name
@@ -52,6 +53,7 @@ def load_config():
     file_split_lines_per_file = config_data['file_split_lines_per_file']
 
     max_records_to_extract = config_data['max_records_to_extract']
+    match_extracted_positive_negative_records_count = config_data['match_extracted_positive_negative_records_count']
     verbose = config_data['verbose']
 
     upload_output_to_cloud = config_data['upload_output_to_cloud']
