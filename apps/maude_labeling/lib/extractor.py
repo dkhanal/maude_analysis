@@ -6,7 +6,6 @@ import datetime
 import multiprocessing
 import random
 import shutil
-import xr
 
 import config
 import platform
