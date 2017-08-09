@@ -277,7 +277,7 @@ def extract_random_records(input_file_path, output_file_path, number_of_records_
     log_file_handle.write(msg) 
     print(msg)
 
-    lines_to_extract = random.sample(xrange(min_record_index, max_record_index), number_of_records_to_extract)
+    lines_to_extract = random.sample(range(min_record_index, max_record_index), number_of_records_to_extract)
 
     line_number = 0
     with open(output_file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
