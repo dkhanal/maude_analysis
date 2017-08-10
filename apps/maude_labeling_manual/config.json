@@ -1,0 +1,10 @@
+{
+  "input_data_files": [
+    "../in/potential_positive_records.txt",
+    "../in/potential_negative_records.txt"
+  ],
+  "positive_records_output_file": "../out/positive_records.txt",
+  "negative_records_output_file": "../out/negative_records.txt",
+  "last_processed_record_number_file": "../out/last_processed_record_number.txt",
+  "verbose": false
+}
