@@ -42,9 +42,13 @@ def extract_records(input_files):
                             return
 
                         if decision == 'p' or decision == 'positive':
+                            print('Selected: Positive')
                             positive_records.write(line)
                         elif decision == 'n' or decision == 'negative':
+                            print('Selected: Negative')
                             negative_records.write(line)
+                        else:
+                            print('Selected: Unknown')
 
                         with open(last_processed_record_number_file, 'w') as last_processed:
                             last_processed.write(str(current_record_number))
