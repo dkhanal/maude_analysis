@@ -13,7 +13,6 @@ def all_work_in_progress_files_present_on_cloud(cloud_files):
     block_blob_service = BlockBlobService(config.azure_account_name, config.azure_account_key)
 
     blobs = [item.name for item in block_blob_service.list_blobs(cloud_files['container'])]
-    print(blobs)
     if not cloud_files['potential_positive_records_blob'] in blobs:
         print('Could not find file {} on the Cloud'.format(cloud_files['potential_positive_records_blob']))
         return False
