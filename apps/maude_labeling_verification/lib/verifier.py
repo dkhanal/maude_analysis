@@ -61,7 +61,9 @@ def verify_labels(mode):
     
     if config.upload_output_to_cloud == True:                            
         print('Upload output{}? [y/n] '.format( '' if existing_work_in_progress else ' (POTENTIALLY OVERWRITE CLOUD)'))
-        upload_confirmation = bytes.decode(util.get_char_input())
+        upload_confirmation = util.get_char_input()
+        if not isinstance(upload_confirmation, str):
+            upload_confirmation = bytes.decode(upload_confirmation)
         if upload_confirmation == 'y':
             files_to_upload = [positive_records_output_file, negative_records_output_file, last_processed_record_number_file]
 
