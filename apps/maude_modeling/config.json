@@ -12,11 +12,19 @@
   ],
   "models": [
     {
-      "name": "naive_bayes_bow"
+      "name": "naive_bayes_bow_no_duplicates",
+      "ignore_duplicate_training_records": true,
+      "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null
+    },
+    {
+      "name": "naive_bayes_bow_with_duplicates",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null
     }
   ],
-  "labeled_files_max_num_records_to_read": null,
-  "max_num_labeled_records_to_use": null,
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "models",
   "verbose": false

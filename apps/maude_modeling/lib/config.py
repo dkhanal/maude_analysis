@@ -24,7 +24,6 @@ def load_config():
     global input_data_file_sets
     global input_dir
     global output_dir
-    global labeled_files_max_num_records_to_read
     global models
     global upload_output_to_cloud
     global cloud_blob_container_name
@@ -38,8 +37,6 @@ def load_config():
     models = config_data['models']
     upload_output_to_cloud = config_data['upload_output_to_cloud']
     cloud_blob_container_name = config_data['cloud_blob_container_name']
-    labeled_files_max_num_records_to_read = config_data['labeled_files_max_num_records_to_read']
-    max_num_labeled_records_to_use = config_data['max_num_labeled_records_to_use'] 
     verbose = config_data['verbose']
 
     if upload_output_to_cloud == True and ('azure_account_name' not in os.environ or 'azure_account_key' not in os.environ):
