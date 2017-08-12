@@ -176,9 +176,9 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
         files_to_zip.append(pos_file_path)
         if config.upload_positive_files_only == False:
             files_to_zip.append(neg_file_path)
-        log('Closing...'.format(pos_file_path))
+        log('Closing {}...'.format(pos_file_path))
         pos_file_handle.close()
-        log('Closing...'.format(neg_file_path))
+        log('Closing {}...'.format(neg_file_path))
         neg_file_handle.close()
 
     files_to_zip.append(overall_predicted_pos_records_file_path)

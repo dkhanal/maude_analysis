@@ -15,8 +15,13 @@
   ],
   "models": [
     {
-      "name": "naive_bayes_bow",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow.zip",
+      "name": "naive_bayes_bow_no_duplicates",
+      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow_no_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "naive_bayes_bow_with_duplicates",
+      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow_with_duplicates.zip",
       "always_download": true
     }
   ],
