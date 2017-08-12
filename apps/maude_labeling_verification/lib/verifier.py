@@ -74,17 +74,25 @@ def verify_labels(mode):
 
 
 def verify(mode, potential_positive_records_file, potential_negative_records_file, positive_records_output_file, negative_records_output_file, last_processed_record_number_file):
-    last_read_record_number = 0
+    last_read_potential_positive_record_number = 0
+    last_read_potential_negative_record_number = 0
 
     if os.path.exists(last_processed_record_number_file):
+        print('Reading the last processed record number...')
         with open(last_processed_record_number_file, 'r') as f:
             for line in f:
-                if mode.lower() in line.lower():
-                    last_read_record_number = int(line.replace(mode.lower()+':', ''))
+                line_lower = line.lower()
+                if 'pos' in line_lower:
+                    last_read_potential_positive_record_number = int(line.replace('pos:', ''))
+                elif 'neg' in line_lower:
+                    last_read_potential_negative_record_number = int(line.replace('neg:', ''))
+
 
     input_file = potential_positive_records_file
+    last_read_record_number = last_read_potential_positive_record_number
     if mode.lower() == 'neg':
         input_file = potential_negative_records_file
+        last_read_record_number = last_read_potential_negative_record_number
 
     with open(positive_records_output_file, 'a', encoding='utf-8', errors='ignore') as positive_records:
         with open(negative_records_output_file, 'a', encoding='utf-8', errors='ignore') as negative_records:
@@ -121,6 +129,12 @@ def verify(mode, potential_positive_records_file, potential_negative_records_fil
                     else:
                         print('Selected: Unknown')
 
-                    with open(last_processed_record_number_file, 'w') as last_processed:
-                        last_processed.write(mode.lower() + ':' + str(current_record_number))
                     last_read_record_number = current_record_number
+                    if mode.lower() == 'pos':
+                        last_read_potential_positive_record_number = last_read_record_number
+                    else:
+                        last_read_potential_negative_record_number = last_read_record_number
+
+                    with open(last_processed_record_number_file, 'w') as last_processed:
+                        last_processed.write('pos:' + str(last_read_potential_positive_record_number))
+                        last_processed.write('neg:' + str(last_read_potential_negative_record_number))
