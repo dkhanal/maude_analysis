@@ -3,22 +3,17 @@
 
 import sys
 import os
-import urllib.request
-import multiprocessing
+import shutil
+import stat
 
 def create_dirs():
-    base_path = os.path.dirname(__file__)
+    base_path = os.path.abspath(os.path.dirname(__file__))
 
     out_dir = os.path.join(base_path, 'out')
     models_dir = os.path.join(base_path, 'models')
 
-    if not os.path.exists(out_dir):
-        print('Creating directory: {}'.format(out_dir))
-        os.makedirs(out_dir)
-
-    if not os.path.exists(models_dir):
-        print('Creating directory: {}'.format(models_dir))
-        os.makedirs(models_dir)
+    initialize_dir(out_dir)
+    initialize_dir(models_dir)
 
 def add_lib_to_path():
     base_path = os.path.dirname(__file__)
@@ -38,6 +33,23 @@ def set_environment_vars():
         exec(script.read())
     else:
         print ('WARN: No environment variables set (.setenv.py not found). Configuration may be incomplete.')
+
+def initialize_dir(path):
+    print('Initializing {}...'.format(path))
+    if os.path.exists(path):
+        for file in os.listdir(path):
+            print('Deleting {}...'.format(file))
+            os.remove(os.path.join(path, file))
+    
+        shutil.rmtree(path, onerror=on_rmtree_error)
+
+    if not os.path.exists(path):
+        print('Creating directory: {}'.format(path))
+        os.makedirs(path)
+
+
+def on_rmtree_error(operation, path, exception):
+    print('Could not remove {}. Error (ignored): {}'.format(path, exception))
 
 # Setup process:
 create_dirs()
