@@ -7,7 +7,7 @@
       "base_url": "https://maude.blob.core.windows.net/label-verified/",
       "positive_records_file": "verified_positive_records.txt",
       "negative_records_file": "verified_negative_records.txt",
-      "always_download": true
+      "always_download": false
     }
   ],
   "models": [
