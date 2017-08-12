@@ -103,7 +103,10 @@ def verify(mode, potential_positive_records_file, potential_negative_records_fil
                     print(line)
                     print ('')
                     print('[P]ositive, [N]egative, [U]nknown or [Q]uit? ')
-                    decision = bytes.decode(util.get_char_input())
+                    decision = util.get_char_input()
+                    if not isinstance(decision, str):
+                        decision = bytes.decode(decision)
+
                     if decision == 'q' or decision == 'quit':
                         return
 
