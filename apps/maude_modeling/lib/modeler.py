@@ -54,11 +54,8 @@ def create_models(input_data_files):
         negative_records_file = os.path.join(input_dir, input_data_file_set['negative_records_file'])
         if input_data_file_set['always_download'] == True or os.path.exists(positive_records_file) == False or os.path.exists(negative_records_file) == False:
             log('Labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
-            download_zip_file_path = os.path.join(input_dir, input_data_file_set['name'] + '.zip')
-            download_file(input_data_file_set['labeled_archive_url'], download_zip_file_path)
-            log('Extracting labeled archive...')
-            util.unzip(download_zip_file_path, input_dir)
-            log('Labeled files extracted.')
+            download_file(input_data_file_set['base_url'] +  input_data_file_set['positive_records_file'], positive_records_file)
+            download_file(input_data_file_set['base_url'] +  input_data_file_set['negative_records_file'], negative_records_file)
         
         log('Positive records file: {}'.format(os.path.basename(positive_records_file)))
         log('Negative records file: {}'.format(os.path.basename(negative_records_file)))
