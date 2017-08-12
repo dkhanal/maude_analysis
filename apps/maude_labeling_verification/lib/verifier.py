@@ -84,10 +84,10 @@ def verify(mode, potential_positive_records_file, potential_negative_records_fil
     if mode.lower() == 'neg':
         input_file = potential_negative_records_file
 
-    with open(positive_records_output_file, 'a') as positive_records:
-        with open(negative_records_output_file, 'a') as negative_records:
+    with open(positive_records_output_file, 'a', encoding='utf-8', errors='ignore') as positive_records:
+        with open(negative_records_output_file, 'a', encoding='utf-8', errors='ignore') as negative_records:
             input_file_path = util.fix_path(input_file)
-            with open(input_file_path, 'r') as f:
+            with open(input_file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 current_record_number = 0
                 for line in f:
                     current_record_number += 1
