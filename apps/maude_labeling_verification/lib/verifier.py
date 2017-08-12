@@ -136,5 +136,5 @@ def verify(mode, potential_positive_records_file, potential_negative_records_fil
                         last_read_potential_negative_record_number = last_read_record_number
 
                     with open(last_processed_record_number_file, 'w') as last_processed:
-                        last_processed.write('pos:' + str(last_read_potential_positive_record_number))
+                        last_processed.write('pos:' + str(last_read_potential_positive_record_number) + '\n')
                         last_processed.write('neg:' + str(last_read_potential_negative_record_number))
