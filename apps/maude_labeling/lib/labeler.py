@@ -147,8 +147,14 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
     total_questionable_positive_records = get_total_lines_count(questionable_positive_records_file)
     total_questionable_negative_records = get_total_lines_count(questionable_negative_records_file)
 
-    with open(config.output_files['verified_positive_records_file'], 'w', encoding='utf-8', errors='ignore') as positive_records:
-        with open(config.output_files['verified_negative_records_file'], 'w', encoding='utf-8', errors='ignore') as negative_records:
+    verified_positive_records_file_path = util.fix_path(config.output_files['verified_positive_records_file'])
+    verified_negative_records_file_path = util.fix_path(config.output_files['verified_negative_records_file'])
+
+    total_verified_positive_records = get_total_lines_count(verified_positive_records_file_path)
+    total_verified_negative_records = get_total_lines_count(verified_negative_records_file_path)
+
+    with open(verified_positive_records_file_path, 'w', encoding='utf-8', errors='ignore') as positive_records:
+        with open(verified_negative_records_file_path, 'w', encoding='utf-8', errors='ignore') as negative_records:
             while True:
                 file_type_to_read = mode if mode is not None else random.choice(['pos', 'neg', 'pos?', 'neg?'])
                 file_to_read = None
@@ -175,9 +181,9 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                 line = get_line(file_to_read, record_number_to_read)
 
                 print ('')
+                print ('So far => POS: {}, NEG: {}'.format(total_verified_positive_records, total_verified_negative_records))
                 print('Input File: {}'.format(os.path.basename(file_to_read)))
                 print('Record Number: {}'.format(record_number_to_read))
-                print ('')
                 print(line)
                 print ('')
                 print ('SUGGESTION: {}'.format(file_type_to_read.upper()))
@@ -194,10 +200,12 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                 elif decision == 'p':
                     print('Selected: Positive')
                     positive_records.write(line)
+                    total_verified_positive_records += 1
                     aleady_read_record_numbers.append(record_number_to_read)
                 elif decision == 'n':
                     print('Selected: Negative')
                     negative_records.write(line)
+                    total_verified_negative_records += 1
                     aleady_read_record_numbers.append(record_number_to_read)
                 else:
                     print('Selected: Unknown')
