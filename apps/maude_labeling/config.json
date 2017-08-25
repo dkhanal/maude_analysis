@@ -118,6 +118,7 @@
   "models": [
     {
       "name": "naive_bayes_bow_no_duplicates",
+      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
       "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
       "labeled_files_max_num_records_to_read": null,
@@ -126,6 +127,7 @@
     },
     {
       "name": "naive_bayes_bow_with_duplicates",
+      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,

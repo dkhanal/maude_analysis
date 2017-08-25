@@ -118,7 +118,7 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
     log(process_log_first_line)
 
-    generated_model_pickles = []
+    generated_models = []
 
     for model_config in models_config:
         model_start_time = datetime.datetime.now()
@@ -207,7 +207,7 @@ def generate_models(positive_records_files, negative_records_files, models_confi
             util.pickle_object(classifier, pickle_file)
             log('Model pickled. '.format(accuracy))
 
-            generated_model_pickles.append(pickle_file)
+            generated_models.append((model_name, pickle_file))
 
             if upload_models_to_cloud == True:
                 model_archive_name = model_name+'.zip'
@@ -223,7 +223,7 @@ def generate_models(positive_records_files, negative_records_files, models_confi
         if upload_models_to_cloud == True:
             uploader.upload_files([log_file_path], output_dir, os.path.join(output_dir, 'log_{}.zip'.format(end_time.strftime("%Y%m%d-%H%M%S"))), upload_container_name)
 
-    return generated_model_pickles
+    return generated_models
 
 def generate_models_per_config(input_data_files):
     input_dir = util.fix_path(config.input_dir)

@@ -70,6 +70,18 @@ def classify(input_data_files):
     if config.upload_output_to_cloud == True:
         uploader.upload_files([log_file_path], output_dir, os.path.join(output_dir, 'log_{}.zip'.format(end_time.strftime("%Y%m%d-%H%M%S"))))
 
+def classify_record(record, models):
+    record_lower_case = record.lower()
+    record_words = word_tokenize(record_lower_case)
+    record_features = extract_features(record_words)
+
+    results = []
+
+    for (name, classifier) in models:
+        results.append((name, classifier.classify(record_features)))
+
+    return results
+
 def classify_file(input_data_file, models, skip_first_record=True, max_records = None):
     start_time = datetime.datetime.now()
     log('classifier::classify_file() starting at {}'.format(start_time))
@@ -115,8 +127,8 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     for record in fin:
         total_records += 1
         sys.stdout.write('{} => POS: {}/{:.2f}% NEG: {}/{:.2f}% . Next: {}...\r'.format(file_base_name, 
-                                                                                                            total_positive, positive_percent, 
-                                                                                                            total_negative, negative_percent, 
+                                                                                                            total_positive, positive_percent,
+                                                                                                            total_negative, negative_percent,
                                                                                                             total_data_records))
         sys.stdout.flush()
 

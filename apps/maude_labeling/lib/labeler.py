@@ -58,6 +58,28 @@ def build_potential_file_sets(input_files,  potential_positive_records_file_merg
                                 continue
                             consolidated_questionable_neg.write(record)
 
+def build_models_from_cloud(models_config, output_dir):
+    print('Downloading models...')
+    output_dir = util.fix_path(output_dir)
+    block_blob_service = BlockBlobService(config.azure_account_name, config.azure_account_key)
+    blobs = [item.name for item in block_blob_service.list_blobs(config.models_cloud_blob_container_name)]
+
+    models = []
+    for model_config in models_config:
+        name_zip_tuple = (model_config['name'], model_config['name'] + '.zip', os.path.join(output_dir, model_config['name'] + '.zip'))
+        if name_zip_tuple[1] in blobs:
+            util_azure.download_file(model_config['remote_url'], name_zip_tuple[2])
+            util.unzip(name_zip_tuple[2], output_dir)
+            pickle_file = os.path.join(output_dir, name_zip_tuple[0] + '.pickle')
+            if os.path.exists(pickle_file):
+                model = util.load_pickle(pickle_file)
+                models.append((name_zip_tuple[0], model))
+        else:
+            print('Could not find model file {} on the Cloud'.format( name_zip_tuple[1]))
+
+    print ('{} MODELS LOADED'.format(len(models)))
+    return models
+
 def label_records(mode):
     input_files = config.input_data_file_sets
     print('Labeling known positive and negative records from {} file(s)...'.format(len(input_files)))
@@ -79,7 +101,9 @@ def label_records(mode):
         # No cloud files or incomplete set. Create new using data files.
         build_potential_file_sets(input_files, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file)
 
-    label(mode, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file)
+    models = build_models_from_cloud(config.models, config.models_output_dir)
+
+    label(mode, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models)
     
     if config.upload_output_to_cloud == True:                            
         print('Upload output{}? [y/n] '.format( '' if existing_work_in_progress else ' (POTENTIALLY OVERWRITE CLOUD)'))
@@ -144,7 +168,7 @@ def rebuild_models(verified_positive_records_file_path, verified_negative_record
     print ('Rebuilding models...')
     if config.regen_models is None or config.regen_models == False:
         print('Configuration does NOT allow regeneration of the models.')
-        return False
+        return None
 
     models_config = config.models
     upload_models_to_cloud = config.upload_models_to_cloud
@@ -164,10 +188,23 @@ def rebuild_models(verified_positive_records_file_path, verified_negative_record
                                             models_cloud_blob_container_name,
                                             os.path.join(config.models_output_dir, 'process.log')
                                             )
-    print ('*** MODELS REBUILT ***')
-    return True
+    models = []
 
-def label(mode, potential_positive_records_file, potential_negative_records_file,  questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file):
+    for model_name_pickle_tuple in model_pickles:
+        if os.path.exists(model_name_pickle_tuple[1]):
+            model = util.load_pickle(model_name_pickle_tuple[1])
+            models.append(model_name_pickle_tuple[0], model)
+
+    print ('*** {} MODELS REBUILT ***'.format(len(models)))
+    return models
+
+def classify(line, models):
+    if models is None or len(models) == 0:
+        return None
+
+    return classifier.classify_record(line, models)
+
+def label(mode, potential_positive_records_file, potential_negative_records_file,  questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models):
     already_read_records = get_already_read_records(already_processed_record_numbers_file)
     
     total_potential_positive_records = get_total_lines_count(potential_positive_records_file)
@@ -188,10 +225,9 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             while True:
                 if config.auto_regen_models == True and total_new_records_labeled_using_current_models >= config.models_auto_regen_records_threshold:
                     print('Models need to ge regenerated because {} records have been labeled in this session without models regenerated.'.format(total_new_records_labeled_using_current_models))
-                    positive_records.flush()
-                    negative_records.flush()
-                    if rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path,
-                                      already_processed_record_numbers_file) == True:
+                    new_models = rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
+                    if new_models is not None:
+                        models = new_models
                         total_new_records_labeled_using_current_models = 0
 
                 print ('-------------------------------------------------------------------')
@@ -224,7 +260,13 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                 print ('')
                 print(line)
                 print ('')
-                print ('SUGGESTION: {}'.format(file_type_to_read.upper()))
+                print ('SUGGESTIONS:')
+                print ('By pre-Labeling: {}'.format(file_type_to_read.upper()))
+                classification_results = classify(line, models)
+                for (model_name, result) in classification_results:
+                    print('By {}: {}'.format(model_name, result.upper()))
+
+                print ('')
                 print('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models or [Q]uit? ')
                 print ('')
                 decision = util.get_char_input()
@@ -239,7 +281,9 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                     print('Selected: Rebuild models')
                     positive_records.flush()
                     negative_records.flush()
-                    if rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file) == True:
+                    new_models = rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
+                    if new_models is not None:
+                        models = new_models
                         total_new_records_labeled_using_current_models = 0
                     continue;
                 elif decision == 'p':
