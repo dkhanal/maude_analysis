@@ -148,20 +148,23 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
                 log('Probabilities: pos: {}, neg: {}'.format(positive_probability, probabilities.prob(config.tag_negative)))
     
             if is_positive:
-                total_positive +=1
                 pos_file.write(record)
                 if positive_per_at_least_one_classifier == False:
                     overall_predicted_pos_records_file.write(record)
                     positive_per_at_least_one_classifier = True
             else:
-                total_negative +=1
                 neg_file.write(record)
                 if negative_per_at_least_one_classifier == False:
                     overall_predicted_neg_records_file.write(record)
                     negative_per_at_least_one_classifier = True
 
-            positive_percent = (total_positive / total_data_records) * 100
-            negative_percent = (total_negative / total_data_records) * 100
+        if positive_per_at_least_one_classifier == True:
+            total_positive +=1
+        else:
+            total_negative +=1
+
+        positive_percent = (total_positive / total_data_records) * 100
+        negative_percent = (total_negative / total_data_records) * 100
 
 
     log('{}=> {} POS records in total {} ({:.2f}%) with a probability of {} or higher.'.format(file_base_name, total_positive, total_data_records, positive_percent, config.positive_probability_threshold))    

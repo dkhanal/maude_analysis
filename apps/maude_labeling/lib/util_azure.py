@@ -21,6 +21,14 @@ def all_work_in_progress_files_present_on_cloud(cloud_files):
         print('Could not find file {} on the Cloud'.format(cloud_files['potential_negative_records_blob']))
         return False
 
+    if not cloud_files['questionable_positive_records_blob'] in blobs:
+        print('Could not find file {} on the Cloud'.format(cloud_files['questionable_positive_records_blob']))
+        return False
+
+    if not cloud_files['questionable_negative_records_blob'] in blobs:
+        print('Could not find file {} on the Cloud'.format(cloud_files['questionable_negative_records_blob']))
+        return False
+
     if not cloud_files['verified_positive_records_blob'] in blobs:
         print('Could not find file {} on the Cloud'.format(cloud_files['verified_positive_records_blob']))
         return False
@@ -29,24 +37,33 @@ def all_work_in_progress_files_present_on_cloud(cloud_files):
         print('Could not find file {} on the Cloud'.format(cloud_files['verified_negative_records_blob']))
         return False
 
-    if not cloud_files['last_processed_record_number_blob'] in blobs:
-        print('Could not find file {} on the Cloud'.format(cloud_files['last_processed_record_number_blob']))
+    if not cloud_files['already_processed_record_numbers_blob'] in blobs:
+        print('Could not find file {} on the Cloud'.format(cloud_files['already_processed_record_numbers_blob']))
         return False
 
     return True
 
-def download_file(url, destination_path):
+def download_file(url, destination_path, force_download=False):
     file_path = util.fix_path(destination_path)
+    if force_download == False and config.cloud_files['skip_input_files_download_if_already_present'] == True and os.path.exists(file_path):
+        print('File {} already exists. It will not be downloaded.'.format(file_path))
+        return
+
     print('Downloading {} to {}. This may take a while...'.format(url, file_path))
     urllib.request.urlretrieve(url, file_path)
 
 def download_cloud_files(cloud_files, output_files):
     base_url = cloud_files['base_url']
+    print('Downloading cloud files from {}'.format(base_url))
+    
     download_file(base_url + cloud_files['potential_positive_records_blob'], output_files['potential_positive_records_file'])
     download_file(base_url + cloud_files['potential_negative_records_blob'], output_files['potential_negative_records_file'])
-    download_file(base_url + cloud_files['verified_positive_records_blob'], output_files['verified_positive_records_file'])
-    download_file(base_url + cloud_files['verified_negative_records_blob'], output_files['verified_negative_records_file'])
-    download_file(base_url + cloud_files['last_processed_record_number_blob'], output_files['last_processed_record_number_file'])
+    download_file(base_url + cloud_files['questionable_positive_records_blob'], output_files['questionable_positive_records_file'])    
+    download_file(base_url + cloud_files['questionable_negative_records_blob'], output_files['questionable_negative_records_file'])
+
+    download_file(base_url + cloud_files['verified_positive_records_blob'], output_files['verified_positive_records_file'], True)
+    download_file(base_url + cloud_files['verified_negative_records_blob'], output_files['verified_negative_records_file'], True)
+    download_file(base_url + cloud_files['already_processed_record_numbers_blob'], output_files['already_processed_record_numbers_file'], True)
 
 def upload_files(list_of_files, container_name):
     start_time = datetime.datetime.now()

@@ -9,10 +9,10 @@ import stat
 def create_dirs():
     base_path = os.path.abspath(os.path.dirname(__file__))
 
-    in_dir = os.path.join(base_path, 'in')
+    split_dir = os.path.join(base_path, 'file_chunks')
     out_dir = os.path.join(base_path, 'out')
 
-    initialize_dir(in_dir)
+    initialize_dir(split_dir)
     initialize_dir(out_dir)
 
 def add_lib_to_path():

@@ -9,11 +9,8 @@ import stat
 def create_dirs():
     base_path = os.path.abspath(os.path.dirname(__file__))
 
-    split_dir = os.path.join(base_path, 'file_chunks')
+    in_dir = os.path.join(base_path, 'in')
     out_dir = os.path.join(base_path, 'out')
-
-    initialize_dir(split_dir)
-    initialize_dir(out_dir)
 
 def add_lib_to_path():
     base_path = os.path.dirname(__file__)
@@ -32,23 +29,6 @@ def set_environment_vars():
         exec(script.read())
     else:
         print ('WARN: No environment variables set (.setenv.py not found). Configuration may be incomplete.')
-
-def initialize_dir(path):
-    print('Initializing {}...'.format(path))
-    if os.path.exists(path):
-        for file in os.listdir(path):
-            print('Deleting {}...'.format(file))
-            os.remove(os.path.join(path, file))
-    
-        shutil.rmtree(path, onerror=on_rmtree_error)
-
-    if not os.path.exists(path):
-        print('Creating directory: {}'.format(path))
-        os.makedirs(path)
-
-
-def on_rmtree_error(operation, path, exception):
-    print('Could not remove {}. Error (ignored): {}'.format(path, exception))
 
 # Setup process:
 create_dirs()

@@ -4,27 +4,33 @@ import os
 setup_script = open(os.path.join(os.path.dirname(__file__), 'setup.py'))
 exec(setup_script.read())
 
+import os
 import datetime
 import config
-import extractor
+import labeler
 
 
 def main(args=None):
+    os.system('mode con: cols=200 lines=50')
+
     if args is None:
         args = sys.argv[1:]
 
     start_time = datetime.datetime.now()
-    print('Extracting known positive and known negative records starting at {}'.format(start_time))
+    print('Manually verifying auto-labeled known positive and known negative records starting at {}'.format(start_time))
     
-    input_data_files = config.input_data_files
-    if len(args) > 0:
-        print('Extracting for {}'.format(args[0]))
-        input_data_files = [s for s in config.input_data_files if args[0] in s]
-        print(input_data_files)
-    extractor.extract_records(input_data_files, config.output_dir, config.max_records_to_extract)
+    mode = None
+
+    if len(args) > 0 and (args[0] == 'pos' or args[0] == 'pos?' or args[0] == 'neg' or args[0] == 'neg?'):
+        mode = args[0]
+        return
+                         
+    print('Labeling records. Mode: {}'.format(mode))
+
+    labeler.label_records(mode)
 
     end_time = datetime.datetime.now()
-    print('Extraction completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
+    print('Manual extraction completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
 if __name__ == "__main__":
     main()

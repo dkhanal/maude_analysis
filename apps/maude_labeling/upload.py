@@ -38,13 +38,15 @@ def main(args=None):
     files_to_upload = [
         util.fix_path(output_files['verified_positive_records_file']),
         util.fix_path(output_files['verified_negative_records_file']),
-        util.fix_path(output_files['last_processed_record_number_file'])
+        util.fix_path(output_files['already_processed_record_numbers_file'])
         ]
 
     if all == True:
         files_to_upload += [
         util.fix_path(output_files['potential_positive_records_blob']),
-        util.fix_path(output_files['potential_negative_records_blob'])
+        util.fix_path(output_files['potential_negative_records_blob']),
+        util.fix_path(output_files['questionable_positive_records_blob']),
+        util.fix_path(output_files['questionable_negative_records_blob'])
         ]
 
     print (files_to_upload)
