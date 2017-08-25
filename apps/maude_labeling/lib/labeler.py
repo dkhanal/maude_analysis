@@ -6,7 +6,8 @@ from azure.storage.blob import BlockBlobService
 import config
 import util
 import util_azure
-
+import modeler
+import classifier
 
 def build_potential_file_sets(input_files,  potential_positive_records_file_merged, potential_negative_records_file_merged, questionable_positive_records_file_merged, questionable_negative_records_file_merged):
     print('Building potential positive and negative files...')
@@ -139,6 +140,32 @@ def get_line(file_to_read, record_number_to_read):
                 return line
     return 'NO RECORD FOUND AT LINE NUMBER {} IN {}'.format(record_number_to_read, file_to_read)
 
+def rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file):
+    print ('Rebuilding models...')
+    if config.regen_models is None or config.regen_models == False:
+        print('Configuration does NOT allow regeneration of the models.')
+        return
+
+    models_config = config.models
+    upload_models_to_cloud = config.upload_models_to_cloud
+    models_cloud_blob_container_name = config.models_cloud_blob_container_name
+
+    print ('Uploading labeled records so far to Cloud...')
+    files_to_upload = [verified_positive_records_file_path, verified_negative_records_file_path,
+                       already_processed_record_numbers_file]
+    util_azure.upload_files(files_to_upload, config.cloud_files['container'])
+
+    print ('Generating models...')
+    model_pickles = modeler.generate_models([verified_positive_records_file_path],
+                                            [verified_negative_records_file_path],
+                                            models_config,
+                                            config.models_output_dir,
+                                            upload_models_to_cloud,
+                                            models_cloud_blob_container_name,
+                                            os.path.join(config.models_output_dir, 'process.log')
+                                            )
+    print ('*** MODELS REBUILT ***')
+
 def label(mode, potential_positive_records_file, potential_negative_records_file,  questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file):
     already_read_records = get_already_read_records(already_processed_record_numbers_file)
     
@@ -187,7 +214,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                 print(line)
                 print ('')
                 print ('SUGGESTION: {}'.format(file_type_to_read.upper()))
-                print('[P]ositive, [N]egative, [U]nknown or [Q]uit? ')
+                print('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models or [Q]uit? ')
                 print ('')
                 decision = util.get_char_input()
                 if not isinstance(decision, str):
@@ -197,6 +224,12 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                 if decision == 'q':
                     print('Selected: Quit')
                     break;
+                elif decision == 'r':
+                    print('Selected: Rebuild models')
+                    positive_records.flush()
+                    negative_records.flush()
+                    rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
+                    continue;
                 elif decision == 'p':
                     print('Selected: Positive')
                     positive_records.write(line)

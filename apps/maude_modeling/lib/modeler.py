@@ -221,7 +221,7 @@ def generate_models(positive_records_files, negative_records_files, models_confi
     if log_file_path is not None:
         __log_file_handle.close()
         if upload_models_to_cloud == True:
-            uploader.upload_files([log_file_path], output_dir, os.path.join(output_dir, 'log_{}.zip'.format(end_time.strftime("%Y%m%d-%H%M%S"))), config.cloud_blob_container_name)
+            uploader.upload_files([log_file_path], output_dir, os.path.join(output_dir, 'log_{}.zip'.format(end_time.strftime("%Y%m%d-%H%M%S"))), upload_container_name)
 
     return generated_model_pickles
 

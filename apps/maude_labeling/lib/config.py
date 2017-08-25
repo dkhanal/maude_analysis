@@ -24,6 +24,11 @@ def load_config():
     global input_data_file_sets
     global cloud_files
     global output_files
+    global regen_models
+    global models
+    global models_output_dir
+    global upload_models_to_cloud
+    global models_cloud_blob_container_name
     global input_dir
     global upload_output_to_cloud
     global azure_account_name
@@ -35,6 +40,12 @@ def load_config():
     output_files = config_data['output_files']
     input_dir = config_data['input_dir']
     upload_output_to_cloud = config_data['upload_output_to_cloud']
+    regen_models = config_data['regen_models']
+    models = config_data['models']
+    models_output_dir = config_data['models_output_dir']
+    upload_models_to_cloud = config_data['upload_models_to_cloud']
+    models_cloud_blob_container_name = config_data['models_cloud_blob_container_name']
+
     verbose = config_data['verbose']
         
     if upload_output_to_cloud == True:

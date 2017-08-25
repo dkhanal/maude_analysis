@@ -3,8 +3,6 @@
 
 import sys
 import os
-import shutil
-import stat
 
 def create_dirs():
     base_path = os.path.abspath(os.path.dirname(__file__))
@@ -30,6 +28,26 @@ def add_lib_to_path():
     else:
         print('Already in sys.path: {}'.format(lib))
 
+def add_modeling_lib_to_path():
+    base_path = os.path.dirname(__file__)
+    lib = os.path.abspath(os.path.join(base_path, '..\maude_modeling\lib'))
+
+    if lib not in sys.path:
+        print('Adding to sys.path: {}'.format(lib))
+        sys.path.append(lib)
+    else:
+        print('Already in sys.path: {}'.format(lib))
+
+def add_classification_lib_to_path():
+    base_path = os.path.dirname(__file__)
+    lib = os.path.abspath(os.path.join(base_path, '..\maude_classification\lib'))
+
+    if lib not in sys.path:
+        print('Adding to sys.path: {}'.format(lib))
+        sys.path.append(lib)
+    else:
+        print('Already in sys.path: {}'.format(lib))
+
 def set_environment_vars():
     env_script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '.setenv.py'))
     if os.path.isfile(env_script_path):
@@ -41,4 +59,6 @@ def set_environment_vars():
 # Setup process:
 create_dirs()
 add_lib_to_path()
+add_modeling_lib_to_path()
+add_classification_lib_to_path()
 set_environment_vars()
