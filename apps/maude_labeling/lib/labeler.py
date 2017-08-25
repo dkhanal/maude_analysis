@@ -153,8 +153,8 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
     total_verified_positive_records = get_total_lines_count(verified_positive_records_file_path)
     total_verified_negative_records = get_total_lines_count(verified_negative_records_file_path)
 
-    with open(verified_positive_records_file_path, 'w', encoding='utf-8', errors='ignore') as positive_records:
-        with open(verified_negative_records_file_path, 'w', encoding='utf-8', errors='ignore') as negative_records:
+    with open(verified_positive_records_file_path, 'a', encoding='utf-8', errors='ignore') as positive_records:
+        with open(verified_negative_records_file_path, 'a', encoding='utf-8', errors='ignore') as negative_records:
             while True:
                 file_type_to_read = mode if mode is not None else random.choice(['pos', 'neg', 'pos?', 'neg?'])
                 file_to_read = None
