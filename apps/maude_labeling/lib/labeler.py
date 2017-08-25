@@ -108,7 +108,7 @@ def get_already_read_records(file_path):
         return json.load(f)
 
 def save_already_read_records(file_path, json_data):
-    print('Writing the last processed record numbers...')
+    print('Saving already processed record numbers...')
     with open(file_path, 'w') as f:
         f.write(json.dumps(json_data, indent=4, sort_keys=True))
 
@@ -158,6 +158,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             while True:
                 print ('-------------------------------------------------------------------')
                 file_type_to_read = mode if mode is not None else random.choice(['pos', 'neg', 'pos?', 'neg?'])
+                print ('So far => POS: {}, NEG: {}. Next record type to look at: {}'.format(total_verified_positive_records, total_verified_negative_records, file_type_to_read.upper()))
                 file_to_read = None
                 aleady_read_record_numbers = None
                 record_number_to_read = 1
@@ -179,11 +180,10 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                     aleady_read_record_numbers = already_read_records['neg?']
                     record_number_to_read = get_unique_random_record_number(total_questionable_negative_records, aleady_read_record_numbers)
 
-                line = get_line(file_to_read, record_number_to_read)
-
-                print ('So far => POS: {}, NEG: {}'.format(total_verified_positive_records, total_verified_negative_records))
                 print('Input File: {}'.format(os.path.basename(file_to_read)))
                 print('Record Number: {}'.format(record_number_to_read))
+                line = get_line(file_to_read, record_number_to_read)
+                print ('')
                 print(line)
                 print ('')
                 print ('SUGGESTION: {}'.format(file_type_to_read.upper()))

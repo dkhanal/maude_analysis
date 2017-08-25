@@ -1,4 +1,4 @@
-maude_labeling
+maude_pre_labeling
 
 Make sure to add a file called .setenv.py and include these lines:
 

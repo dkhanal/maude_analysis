@@ -2,7 +2,7 @@
   "input_data_file_sets": [
     {
       "name": "foitext2007",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2007.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2007.zip",
       "potential_positive_records_file": "foitext2007.pos.txt",
       "questionable_positive_records_file": "foitext2007.maybe.pos.txt",
       "potential_negative_records_file": "foitext2007.neg.txt",
@@ -11,7 +11,7 @@
     },
     {
       "name": "foitext2008",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2008.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2008.zip",
       "potential_positive_records_file": "foitext2008.pos.txt",
       "questionable_positive_records_file": "foitext2008.maybe.pos.txt",
       "potential_negative_records_file": "foitext2008.neg.txt",
@@ -20,7 +20,7 @@
     },
     {
       "name": "foitext2009",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2009.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2009.zip",
       "potential_positive_records_file": "foitext2009.pos.txt",
       "questionable_positive_records_file": "foitext2009.maybe.pos.txt",
       "potential_negative_records_file": "foitext2009.neg.txt",
@@ -29,7 +29,7 @@
     },
     {
       "name": "foitext2010",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2010.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2010.zip",
       "potential_positive_records_file": "foitext2010.pos.txt",
       "questionable_positive_records_file": "foitext2010.maybe.pos.txt",
       "potential_negative_records_file": "foitext2010.neg.txt",
@@ -38,7 +38,7 @@
     },
     {
       "name": "foitext2011",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2011.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2011.zip",
       "potential_positive_records_file": "foitext2011.pos.txt",
       "questionable_positive_records_file": "foitext2011.maybe.pos.txt",
       "potential_negative_records_file": "foitext2011.neg.txt",
@@ -47,7 +47,7 @@
     },
     {
       "name": "foitext2012",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2012.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2012.zip",
       "potential_positive_records_file": "foitext2012.pos.txt",
       "questionable_positive_records_file": "foitext2012.maybe.pos.txt",
       "potential_negative_records_file": "foitext2012.neg.txt",
@@ -56,7 +56,7 @@
     },
     {
       "name": "foitext2013",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2013.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2013.zip",
       "potential_positive_records_file": "foitext2013.pos.txt",
       "questionable_positive_records_file": "foitext2013.maybe.pos.txt",
       "potential_negative_records_file": "foitext2013.neg.txt",
@@ -65,7 +65,7 @@
     },
     {
       "name": "foitext2014",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2014.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2014.zip",
       "potential_positive_records_file": "foitext2014.pos.txt",
       "questionable_positive_records_file": "foitext2014.maybe.pos.txt",
       "potential_negative_records_file": "foitext2014.neg.txt",
@@ -74,7 +74,7 @@
     },
     {
       "name": "foitext2015",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2015.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2015.zip",
       "potential_positive_records_file": "foitext2015.pos.txt",
       "questionable_positive_records_file": "foitext2015.maybe.pos.txt",
       "potential_negative_records_file": "foitext2015.neg.txt",
@@ -83,7 +83,7 @@
     },
     {
       "name": "foitext2016",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/labeled/foitext2016.zip",
+      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2016.zip",
       "potential_positive_records_file": "foitext2016.pos.txt",
       "questionable_positive_records_file": "foitext2016.maybe.pos.txt",
       "potential_negative_records_file": "foitext2016.neg.txt",
@@ -92,8 +92,8 @@
     }
   ],
   "cloud_files": {
-    "container": "label-verified",
-    "base_url": "https://maude.blob.core.windows.net/label-verified/",
+    "container": "labeled",
+    "base_url": "https://maude.blob.core.windows.net/labeled/",
     "potential_positive_records_blob": "potential_positive_records.txt",
     "potential_negative_records_blob": "potential_negative_records.txt",
     "questionable_positive_records_blob": "questionable_positive_records.txt",

@@ -17,7 +17,7 @@ def main(args=None):
         args = sys.argv[1:]
 
     start_time = datetime.datetime.now()
-    print('Manually verifying auto-labeled known positive and known negative records starting at {}'.format(start_time))
+    print('Manually verifying pre-labeled records starting at {}'.format(start_time))
     
     mode = None
 
@@ -30,7 +30,7 @@ def main(args=None):
     labeler.label_records(mode)
 
     end_time = datetime.datetime.now()
-    print('Manual extraction completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
+    print('Manual verification session completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
 if __name__ == "__main__":
     main()

@@ -237,7 +237,7 @@
   "file_split_lines_per_file": 100000,
   "match_extracted_positive_negative_records_count":  true,
   "upload_output_to_cloud": true,
-  "cloud_blob_container_name": "labeled",
+  "cloud_blob_container_name": "pre-labeled",
   "max_records_to_extract": 100000,
   "verbose": false
 }
