@@ -4,7 +4,7 @@
   "input_data_file_sets": [
     {
       "name": "verified_labels",
-      "base_url": "https://maude.blob.core.windows.net/label-verified/",
+      "base_url": "https://maude.blob.core.windows.net/labeled/",
       "positive_records_file": "verified_positive_records.txt",
       "negative_records_file": "verified_negative_records.txt",
       "always_download": false
@@ -16,13 +16,15 @@
       "ignore_duplicate_training_records": true,
       "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
       "labeled_files_max_num_records_to_read": null,
-      "max_num_labeled_records_to_use": null
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
     },
     {
       "name": "naive_bayes_bow_with_duplicates",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
-      "max_num_labeled_records_to_use": null
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
     }
   ],
   "upload_output_to_cloud": true,

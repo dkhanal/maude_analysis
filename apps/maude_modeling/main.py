@@ -20,7 +20,7 @@ def main(args=None):
     if len(args) > 0:
         print('Generating model(s) for {}'.format(args[0]))
         input_data_files = [s for s in config.input_data_file_sets if args[0] in s['name']]
-    modeler.create_models(input_data_files)
+    modeler.generate_models_per_config(input_data_files)
 
     end_time = datetime.datetime.now()
     print('Model generation completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
