@@ -156,6 +156,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
     with open(verified_positive_records_file_path, 'a', encoding='utf-8', errors='ignore') as positive_records:
         with open(verified_negative_records_file_path, 'a', encoding='utf-8', errors='ignore') as negative_records:
             while True:
+                print ('-------------------------------------------------------------------')
                 file_type_to_read = mode if mode is not None else random.choice(['pos', 'neg', 'pos?', 'neg?'])
                 file_to_read = None
                 aleady_read_record_numbers = None
@@ -180,7 +181,6 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
 
                 line = get_line(file_to_read, record_number_to_read)
 
-                print ('')
                 print ('So far => POS: {}, NEG: {}'.format(total_verified_positive_records, total_verified_negative_records))
                 print('Input File: {}'.format(os.path.basename(file_to_read)))
                 print('Record Number: {}'.format(record_number_to_read))
