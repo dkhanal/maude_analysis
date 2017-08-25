@@ -144,7 +144,7 @@ def rebuild_models(verified_positive_records_file_path, verified_negative_record
     print ('Rebuilding models...')
     if config.regen_models is None or config.regen_models == False:
         print('Configuration does NOT allow regeneration of the models.')
-        return
+        return False
 
     models_config = config.models
     upload_models_to_cloud = config.upload_models_to_cloud
@@ -165,6 +165,7 @@ def rebuild_models(verified_positive_records_file_path, verified_negative_record
                                             os.path.join(config.models_output_dir, 'process.log')
                                             )
     print ('*** MODELS REBUILT ***')
+    return True
 
 def label(mode, potential_positive_records_file, potential_negative_records_file,  questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file):
     already_read_records = get_already_read_records(already_processed_record_numbers_file)
@@ -180,12 +181,22 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
     total_verified_positive_records = get_total_lines_count(verified_positive_records_file_path)
     total_verified_negative_records = get_total_lines_count(verified_negative_records_file_path)
 
+    total_new_records_labeled_using_current_models = 0
+
     with open(verified_positive_records_file_path, 'a', encoding='utf-8', errors='ignore') as positive_records:
         with open(verified_negative_records_file_path, 'a', encoding='utf-8', errors='ignore') as negative_records:
             while True:
+                if config.auto_regen_models == True and total_new_records_labeled_using_current_models >= config.models_auto_regen_records_threshold:
+                    print('Models need to ge regenerated because {} records have been labeled in this session without models regenerated.'.format(total_new_records_labeled_using_current_models))
+                    positive_records.flush()
+                    negative_records.flush()
+                    if rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path,
+                                      already_processed_record_numbers_file) == True:
+                        total_new_records_labeled_using_current_models = 0
+
                 print ('-------------------------------------------------------------------')
                 file_type_to_read = mode if mode is not None else random.choice(['pos', 'neg', 'pos?', 'neg?'])
-                print ('So far => POS: {}, NEG: {}. Next record type to look at: {}'.format(total_verified_positive_records, total_verified_negative_records, file_type_to_read.upper()))
+                print ('So far => POS: {}, NEG: {}. Next record type to look at: {}. Number of records before models auto re-generated: {}'.format(total_verified_positive_records, total_verified_negative_records, file_type_to_read.upper(), config.models_auto_regen_records_threshold - total_new_records_labeled_using_current_models))
                 file_to_read = None
                 aleady_read_record_numbers = None
                 record_number_to_read = 1
@@ -228,19 +239,23 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                     print('Selected: Rebuild models')
                     positive_records.flush()
                     negative_records.flush()
-                    rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
+                    if rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file) == True:
+                        total_new_records_labeled_using_current_models = 0
                     continue;
                 elif decision == 'p':
                     print('Selected: Positive')
                     positive_records.write(line)
                     total_verified_positive_records += 1
+                    total_new_records_labeled_using_current_models += 1
                     aleady_read_record_numbers.append(record_number_to_read)
                 elif decision == 'n':
                     print('Selected: Negative')
                     negative_records.write(line)
                     total_verified_negative_records += 1
+                    total_new_records_labeled_using_current_models += 1
                     aleady_read_record_numbers.append(record_number_to_read)
                 else:
+                    total_new_records_labeled_using_current_models += 1
                     print('Selected: Unknown')
         
                 save_already_read_records(already_processed_record_numbers_file, already_read_records)

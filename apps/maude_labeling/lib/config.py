@@ -25,6 +25,8 @@ def load_config():
     global cloud_files
     global output_files
     global regen_models
+    global auto_regen_models
+    global models_auto_regen_records_threshold
     global models
     global models_output_dir
     global upload_models_to_cloud
@@ -41,6 +43,8 @@ def load_config():
     input_dir = config_data['input_dir']
     upload_output_to_cloud = config_data['upload_output_to_cloud']
     regen_models = config_data['regen_models']
+    auto_regen_models = config_data['auto_regen_models']
+    models_auto_regen_records_threshold = config_data['models_auto_regen_records_threshold']
     models = config_data['models']
     models_output_dir = config_data['models_output_dir']
     upload_models_to_cloud = config_data['upload_models_to_cloud']
