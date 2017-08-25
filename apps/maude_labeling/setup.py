@@ -12,6 +12,14 @@ def create_dirs():
     in_dir = os.path.join(base_path, 'in')
     out_dir = os.path.join(base_path, 'out')
 
+    if not os.path.exists(in_dir):
+        print('Creating directory: {}'.format(in_dir))
+        os.makedirs(in_dir)
+
+    if not os.path.exists(out_dir):
+        print('Creating directory: {}'.format(out_dir))
+        os.makedirs(out_dir)
+
 def add_lib_to_path():
     base_path = os.path.dirname(__file__)
     lib = os.path.join(base_path, 'lib')
