@@ -147,57 +147,59 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
     total_questionable_positive_records = get_total_lines_count(questionable_positive_records_file)
     total_questionable_negative_records = get_total_lines_count(questionable_negative_records_file)
 
-    while True:
-        file_type_to_read = mode if mode is not None else random.choice(['pos', 'neg', 'pos?', 'neg?'])
-        file_to_read = None
-        aleady_read_record_numbers = None
-        record_number_to_read = 1
+    with open(config.output_files['verified_positive_records_file'], 'w', encoding='utf-8', errors='ignore') as positive_records:
+        with open(config.output_files['verified_negative_records_file'], 'w', encoding='utf-8', errors='ignore') as negative_records:
+            while True:
+                file_type_to_read = mode if mode is not None else random.choice(['pos', 'neg', 'pos?', 'neg?'])
+                file_to_read = None
+                aleady_read_record_numbers = None
+                record_number_to_read = 1
 
-        if file_type_to_read == 'pos':
-            file_to_read = potential_positive_records_file
-            aleady_read_record_numbers = already_read_records['pos']
-            record_number_to_read = get_unique_random_record_number(total_potential_positive_records, aleady_read_record_numbers)
-        elif file_type_to_read == 'neg':
-            file_to_read = potential_negative_records_file
-            aleady_read_record_numbers = already_read_records['neg']
-            record_number_to_read = get_unique_random_record_number(total_potential_negative_records, aleady_read_record_numbers)
-        elif file_type_to_read == 'pos?':
-            file_to_read = questionable_positive_records_file
-            aleady_read_record_numbers =  already_read_records['pos?']
-            record_number_to_read = get_unique_random_record_number(total_questionable_positive_records, aleady_read_record_numbers)
-        elif file_type_to_read == 'neg?':
-            file_to_read = questionable_negative_records_file
-            aleady_read_record_numbers = already_read_records['neg?']
-            record_number_to_read = get_unique_random_record_number(total_questionable_negative_records, aleady_read_record_numbers)
+                if file_type_to_read == 'pos':
+                    file_to_read = potential_positive_records_file
+                    aleady_read_record_numbers = already_read_records['pos']
+                    record_number_to_read = get_unique_random_record_number(total_potential_positive_records, aleady_read_record_numbers)
+                elif file_type_to_read == 'neg':
+                    file_to_read = potential_negative_records_file
+                    aleady_read_record_numbers = already_read_records['neg']
+                    record_number_to_read = get_unique_random_record_number(total_potential_negative_records, aleady_read_record_numbers)
+                elif file_type_to_read == 'pos?':
+                    file_to_read = questionable_positive_records_file
+                    aleady_read_record_numbers =  already_read_records['pos?']
+                    record_number_to_read = get_unique_random_record_number(total_questionable_positive_records, aleady_read_record_numbers)
+                elif file_type_to_read == 'neg?':
+                    file_to_read = questionable_negative_records_file
+                    aleady_read_record_numbers = already_read_records['neg?']
+                    record_number_to_read = get_unique_random_record_number(total_questionable_negative_records, aleady_read_record_numbers)
 
-        line = get_line(file_to_read, record_number_to_read)
+                line = get_line(file_to_read, record_number_to_read)
 
-        print ('')
-        print('Input File: {}'.format(os.path.basename(file_to_read)))
-        print('Record Number: {}'.format(record_number_to_read))
-        print ('')
-        print(line)
-        print ('')
-        print ('SUGGESTION: {}'.format(file_type_to_read.upper()))
-        print('[P]ositive, [N]egative, [U]nknown or [Q]uit? ')
-        print ('')
-        decision = util.get_char_input()
-        if not isinstance(decision, str):
-            decision = bytes.decode(decision)
+                print ('')
+                print('Input File: {}'.format(os.path.basename(file_to_read)))
+                print('Record Number: {}'.format(record_number_to_read))
+                print ('')
+                print(line)
+                print ('')
+                print ('SUGGESTION: {}'.format(file_type_to_read.upper()))
+                print('[P]ositive, [N]egative, [U]nknown or [Q]uit? ')
+                print ('')
+                decision = util.get_char_input()
+                if not isinstance(decision, str):
+                    decision = bytes.decode(decision)
 
-        decision = decision.lower()
-        if decision == 'q':
-            print('Selected: Quit')
-            break;
-        elif decision == 'p':
-            print('Selected: Positive')
-            positive_records.write(line)
-            aleady_read_record_numbers.append(record_number_to_read)
-        elif decision == 'n':
-            print('Selected: Negative')
-            negative_records.write(line)
-            aleady_read_record_numbers.append(record_number_to_read)
-        else:
-            print('Selected: Unknown')
+                decision = decision.lower()
+                if decision == 'q':
+                    print('Selected: Quit')
+                    break;
+                elif decision == 'p':
+                    print('Selected: Positive')
+                    positive_records.write(line)
+                    aleady_read_record_numbers.append(record_number_to_read)
+                elif decision == 'n':
+                    print('Selected: Negative')
+                    negative_records.write(line)
+                    aleady_read_record_numbers.append(record_number_to_read)
+                else:
+                    print('Selected: Unknown')
         
-        save_already_read_records(already_processed_record_numbers_file, already_read_records)
+                save_already_read_records(already_processed_record_numbers_file, already_read_records)
