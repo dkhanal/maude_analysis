@@ -30,7 +30,7 @@ def add_lib_to_path():
 
 def add_modeling_lib_to_path():
     base_path = os.path.dirname(__file__)
-    lib = os.path.abspath(os.path.join(base_path, '..\maude_modeling\lib'))
+    lib = os.path.abspath(os.path.join(base_path, '..', 'maude_modeling', 'lib'))
 
     if lib not in sys.path:
         print('Adding to sys.path: {}'.format(lib))
@@ -40,7 +40,7 @@ def add_modeling_lib_to_path():
 
 def add_classification_lib_to_path():
     base_path = os.path.dirname(__file__)
-    lib = os.path.abspath(os.path.join(base_path, '..\maude_classification\lib'))
+    lib = os.path.abspath(os.path.join(base_path, '..', 'maude_classification', 'lib'))
 
     if lib not in sys.path:
         print('Adding to sys.path: {}'.format(lib))
