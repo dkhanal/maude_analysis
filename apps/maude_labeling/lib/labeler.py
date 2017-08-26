@@ -193,7 +193,7 @@ def rebuild_models(verified_positive_records_file_path, verified_negative_record
     for model_name_pickle_tuple in model_pickles:
         if os.path.exists(model_name_pickle_tuple[1]):
             model = util.load_pickle(model_name_pickle_tuple[1])
-            models.append(model_name_pickle_tuple[0], model)
+            models.append((model_name_pickle_tuple[0], model))
 
     print ('*** {} MODELS REBUILT ***'.format(len(models)))
     return models
