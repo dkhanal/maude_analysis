@@ -152,7 +152,7 @@ def get_unique_random_record_number(total_potential_positive_records, already_re
    eligible_record_numbers = all_possible.difference(already_read)
    
    choice = random.choice(list(eligible_record_numbers))
-   print('All possible: {}, already read: {} eligible_record_numbers: {}, choice: {}'.format(len(all_possible), len(already_read), len(eligible_record_numbers), choice))
+   print('All possible in this file: {}, already read: {} eligible: {}, randomly selected: {}'.format(len(all_possible), len(already_read), len(eligible_record_numbers), choice))
    return choice
 
 def get_line(file_to_read, record_number_to_read):

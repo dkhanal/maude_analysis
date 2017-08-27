@@ -26,14 +26,19 @@ def download_file(url, destination_path):
     log('Downloading {} to {}. This may take a while...'.format(url, file_path))
     urllib.request.urlretrieve(url, file_path)
 
-def extract_features(list_of_words):
+def extract_features(model_name, list_of_words):
     features = {}
-    for w in list_of_words:
-        features[w] = True
+
+    if 'bow' in model_name:
+        for w in list_of_words:
+            features[w] = True
+    elif 'bigram' in model_name:
+        for bigram in nltk.bigrams(list_of_words):
+            features[bigram] = True
     
     return features
 
-def build_labeled_features(file, label, skip_duplicates, record_hash_dict, duplicate_check_ignore_pattern,
+def build_labeled_features(model_name, file, label, skip_duplicates, record_hash_dict, duplicate_check_ignore_pattern,
                            skip_first_record=False, max_records=None, output_file=None):
     log('Building ({}) features for file {}...'.format(label, file))
     file_features = []
@@ -91,7 +96,7 @@ def build_labeled_features(file, label, skip_duplicates, record_hash_dict, dupli
 
         record_lower_case = record.lower()
         record_words = word_tokenize(record_lower_case)
-        record_features = extract_features(record_words)
+        record_features = extract_features(model_name, record_words)
 
         if label == None:
             file_features.append(record_features)
@@ -153,11 +158,11 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
         log('Building positive features...')
         for positive_records_file in positive_records_files:
-            positive_file_features += build_labeled_features(positive_records_file, 'pos', ignore_duplicate_training_records, record_hash_dict,  duplicate_check_ignore_pattern, False, labeled_files_max_num_records_to_read, all_pos_records_file)
+            positive_file_features += build_labeled_features(model_name, positive_records_file, 'pos', ignore_duplicate_training_records, record_hash_dict,  duplicate_check_ignore_pattern, False, labeled_files_max_num_records_to_read, all_pos_records_file)
 
         log('Building negative features...')
         for negative_records_file in negative_records_files:
-            positive_file_features += build_labeled_features(negative_records_file, 'neg', ignore_duplicate_training_records, record_hash_dict,  duplicate_check_ignore_pattern, False, labeled_files_max_num_records_to_read, all_neg_records_file)
+            positive_file_features += build_labeled_features(model_name, negative_records_file, 'neg', ignore_duplicate_training_records, record_hash_dict,  duplicate_check_ignore_pattern, False, labeled_files_max_num_records_to_read, all_neg_records_file)
 
         if max_num_labeled_records_to_use is not None and len(positive_file_features) > max_num_labeled_records_to_use:
             log('Randomly taking {} records from {} positive features records...'.format(max_num_labeled_records_to_use, len(positive_file_features)))
@@ -180,8 +185,9 @@ def generate_models(positive_records_files, negative_records_files, models_confi
         if use_equal_positive_and_negative_labeled_records == True and total_negative_records_count < total_positive_records_count:
             log('Randomly taking {} records from {} positive features records to match the number of negative records...'.format(total_negative_records_count, total_positive_records_count))
             random.shuffle(positive_file_features)
-            negative_file_features = positive_file_features[:total_negative_records_count]
+            positive_file_features = positive_file_features[:total_negative_records_count]
 
+        log('Total featuresets in this model: Positive featuresets: {} Negative featuresets: {}...'.format(len(positive_file_features), len(negative_file_features)))
         all_pos_records_file.close()
         all_neg_records_file.close()
 
@@ -190,10 +196,10 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
         training_featureset = positive_file_features[:training_set_cut_off_positive] + negative_file_features[:training_set_cut_off_negative]
         testing_featureset = positive_file_features[training_set_cut_off_positive:] + negative_file_features[training_set_cut_off_negative:]
-        log('Model will be trained on {} and tested on {} featureset instances. Training the model now (this may take a while)...'.format(len(training_featureset), len(testing_featureset)))
+        log('Model ({}) will be trained on {} and tested on {} featureset instances. Training the model now (this may take a while)...'.format(model_name, len(training_featureset), len(testing_featureset)))
 
-        if 'naive_bayes_bow' in model_name:
-            log('Model in training:  nltk.classify.NaiveBayesClassifier')
+        if 'naive_bayes' in model_name:
+            log('Classifier in training:  nltk.classify.NaiveBayesClassifier')
             classifier = nltk.classify.NaiveBayesClassifier.train(training_featureset)
 
             log('Model trained. Assessing its accuracy now using the testing set... ')
@@ -202,17 +208,17 @@ def generate_models(positive_records_files, negative_records_files, models_confi
             log('Model accuracy is: {}. '.format(accuracy))
             classifier.show_most_informative_features()
 
-            pickle_file = util.fix_path(os.path.join(output_dir, model_name + '.pickle'))
-            log('Pickling the model as: {}...'.format(os.path.basename(pickle_file)))
-            util.pickle_object(classifier, pickle_file)
-            log('Model pickled. '.format(accuracy))
+        pickle_file = util.fix_path(os.path.join(output_dir, model_name + '.pickle'))
+        log('Pickling the model as: {}...'.format(os.path.basename(pickle_file)))
+        util.pickle_object(classifier, pickle_file)
+        log('Model pickled. '.format(accuracy))
 
-            generated_models.append((model_name, pickle_file))
+        generated_models.append((model_name, pickle_file))
 
-            if upload_models_to_cloud == True:
-                model_archive_name = model_name+'.zip'
-                log('Uploading the pickled model ({}) to the Cloud...'.format(model_archive_name))
-                uploader.upload_files([pickle_file, all_pos_records_file_path, all_neg_records_file_path], output_dir, os.path.join(output_dir, model_archive_name), upload_container_name)
+        if upload_models_to_cloud == True:
+            model_archive_name = model_name+'.zip'
+            log('Uploading the pickled model ({}) to the Cloud...'.format(model_archive_name))
+            uploader.upload_files([pickle_file, all_pos_records_file_path, all_neg_records_file_path], output_dir, os.path.join(output_dir, model_archive_name), upload_container_name)
 
         model_end_time = datetime.datetime.now()
         log('Completed creating model for: {} at {}. Duration: {}...'.format(model_name, model_end_time, model_end_time - model_start_time))
