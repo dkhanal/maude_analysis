@@ -261,10 +261,10 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                 print(line)
                 print ('')
                 print ('SUGGESTIONS:')
-                print ('By pre-Labeling: {}'.format(file_type_to_read.upper()))
+                print ('Per pre-Labeling: {}'.format(file_type_to_read.upper()))
                 classification_results = classify(line, models)
                 for (model_name, result) in classification_results:
-                    print('By {}: {}'.format(model_name, result.upper()))
+                    print('Per {}: {}'.format(model_name, result.upper()))
 
                 print ('')
                 print('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models or [Q]uit? ')
