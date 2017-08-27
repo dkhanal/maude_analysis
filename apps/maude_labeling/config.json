@@ -114,7 +114,7 @@
   },
   "regen_models": true,
   "auto_regen_models": true,
-  "models_auto_regen_records_threshold": 1,
+  "models_auto_regen_records_threshold": 20,
   "models": [
     {
       "name": "naive_bayes_bow_no_duplicates",
