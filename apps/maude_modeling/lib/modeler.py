@@ -162,7 +162,7 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
         log('Building negative features...')
         for negative_records_file in negative_records_files:
-            positive_file_features += build_labeled_features(model_name, negative_records_file, 'neg', ignore_duplicate_training_records, record_hash_dict,  duplicate_check_ignore_pattern, False, labeled_files_max_num_records_to_read, all_neg_records_file)
+            negative_file_features += build_labeled_features(model_name, negative_records_file, 'neg', ignore_duplicate_training_records, record_hash_dict,  duplicate_check_ignore_pattern, False, labeled_files_max_num_records_to_read, all_neg_records_file)
 
         if max_num_labeled_records_to_use is not None and len(positive_file_features) > max_num_labeled_records_to_use:
             log('Randomly taking {} records from {} positive features records...'.format(max_num_labeled_records_to_use, len(positive_file_features)))
