@@ -370,7 +370,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             total_new_records_labeled_this_session += 1
             if not record_number_to_read in already_read_records:
                 aleady_read_record_numbers[record_number_to_read] = []
-            aleady_read_record_numbers[record_number_to_read].append({line[:4]: 'pos'})
+            aleady_read_record_numbers[record_number_to_read].append({line[:40]: 'pos'})
         elif decision == 'n':
             print('Selected: Negative')
             verified_negative_records_file.write(line)
@@ -379,7 +379,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             total_new_records_labeled_this_session += 1
             if not record_number_to_read in already_read_records:
                 aleady_read_record_numbers[record_number_to_read] = []
-            aleady_read_record_numbers[record_number_to_read].append({line[:4]: 'neg'})
+            aleady_read_record_numbers[record_number_to_read].append({line[:40]: 'neg'})
         else:
             total_new_records_labeled_using_current_models += 1
             print('Selected: Unknown')
