@@ -8,10 +8,12 @@ import platform
 import random
 import hashlib
 import re
+import string
 
 
 import nltk
 from nltk import word_tokenize
+from nltk import ngrams
 
 import config
 import util
@@ -35,7 +37,10 @@ def extract_features(model_name, list_of_words):
     elif 'bigram' in model_name:
         for bigram in nltk.bigrams(list_of_words):
             features[bigram] = True
-    
+    elif 'trigram' in model_name:
+        for trigram in nltk.ngrams(list_of_words, 3):
+            features[trigram] = True
+
     return features
 
 def build_labeled_features(model_name, file, label, skip_duplicates, record_hash_dict, duplicate_check_ignore_pattern,
@@ -45,7 +50,7 @@ def build_labeled_features(model_name, file, label, skip_duplicates, record_hash
     file_base_name = os.path.basename(file)
     total_records = 0
     total_data_records = 0
-    fin = codecs.open(file, encoding='utf-8', errors='ignore')
+    fin = open(file, encoding='utf-8', errors="ignore")
     for record in fin:
         if len(record.strip()) == 0:
             continue
@@ -94,8 +99,9 @@ def build_labeled_features(model_name, file, label, skip_duplicates, record_hash
         if max_records is not None and total_data_records > max_records:
             break
 
-        record_lower_case = record.lower()
-        record_words = word_tokenize(record_lower_case)
+        punc_removal_table = str.maketrans({punc: None for punc in string.punctuation})
+        record_lower_case_no_punc = record.lower().translate(punc_removal_table)
+        record_words = word_tokenize(record_lower_case_no_punc)
         record_features = extract_features(model_name, record_words)
 
         if label == None:

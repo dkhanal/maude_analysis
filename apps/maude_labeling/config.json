@@ -114,7 +114,7 @@
   },
   "regen_models": true,
   "auto_regen_models": true,
-  "models_auto_regen_records_threshold": 20,
+  "models_auto_regen_records_threshold": 5,
   "models": [
     {
       "name": "naive_bayes_bow_no_duplicates",
@@ -145,6 +145,23 @@
     {
       "name": "naive_bayes_bigrams_with_duplicates",
       "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bigrams_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "naive_bayes_trigrams_no_duplicates",
+      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_trigrams_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
+      "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "naive_bayes_trigrams_with_duplicates",
+      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_trigrams_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,

@@ -58,7 +58,7 @@ def build_potential_file_sets(input_files,  potential_positive_records_file_merg
                                 continue
                             consolidated_questionable_neg.write(record)
 
-def build_models_from_cloud(models_config, output_dir):
+def download_models_from_cloud(models_config, output_dir):
     print('Downloading models...')
     output_dir = util.fix_path(output_dir)
     block_blob_service = BlockBlobService(config.azure_account_name, config.azure_account_key)
@@ -101,7 +101,7 @@ def label_records(mode):
         # No cloud files or incomplete set. Create new using data files.
         build_potential_file_sets(input_files, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file)
 
-    models = build_models_from_cloud(config.models, config.models_output_dir)
+    models = download_models_from_cloud(config.models, config.models_output_dir)
 
     label(mode, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models)
     
@@ -120,14 +120,9 @@ def label_records(mode):
 
 
 def get_already_read_records(file_path):
-    print('Reading the last processed record numbers...')
+    print('Reading the already processed record numbers...')
     if not os.path.exists(file_path):
-        default_dict = {}
-        default_dict['pos'] = []
-        default_dict['pos?'] = []
-        default_dict['neg'] = []
-        default_dict['neg?'] = []
-        return default_dict
+        return {}
 
     with open(file_path, 'r') as f:
         return json.load(f)
@@ -135,7 +130,7 @@ def get_already_read_records(file_path):
 def save_already_read_records(file_path, json_data):
     print('Saving already processed record numbers...')
     with open(file_path, 'w') as f:
-        f.write(json.dumps(json_data, indent=4, sort_keys=True))
+        f.write(json.dumps(json_data, indent=4))
 
 def get_total_lines_count(file_path):
     line_count = 0
@@ -148,7 +143,7 @@ def get_total_lines_count(file_path):
 
 def get_unique_random_record_number(total_potential_positive_records, already_read_record_numbers):
    all_possible = set(range(1, total_potential_positive_records+1))
-   already_read = set(already_read_record_numbers)
+   already_read = set(already_read_record_numbers.keys())
    eligible_record_numbers = all_possible.difference(already_read)
    
    choice = random.choice(list(eligible_record_numbers))
@@ -204,13 +199,89 @@ def classify(line, models):
 
     return classifier.classify_record(line, models)
 
+def get_label_from_filename(filename):
+    if filename is None:
+        return None
+    filename_lower = filename.lower()
+    if 'potential_positive' in filename_lower:
+        return 'POS'
+
+    if 'potential_negative' in filename_lower:
+        return 'NEG'
+
+    if 'questionable_positive' in filename_lower:
+        return 'POS?'
+
+    if 'questionable_negative' in filename_lower:
+        return 'NEG?'
+
+    return 'UNK'
+
+def get_likely_suggestion(suggestions):
+    if suggestions is None or len(suggestions) == 0:
+        return 'UNK'
+
+    total_suggestions = len(suggestions)
+    if len([s for s in suggestions if 'pos' in s.lower()]) >= total_suggestions/2:
+        return 'POS'
+
+    if len([s for s in suggestions if 'neg' in s.lower()]) >= total_suggestions/2:
+        return 'NEG'
+
+    return 'UNK'
+
+def bulk_open_files(files_paths_to_open, mode):
+    file_handles = []
+
+    if files_paths_to_open is None:
+        return file_handles
+
+    for file_path in files_paths_to_open:
+        file_handles.append(open(file_path, mode, encoding='utf-8', errors='ignore'))
+
+    return file_handles
+
+def bulk_close_files(file_handles_to_close):
+    if file_handles_to_close is None:
+        return
+
+    for fh in file_handles_to_close:
+        fh.close()
+
+
 def label(mode, potential_positive_records_file, potential_negative_records_file,  questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models):
+    potential_positive_records_file_basename = os.path.basename(potential_positive_records_file).lower()
+    potential_negative_records_file_basename = os.path.basename(potential_negative_records_file).lower()
+    questionable_positive_records_file_basename = os.path.basename(questionable_positive_records_file).lower()
+    questionable_negative_records_file_basename = os.path.basename(questionable_negative_records_file).lower()
+
+    input_file_basename_to_full_path_map = {}
+    input_file_basename_to_full_path_map[potential_positive_records_file_basename] = potential_positive_records_file
+    input_file_basename_to_full_path_map[potential_negative_records_file_basename] = potential_negative_records_file
+    input_file_basename_to_full_path_map[questionable_positive_records_file_basename] = questionable_positive_records_file
+    input_file_basename_to_full_path_map[questionable_negative_records_file_basename] = questionable_negative_records_file
+
     already_read_records = get_already_read_records(already_processed_record_numbers_file)
-    
-    total_potential_positive_records = get_total_lines_count(potential_positive_records_file)
-    total_potential_negative_records = get_total_lines_count(potential_negative_records_file)
-    total_questionable_positive_records = get_total_lines_count(questionable_positive_records_file)
-    total_questionable_negative_records = get_total_lines_count(questionable_negative_records_file)
+    if already_read_records is None or len(already_read_records) == 0:
+        already_read_records = {}
+
+    total_available_records = {}
+    total_available_records[potential_positive_records_file_basename] = get_total_lines_count(potential_positive_records_file)
+    total_available_records[potential_negative_records_file_basename] = get_total_lines_count(potential_negative_records_file)
+    total_available_records[questionable_positive_records_file_basename] = get_total_lines_count(questionable_positive_records_file)
+    total_available_records[questionable_negative_records_file_basename] = get_total_lines_count(questionable_negative_records_file)
+
+    if not potential_positive_records_file_basename in already_read_records:
+        already_read_records[potential_positive_records_file_basename] = []
+
+    if not potential_negative_records_file_basename in already_read_records:
+        already_read_records[potential_negative_records_file_basename] = []
+
+    if not questionable_positive_records_file_basename in already_read_records:
+        already_read_records[questionable_positive_records_file_basename] = []
+
+    if not questionable_negative_records_file_basename in already_read_records:
+        already_read_records[questionable_negative_records_file_basename] = []
 
     verified_positive_records_file_path = util.fix_path(config.output_files['verified_positive_records_file'])
     verified_negative_records_file_path = util.fix_path(config.output_files['verified_negative_records_file'])
@@ -218,91 +289,108 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
     total_verified_positive_records = get_total_lines_count(verified_positive_records_file_path)
     total_verified_negative_records = get_total_lines_count(verified_negative_records_file_path)
 
+    total_new_records_labeled_this_session = 0
     total_new_records_labeled_using_current_models = 0
+    model_accuracy_counts = {}
 
-    with open(verified_positive_records_file_path, 'a', encoding='utf-8', errors='ignore') as positive_records:
-        with open(verified_negative_records_file_path, 'a', encoding='utf-8', errors='ignore') as negative_records:
-            while True:
-                if config.auto_regen_models == True and total_new_records_labeled_using_current_models >= config.models_auto_regen_records_threshold:
-                    print('Models need to ge regenerated because {} records have been labeled in this session without models regenerated.'.format(total_new_records_labeled_using_current_models))
-                    new_models = rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
-                    if new_models is not None:
-                        models = new_models
-                        total_new_records_labeled_using_current_models = 0
+    verified_positive_records_file = open(verified_positive_records_file_path, 'a+', encoding='utf-8', errors='ignore')
+    verified_negative_records_file = open(verified_negative_records_file_path, 'a+', encoding='utf-8', errors='ignore')
 
-                print ('-------------------------------------------------------------------')
-                file_type_to_read = mode if mode is not None else random.choice(['pos', 'neg', 'pos?', 'neg?'])
-                print ('So far => POS: {}, NEG: {}. Next record type to look at: {}. Number of records before models auto re-generated: {}'.format(total_verified_positive_records, total_verified_negative_records, file_type_to_read.upper(), config.models_auto_regen_records_threshold - total_new_records_labeled_using_current_models))
-                file_to_read = None
-                aleady_read_record_numbers = None
-                record_number_to_read = 1
+    while True:
+        if config.auto_regen_models == True and total_new_records_labeled_using_current_models >= config.models_auto_regen_records_threshold:
+            print('Models need to re regenerated because {} records have been labeled in this session without models regenerated.'.format(total_new_records_labeled_using_current_models))
+            bulk_close_files([verified_positive_records_file, verified_negative_records_file])
+            new_models = rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
+            output_files = bulk_open_files([verified_positive_records_file_path, verified_negative_records_file_path], 'a+')
+            verified_positive_records_file = output_files[0]
+            verified_negative_records_file = output_files[1]
+            if new_models is not None:
+                models = new_models
+                total_new_records_labeled_using_current_models = 0
 
-                if file_type_to_read == 'pos':
-                    file_to_read = potential_positive_records_file
-                    aleady_read_record_numbers = already_read_records['pos']
-                    record_number_to_read = get_unique_random_record_number(total_potential_positive_records, aleady_read_record_numbers)
-                elif file_type_to_read == 'neg':
-                    file_to_read = potential_negative_records_file
-                    aleady_read_record_numbers = already_read_records['neg']
-                    record_number_to_read = get_unique_random_record_number(total_potential_negative_records, aleady_read_record_numbers)
-                elif file_type_to_read == 'pos?':
-                    file_to_read = questionable_positive_records_file
-                    aleady_read_record_numbers =  already_read_records['pos?']
-                    record_number_to_read = get_unique_random_record_number(total_questionable_positive_records, aleady_read_record_numbers)
-                elif file_type_to_read == 'neg?':
-                    file_to_read = questionable_negative_records_file
-                    aleady_read_record_numbers = already_read_records['neg?']
-                    record_number_to_read = get_unique_random_record_number(total_questionable_negative_records, aleady_read_record_numbers)
+        print ('-------------------------------------------------------------------')
+        file_to_read_basename = mode if mode is not None else random.choice([key for key in already_read_records])
+        print ('So far => POS: {}, NEG: {}. Next file to look at: {}. Number of records before models auto re-generated: {}'.format(total_verified_positive_records, total_verified_negative_records, file_to_read_basename, config.models_auto_regen_records_threshold - total_new_records_labeled_using_current_models))
+        file_to_read = None
+        aleady_read_record_numbers = already_read_records[file_to_read_basename]
+        record_number_to_read = get_unique_random_record_number(total_available_records[file_to_read_basename],
+                                                                aleady_read_record_numbers)
+        file_to_read = input_file_basename_to_full_path_map[file_to_read_basename]
 
-                print('Input File: {}'.format(os.path.basename(file_to_read)))
-                print('Record Number: {}'.format(record_number_to_read))
-                line = get_line(file_to_read, record_number_to_read)
-                print ('')
-                print(line)
-                print ('')
-                print ('SUGGESTIONS:')
-                print ('Per pre-Labeling: {}'.format(file_type_to_read.upper()))
-                if len(models) > 0:
-                    classification_results = classify(line, models)
-                    for (model_name, result) in classification_results:
-                        print('Per {}: {}'.format(model_name, result.upper()))
-                else:
-                    print ('No trained model available to provide a suggestion.')
+        print('Input File: {}'.format(os.path.basename(file_to_read)))
+        print('Record Number: {}'.format(record_number_to_read))
+        line = get_line(file_to_read, record_number_to_read)
+        print ('')
+        print(line)
+        print ('')
+        print ('SUGGESTIONS:')
+        suggestions = []
+        suggestions.append(get_label_from_filename(file_to_read_basename))
+        print ('    Per pre-labeling: {}'.format(suggestions[0]))
+        classification_results = []
+        if len(models) > 0:
+            classification_results = classify(line, models)
+            for (model_name, result) in classification_results:
+                suggestions.append(result)
+                accuracy = model_accuracy_counts[model_name] / total_new_records_labeled_this_session if model_name in model_accuracy_counts and total_new_records_labeled_this_session > 0 else 0
+                print('    Per {} (Accuracy {:}%): {}'.format(model_name, round(accuracy * 100, 2), result.upper()))
+        else:
+            print ('    No trained model available to provide a suggestion.')
 
-                print ('')
-                print('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models or [Q]uit? ')
-                print ('')
-                decision = util.get_char_input()
-                if not isinstance(decision, str):
-                    decision = bytes.decode(decision)
+        print ('Likely: {}'.format(get_likely_suggestion(suggestions)))
 
-                decision = decision.lower()
-                if decision == 'q':
-                    print('Selected: Quit')
-                    break;
-                elif decision == 'r':
-                    print('Selected: Rebuild models')
-                    positive_records.flush()
-                    negative_records.flush()
-                    new_models = rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
-                    if new_models is not None:
-                        models = new_models
-                        total_new_records_labeled_using_current_models = 0
-                    continue;
-                elif decision == 'p':
-                    print('Selected: Positive')
-                    positive_records.write(line)
-                    total_verified_positive_records += 1
-                    total_new_records_labeled_using_current_models += 1
-                    aleady_read_record_numbers.append(record_number_to_read)
-                elif decision == 'n':
-                    print('Selected: Negative')
-                    negative_records.write(line)
-                    total_verified_negative_records += 1
-                    total_new_records_labeled_using_current_models += 1
-                    aleady_read_record_numbers.append(record_number_to_read)
-                else:
-                    total_new_records_labeled_using_current_models += 1
-                    print('Selected: Unknown')
-        
-                save_already_read_records(already_processed_record_numbers_file, already_read_records)
+        print ('')
+        print('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models or [Q]uit? ')
+        print ('')
+        decision = util.get_char_input()
+        if not isinstance(decision, str):
+            decision = bytes.decode(decision)
+
+        decision = decision.lower()
+
+        if decision == 'q':
+            print('Selected: Quit')
+            break;
+        elif decision == 'r':
+            print('Selected: Rebuild models')
+            bulk_close_files([verified_positive_records_file, verified_negative_records_file])
+            new_models = rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
+            output_files = bulk_open_files([verified_positive_records_file_path, verified_negative_records_file_path], 'a+')
+            verified_positive_records_file = output_files[0]
+            verified_negative_records_file = output_files[1]
+            if new_models is not None:
+                models = new_models
+                total_new_records_labeled_using_current_models = 0
+            continue;
+        elif decision == 'p':
+            print('Selected: Positive')
+            verified_positive_records_file.write(line)
+            total_verified_positive_records += 1
+            total_new_records_labeled_using_current_models += 1
+            total_new_records_labeled_this_session += 1
+            if not record_number_to_read in already_read_records:
+                aleady_read_record_numbers[record_number_to_read] = []
+            aleady_read_record_numbers[record_number_to_read].append({line[:4]: 'pos'})
+        elif decision == 'n':
+            print('Selected: Negative')
+            verified_negative_records_file.write(line)
+            total_verified_negative_records += 1
+            total_new_records_labeled_using_current_models += 1
+            total_new_records_labeled_this_session += 1
+            if not record_number_to_read in already_read_records:
+                aleady_read_record_numbers[record_number_to_read] = []
+            aleady_read_record_numbers[record_number_to_read].append({line[:4]: 'neg'})
+        else:
+            total_new_records_labeled_using_current_models += 1
+            print('Selected: Unknown')
+
+        for (model_name, result) in classification_results:
+            if decision == 'p' and result.lower() == 'pos':
+                model_accuracy_counts[model_name] = model_accuracy_counts[model_name] + 1 if model_name in model_accuracy_counts else 1
+            elif decision == 'n' and result.lower() == 'neg':
+                model_accuracy_counts[model_name] = model_accuracy_counts[model_name] + 1 if model_name in model_accuracy_counts else 1
+
+        save_already_read_records(already_processed_record_numbers_file, already_read_records)
+
+    verified_positive_records_file.close()
+    verified_negative_records_file.close()
