@@ -13,7 +13,6 @@ import __collections
 
 # Logging related
 def initialize_logger(log_file_abs_path):
-    print(__file__)
     __logging.initialize_logger(log_file_abs_path)
 
 def close_logger():
@@ -45,7 +44,7 @@ def get_list_of_files_in_cloud_container(container_name):
 
 # HTTP
 def download_file(url, save_to_path, force_download=False):
-    return __http.download_file(url, save_to_path, force_download=False)
+    return __http.download_file(url, save_to_path, force_download)
 
 # Zip
 def zip_files(list_of_files, zip_file_path):
