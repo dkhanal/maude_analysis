@@ -20,16 +20,15 @@ def initialize():
     add_to_path(os.path.abspath(os.path.join(base_path, '..', '..', 'shared')))
     add_to_path(os.path.abspath(os.path.join(base_path, 'lib')))
 
-    import sharedlib
-    sharedlib.set_current_app_path(__file__)
-
     global log_file_path
-    log_file_path = sharedlib.abspath(os.path.join(base_path, 'out', 'why_session.log'))
+    log_file_path = os.path.join(base_path, 'out', 'why_session.log')
 
-    # Remove the previous log, and initialize new for this session
-    os.remove(log_file_path)
-    sharedlib.initialize_logger(sharedlib.abspath(os.path.join(base_path, 'out', log_file_path)))
-    sharedlib.load_environment_vars(sharedlib.abspath(os.path.join(base_path, '.setenv.py')))
+    import config
+    import sharedlib
+    sharedlib.initialize(base_path, log_file_path, config.remote_server)
+
+    sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'out')),
+                           sharedlib.abspath(os.path.join(base_path, 'file_chunks'))])
 
 def main(args=None):
     initialize()

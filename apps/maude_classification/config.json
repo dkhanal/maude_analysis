@@ -32,8 +32,8 @@
   "remote_server": {
     "base_uri": "https://maude.blob.core.windows.net/",
     "narratives_dir": "narratives",
-    "prelabeled_dir": "prelabeled",
-    "labled_dir": "labeled",
+    "prelabeled_dir": "pre-labeled",
+    "labeled_dir": "labeled",
     "models_dir": "models",
     "classification_dir": "classification"
   },

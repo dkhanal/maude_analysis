@@ -238,10 +238,10 @@
   "match_extracted_positive_negative_records_count":  true,
   "upload_output_to_remote_server": true,
   "remote_server": {
-    "base_uri": "https://maude.blob.core.windows.net/",
+    "base_uri": "C:\\temp\\DataServer\\",
     "narratives_dir": "narratives",
-    "prelabeled_dir": "prelabeled",
-    "labled_dir": "labeled",
+    "prelabeled_dir": "pre-labeled",
+    "labeled_dir": "labeled",
     "models_dir": "models",
     "classification_dir": "classification"
   },

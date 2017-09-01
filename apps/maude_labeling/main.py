@@ -23,14 +23,13 @@ def initialize():
     add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_modeling', 'lib')))
     add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_classification', 'lib')))
 
-    import sharedlib
-    sharedlib.set_current_app_path(__file__)
-
     global log_file_path
-    log_file_path = sharedlib.abspath(os.path.join(base_path, 'out', 'labeling_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S"))))
-    sharedlib.initialize_logger(sharedlib.abspath(os.path.join(base_path, 'out', log_file_path)))
+    log_file_path = os.path.join(base_path, 'out', 'labeling_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")))
 
-    sharedlib.load_environment_vars(sharedlib.abspath(os.path.join(base_path, '.setenv.py')))
+    import config
+    import sharedlib
+    sharedlib.initialize(base_path, log_file_path, config.remote_server)
+    
     sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'in')),
                            sharedlib.abspath(os.path.join(base_path, 'out')),
                            sharedlib.abspath(os.path.join(base_path, '..', 'maude_modeling', 'out'))
@@ -60,13 +59,12 @@ def main(args=None):
 
     labeler.label_records(mode)
 
-
     end_time = datetime.datetime.now()
     logging.info('Manual verification session completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
     if config.upload_output_to_remote_server == True:
         logging.info('Uploading log file to Cloud...')
-        sharedlib.upload_files_to_remote_server([log_file_path], config.remote_server_files['directory'])
+        sharedlib.upload_files_to_labeled_dir([log_file_path])
 
 if __name__ == "__main__":
     main()

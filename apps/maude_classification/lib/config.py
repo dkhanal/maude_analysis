@@ -31,8 +31,7 @@ def load_config():
     global positive_probability_threshold
     global upload_output_to_remote_server
     global upload_positive_files_only
-    global remote_server_output_upload_directory
-    global remote_server_base_uri
+    global remote_server
     global verbose
 
     files_to_classify = config_data['files_to_classify']
@@ -41,12 +40,12 @@ def load_config():
     models = config_data['models']
     target_file_max_num_records_to_classify = config_data['target_file_max_num_records_to_classify']
     positive_probability_threshold = config_data['positive_probability_threshold']
-    verbose = config_data['verbose']
 
     upload_output_to_remote_server = config_data['upload_output_to_remote_server']
     upload_positive_files_only = config_data['upload_positive_files_only']
-    remote_server_output_upload_directory = config_data['remote_server_output_upload_directory']
-    remote_server_base_uri = config_data['remote_server_base_uri']
+
+    remote_server = config_data['remote_server']
+    verbose = config_data['verbose']
 
     logging.info('Configuration loaded.')
 

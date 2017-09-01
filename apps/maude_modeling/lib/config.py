@@ -28,8 +28,7 @@ def load_config():
     global output_dir
     global models
     global upload_output_to_remote_server
-    global remote_server_output_upload_directory
-    global remote_server_base_uri
+    global remote_server
     global verbose
 
     input_data_file_sets = config_data['input_data_file_sets']
@@ -37,8 +36,9 @@ def load_config():
     output_dir = config_data['output_dir']
     models = config_data['models']
     upload_output_to_remote_server = config_data['upload_output_to_remote_server']
-    remote_server_output_upload_directory = config_data['remote_server_output_upload_directory']
-    remote_server_base_uri = config_data['remote_server_base_uri']
+    
+    remote_server = config_data['remote_server']
+
     verbose = config_data['verbose']
 
     logging.info('Configuration loaded.')

@@ -32,10 +32,9 @@ def load_config():
     global models
     global models_output_dir
     global upload_regenerated_models_to_remote_server
-    global remote_server_models_directory
     global input_dir
     global upload_output_to_remote_server
-    global remote_server_base_uri
+    global remote_server
     global verbose
 
     input_data_file_sets = config_data['input_data_file_sets']
@@ -43,7 +42,6 @@ def load_config():
     output_files = config_data['output_files']
     input_dir = config_data['input_dir']
     upload_output_to_remote_server = config_data['upload_output_to_remote_server']
-    remote_server_base_uri = config_data['remote_server_base_uri']
 
     regen_models = config_data['regen_models']
     auto_regen_models = config_data['auto_regen_models']
@@ -51,7 +49,7 @@ def load_config():
     models = config_data['models']
     models_output_dir = config_data['models_output_dir']
     upload_regenerated_models_to_remote_server = config_data['upload_regenerated_models_to_remote_server']
-    remote_server_models_directory = config_data['remote_server_models_directory']
+    remote_server = config_data['remote_server']
 
     verbose = config_data['verbose']
 

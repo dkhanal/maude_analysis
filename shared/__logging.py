@@ -6,7 +6,7 @@ import os
 import logging
 
 # Logging related
-def initialize_logger(log_file_abs_path):
+def initialize(log_file_abs_path):
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 

@@ -2,6 +2,8 @@
 # All Rights Reserved
 # dkhanal AT gmail DOT com
 
+import os
+
 import __logging
 import __env
 import __io
@@ -10,19 +12,25 @@ import __http
 import __zip
 import __pickle
 import __collections
+import __exception
 
 # Initialization
-def initialize(application_abs_path, log_file_abs_path, remote_server_base_uri):
-    __io.initialize(application_abs_path)
+def initialize(application_abs_path, log_file_abs_path, remote_server_config):
+    global app_dir
+    app_dir = os.path.dirname(application_abs_path)
+
+    __io.initialize(app_dir)
     __logging.initialize(log_file_abs_path)
-    __remote_server.initialize(remote_server_base_uri)
+    __exception.initialize()
+    __remote_server.initialize(remote_server_config)
+    __env.load_environment_vars(os.path.join(app_dir, '.setenv.py'))
 
 # Logging related
 def close_logger():
     __logging.close_logger()
 
-# Environemnt variables
-def load_environment_vars(setenv_path):
+# Environment variables
+def reload_environment_vars(setenv_path):
     __env.load_environment_vars(setenv_path)
 
 # I/O
@@ -36,15 +44,30 @@ def get_char_input():
     return __io.get_char_input()
 
 # Cloud
+
+def join_remote_server_paths(path1, path2, path3=None):
+    return __remote_server.join_remote_server_paths(path1, path2, path3)
+
 def upload_files_to_remote_server(list_of_files, remote_directory):
     __remote_server.upload_files_to_remote_server(list_of_files, remote_directory)
 
 def get_list_of_files_from_remote_server(remote_directory):
     return __remote_server.get_list_of_files_from_remote_server(remote_directory)
 
-# HTTP
+def upload_files_to_prelabeled_dir(list_of_files):
+    __remote_server.upload_files_to_prelabled_dir(list_of_files)
+
+def upload_files_to_labeled_dir(list_of_files):
+    __remote_server.upload_files_to_labeled_dir(list_of_files)
+
+def upload_files_to_models_dir(list_of_files):
+    __remote_server.upload_files_to_models_dir(list_of_files)
+
+def upload_files_to_classification_dir(list_of_files):
+    __remote_server.upload_files_to_classification_dir(list_of_files)
+
 def download_file(url, save_to_path, force_download=False):
-    return __http.download_file(url, save_to_path, force_download)
+    __remote_server.download_file(url, save_to_path, force_download)
 
 # Zip
 def zip_files(list_of_files, zip_file_path):

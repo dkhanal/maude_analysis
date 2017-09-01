@@ -23,12 +23,10 @@ def initialize():
     global log_file_path
     log_file_path = os.path.join(base_path, 'out', 'classification_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")))
 
+    import config
     import sharedlib
-    sharedlib.initialize(base_path, log_file_path, remote_server_base_uri)
+    sharedlib.initialize(base_path, log_file_path, config.remote_server)
 
-
-    sharedlib.initialize_logger(sharedlib.abspath(log_file_path))
-    sharedlib.load_environment_vars(sharedlib.abspath(os.path.join(base_path, '.setenv.py')))
     sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'in')), sharedlib.abspath(os.path.join(base_path, 'models')), sharedlib.abspath(os.path.join(base_path, 'out'))])
 
 def main(args=None):
@@ -57,7 +55,8 @@ def main(args=None):
     logging.info('Classification completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
     if config.upload_output_to_remote_server == True:
-        sharedlib.upload_files_to_remote_server([log_file_path], config.remote_server_output_upload_directory)
+        logging.info('Uploading log file to Cloud...')
+        sharedlib.upload_files_to_classification_dir([log_file_path])
 
 if __name__ == "__main__":
     main()

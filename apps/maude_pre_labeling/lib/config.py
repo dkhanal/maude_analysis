@@ -55,10 +55,11 @@ def load_config():
 
     max_records_to_extract = config_data['max_records_to_extract']
     match_extracted_positive_negative_records_count = config_data['match_extracted_positive_negative_records_count']
-    verbose = config_data['verbose']
 
     upload_output_to_remote_server = config_data['upload_output_to_remote_server']
     remote_server = config_data['remote_server']
+
+    verbose = config_data['verbose']
 
     logging.info('Configuration loaded.')
 

@@ -6,9 +6,5 @@ import os
 import urllib
 import logging
 
-def download_file(url, save_to_path, force_download=False):
-    logging.info('Downloading {} to {}. This may take a while...'.format(url, save_to_path))
-    if force_download == False and os.path.exists(save_to_path):
-        logging.info('File {} already exists. It will not be downloaded.'.format(save_to_path))
-        return
+def download_file(url, save_to_path):
     urllib.request.urlretrieve(url, save_to_path)

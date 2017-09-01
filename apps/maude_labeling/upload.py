@@ -18,17 +18,16 @@ def initialize():
     base_path = os.path.dirname(__file__)
     add_to_path(os.path.abspath(os.path.join(base_path, '..', '..', 'shared')))
     add_to_path(os.path.abspath(os.path.join(base_path, 'lib')))
-
-    import sharedlib
-    sharedlib.set_current_app_path(__file__)
+    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_modeling', 'lib')))
+    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_classification', 'lib')))
 
     global log_file_path
-    log_file_path = sharedlib.abspath(os.path.join(base_path, 'out', 'modeling_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S"))))
+    log_file_path = os.path.join(base_path, 'out', 'labeling_upload_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")))
 
-    sharedlib.initialize_logger(sharedlib.abspath(log_file_path))
-    sharedlib.load_environment_vars(sharedlib.abspath(os.path.join(base_path, '.setenv.py')))
-    sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'out'))])
-
+    import config
+    import sharedlib
+    sharedlib.initialize(base_path, log_file_path, config.remote_server)
+    
 def main(args=None):
     initialize()
 
@@ -65,7 +64,7 @@ def main(args=None):
     if not isinstance(upload_confirmation, str):
         upload_confirmation = bytes.decode(upload_confirmation)
     if upload_confirmation == 'y':
-        sharedlib.upload_files_to_remote_server(files_to_upload, config.remote_server_files['directory'])
+        sharedlib.upload_files_to_labeled_dir(files_to_upload)
 
 if __name__ == "__main__":
     main()

@@ -31,7 +31,7 @@ def upload_files_to_directory(list_of_files, directory_name):
                                                  file_basename, file,
                                                  content_settings=ContentSettings(content_type=__get_mime_type(file_basename)))
 
-def get_list_of_files_in_directory(directory_name):
+def get_list_of_files_from_remote_server(directory_name):
     logging.info('Getting a list of files from directory: {}..'.format(directory_name))
     logging.info('Connecting to Azure Blob Storage...')
 

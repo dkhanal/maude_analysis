@@ -51,10 +51,10 @@ def split_file(large_file, split_dir, max_records_per_file=50000):
 def merge_file_sets(file_base_name, out_dir, positive_files, negative_files, maybe_positive_files, maybe_negative_files, process_log_files):
     output_dir = sharedlib.abspath(out_dir)
     file_name_without_ext = os.path.splitext(file_base_name)[0]
-    positive_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.pos.txt')
-    negative_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.neg.txt')
-    maybe_positive_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.maybe.pos.txt')
-    maybe_negative_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.maybe.neg.txt')
+    positive_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.potential_pos.txt')
+    negative_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.potential_neg.txt')
+    maybe_positive_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.questionable_pos.txt')
+    maybe_negative_records_output_file = os.path.join(output_dir,  file_name_without_ext + '.questionable_neg.txt')
     process_log_file =  os.path.join(output_dir,  file_name_without_ext + '.process.txt')
 
     logging.info('Merging {} positive labeled files into: {}...'.format(len(positive_files), positive_records_output_file))
@@ -120,10 +120,10 @@ def extract_records(input_files, output_dir, max = None):
         for chunk in chunks:
             logging.info('Extracting up to {} potential positive and negative records from {}...'.format(chunk_max, chunk))
             chunk_name_without_ext = os.path.splitext(os.path.basename(chunk))[0]
-            positive_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.pos.txt')
-            negative_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.neg.txt')
-            maybe_positive_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.maybe.pos.txt')
-            maybe_negative_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.maybe.neg.txt')
+            positive_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.potential_pos.txt')
+            negative_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.potential_neg.txt')
+            maybe_positive_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.questionable_pos.txt')
+            maybe_negative_records_output_file = os.path.join(output_dir,  chunk_name_without_ext + '.questionable_neg.txt')
             process_log_file =  os.path.join(output_dir,  chunk_name_without_ext + '.process.txt')
 
             positive_records_output_files.append(positive_records_output_file)
@@ -185,7 +185,7 @@ def extract_records(input_files, output_dir, max = None):
 
             archive_path =  os.path.join(os.path.dirname(positive_records_output_file), os.path.splitext(os.path.basename(file_name))[0]+'.zip')
             sharedlib.zip_files(list_of_files_to_upload, archive_path)
-            sharedlib.upload_files_to_remote_server(list_of_files_to_upload, config.remote_server_output_upload_directory)
+            sharedlib.upload_files_to_prelabeled_dir([archive_path])
 
 
 def extract_matching_records_from_file(input_file, 

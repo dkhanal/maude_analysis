@@ -32,12 +32,15 @@ def build_potential_file_sets(input_files,  potential_positive_records_file_merg
                         questionable_positive_records_file = os.path.join(input_dir, input_data_file_set['questionable_positive_records_file'])
                         questionable_negative_records_file = os.path.join(input_dir, input_data_file_set['questionable_negative_records_file'])
                         if input_data_file_set['always_download'] == True or os.path.exists(potential_positive_records_file) == False or os.path.exists(potential_negative_records_file) == False:
-                            logging.info('Auto-labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
+                            logging.info('Pre-labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
+
+                            prelabeled_file_url = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['prelabeled_dir'], input_data_file_set['prelabeled_archive_name'])
+
                             download_zip_file_path = os.path.join(input_dir, input_data_file_set['name'] + '.zip')
-                            sharedlib.download_file(input_data_file_set['labeled_archive_url'], download_zip_file_path)
+                            sharedlib.download_file(prelabeled_file_url, download_zip_file_path)
                             logging.info('Extracting auto-labeled archive...')
                             sharedlib.unzip(download_zip_file_path, input_dir)
-                            logging.info('Auto-labeled files extracted.')
+                            logging.info('Pre-labeled files extracted.')
                         logging.info('Merging {} into {}...'.format(input_data_file_set['potential_positive_records_file'], potential_positive_records_file_merged))
                         fin = open(potential_positive_records_file, encoding='utf-8', errors='ignore')
                         for record in fin:
@@ -79,15 +82,15 @@ def label_records(mode):
     negative_records_output_file = sharedlib.abspath(config.output_files['verified_negative_records_file'])
     already_processed_record_numbers_file = sharedlib.abspath(config.output_files['already_processed_record_numbers_file'])
    
-    existing_work_in_progress = __remote_server_helper.all_work_in_progress_files_present_on_remote_server(config.remote_server_files)
+    existing_work_in_progress = __remote_server_helper.all_work_in_progress_files_present_on_remote_server(config.remote_server, config.remote_server_files)
     if existing_work_in_progress:
         # Cloud does not have work in progress
-        __remote_server_helper.download_remote_server_files(config.remote_server_files, config.output_files)
+        __remote_server_helper.download_remote_server_files(config.remote_server, config.remote_server_files, config.output_files)
     else:
         # No cloud files or incomplete set. Create new using data files.
         build_potential_file_sets(input_files, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file)
 
-    models = __remote_server_helper.download_models_from_remote_server(config.models, config.remote_server_models_directory, config.models_output_dir)
+    models = __remote_server_helper.download_models_from_remote_server(config.remote_server, config.models, config.models_output_dir)
 
     label(mode, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models)
     

@@ -4,6 +4,7 @@
 
 import os
 import sys
+import shutil
 import logging
 
 def initialize(current_app_path):
@@ -23,6 +24,29 @@ def abspath(path):
     if not os.path.isabs(path):
         path = os.path.abspath(os.path.join(os.path.dirname(__current_app_path), path))
     return path
+
+
+def copy_files(files_to_copy, destn_dir, skip_if_existing = False):
+    for file in files_to_copy:
+        dstn_path = os.path.join(destn_dir, os.path.basename(file))
+        copy_file(file, dstn_path)
+
+def copy_file(src_file, destn_file, skip_if_existing = False):
+    logging.info('Copying {} as {}...'.format(src_file, destn_file))            
+    destn_dir = os.path.dirname(destn_file)
+    if not os.path.exists(destn_dir):
+        logging.info('Directory {} does not exist. Creating new...'.format(destn_dir))            
+        os.makedirs(destn_dir)
+
+    if os.path.exists(destn_file):
+        if skip_if_existing == True:
+            logging.info('Skipping copy. File already exists: {}.'.format(destn_file))            
+            return
+
+        logging.info('File already exists. Deleting: {}.'.format(destn_file))            
+        os.remove(destn_file)
+                         
+    shutil.copyfile(src_file, destn_file)
 
 
 # The inline code is to register get_char_input() in a platform-agnostic way.
