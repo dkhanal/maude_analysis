@@ -2,7 +2,7 @@
   "input_data_file_sets": [
     {
       "name": "foitext2007",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2007.zip",
+      "pre_labeled_archive_name": "foitext2007.zip",
       "potential_positive_records_file": "foitext2007.pos.txt",
       "questionable_positive_records_file": "foitext2007.maybe.pos.txt",
       "potential_negative_records_file": "foitext2007.neg.txt",
@@ -11,7 +11,7 @@
     },
     {
       "name": "foitext2008",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2008.zip",
+      "pre_labeled_archive_name": "foitext2008.zip",
       "potential_positive_records_file": "foitext2008.pos.txt",
       "questionable_positive_records_file": "foitext2008.maybe.pos.txt",
       "potential_negative_records_file": "foitext2008.neg.txt",
@@ -20,7 +20,7 @@
     },
     {
       "name": "foitext2009",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2009.zip",
+      "pre_labeled_archive_name": "foitext2009.zip",
       "potential_positive_records_file": "foitext2009.pos.txt",
       "questionable_positive_records_file": "foitext2009.maybe.pos.txt",
       "potential_negative_records_file": "foitext2009.neg.txt",
@@ -29,7 +29,7 @@
     },
     {
       "name": "foitext2010",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2010.zip",
+      "pre_labeled_archive_name": "foitext2010.zip",
       "potential_positive_records_file": "foitext2010.pos.txt",
       "questionable_positive_records_file": "foitext2010.maybe.pos.txt",
       "potential_negative_records_file": "foitext2010.neg.txt",
@@ -38,7 +38,7 @@
     },
     {
       "name": "foitext2011",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2011.zip",
+      "pre_labeled_archive_name": "foitext2011.zip",
       "potential_positive_records_file": "foitext2011.pos.txt",
       "questionable_positive_records_file": "foitext2011.maybe.pos.txt",
       "potential_negative_records_file": "foitext2011.neg.txt",
@@ -47,7 +47,7 @@
     },
     {
       "name": "foitext2012",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2012.zip",
+      "pre_labeled_archive_name": "foitext2012.zip",
       "potential_positive_records_file": "foitext2012.pos.txt",
       "questionable_positive_records_file": "foitext2012.maybe.pos.txt",
       "potential_negative_records_file": "foitext2012.neg.txt",
@@ -56,7 +56,7 @@
     },
     {
       "name": "foitext2013",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2013.zip",
+      "pre_labeled_archive_name": "foitext2013.zip",
       "potential_positive_records_file": "foitext2013.pos.txt",
       "questionable_positive_records_file": "foitext2013.maybe.pos.txt",
       "potential_negative_records_file": "foitext2013.neg.txt",
@@ -65,7 +65,7 @@
     },
     {
       "name": "foitext2014",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2014.zip",
+      "pre_labeled_archive_name": "foitext2014.zip",
       "potential_positive_records_file": "foitext2014.pos.txt",
       "questionable_positive_records_file": "foitext2014.maybe.pos.txt",
       "potential_negative_records_file": "foitext2014.neg.txt",
@@ -74,7 +74,7 @@
     },
     {
       "name": "foitext2015",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2015.zip",
+      "pre_labeled_archive_name": "foitext2015.zip",
       "potential_positive_records_file": "foitext2015.pos.txt",
       "questionable_positive_records_file": "foitext2015.maybe.pos.txt",
       "potential_negative_records_file": "foitext2015.neg.txt",
@@ -83,7 +83,7 @@
     },
     {
       "name": "foitext2016",
-      "labeled_archive_url": "https://maude.blob.core.windows.net/pre-labeled/foitext2016.zip",
+      "pre_labeled_archive_name": "foitext2016.zip",
       "potential_positive_records_file": "foitext2016.pos.txt",
       "questionable_positive_records_file": "foitext2016.maybe.pos.txt",
       "potential_negative_records_file": "foitext2016.neg.txt",
@@ -91,8 +91,8 @@
       "always_download": true
     }
   ],
-  "cloud_files": {
-    "container": "labeled",
+  "remote_server_files": {
+    "directory": "labeled",
     "base_url": "https://maude.blob.core.windows.net/labeled/",
     "potential_positive_records_blob": "potential_positive_records.txt",
     "potential_negative_records_blob": "potential_negative_records.txt",
@@ -118,7 +118,7 @@
   "models": [
     {
       "name": "naive_bayes_bow_no_duplicates",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow_no_duplicates.zip",
+      "archive_name": "naive_bayes_bow_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
       "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
       "labeled_files_max_num_records_to_read": null,
@@ -127,7 +127,7 @@
     },
     {
       "name": "naive_bayes_bow_with_duplicates",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow_with_duplicates.zip",
+      "archive_name": "naive_bayes_bow_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
@@ -135,7 +135,7 @@
     },
     {
       "name": "naive_bayes_bigrams_no_duplicates",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bigrams_no_duplicates.zip",
+      "archive_name": "naive_bayes_bigrams_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
       "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
       "labeled_files_max_num_records_to_read": null,
@@ -144,7 +144,7 @@
     },
     {
       "name": "naive_bayes_bigrams_with_duplicates",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bigrams_with_duplicates.zip",
+      "archive_name": "naive_bayes_bigrams_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
@@ -152,7 +152,7 @@
     },
     {
       "name": "naive_bayes_trigrams_no_duplicates",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_trigrams_no_duplicates.zip",
+      "archive_name": "naive_bayes_trigrams_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
       "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
       "labeled_files_max_num_records_to_read": null,
@@ -161,7 +161,7 @@
     },
     {
       "name": "naive_bayes_trigrams_with_duplicates",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_trigrams_with_duplicates.zip",
+      "archive_name": "naive_bayes_trigrams_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
@@ -169,9 +169,16 @@
     }
   ],
   "models_output_dir": "../maude_modeling/out",
-  "upload_models_to_cloud": true,
-  "models_cloud_blob_container_name": "models",
   "input_dir": "in",
-  "upload_output_to_cloud": true,
+  "upload_output_to_remote_server": true,
+  "upload_regenerated_models_to_remote_server": true,
+  "remote_server": {
+    "base_uri": "https://maude.blob.core.windows.net/",
+    "narratives_dir": "narratives",
+    "prelabeled_dir": "prelabeled",
+    "labled_dir": "labeled",
+    "models_dir": "models",
+    "classification_dir": "classification"
+  },
   "verbose": false
 }

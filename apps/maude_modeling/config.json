@@ -3,8 +3,7 @@
   "output_dir": "out",
   "input_data_file_sets": [
     {
-      "name": "verified_labels",
-      "base_url": "https://maude.blob.core.windows.net/labeled/",
+      "name": "labeled_files",
       "positive_records_file": "verified_positive_records.txt",
       "negative_records_file": "verified_negative_records.txt",
       "always_download": false
@@ -57,7 +56,14 @@
       "use_equal_positive_and_negative_labeled_records": true
     }
   ],
-  "upload_output_to_cloud": true,
-  "cloud_blob_container_name": "models",
+  "upload_output_to_remote_server": true,
+  "remote_server": {
+    "base_uri": "https://maude.blob.core.windows.net/",
+    "narratives_dir": "narratives",
+    "prelabeled_dir": "prelabeled",
+    "labled_dir": "labeled",
+    "models_dir": "models",
+    "classification_dir": "classification"
+  },
   "verbose": false
 }

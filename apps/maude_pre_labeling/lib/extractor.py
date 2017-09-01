@@ -176,7 +176,7 @@ def extract_records(input_files, output_dir, max = None):
             os.remove(chunk)
 
         # Upload merged files
-        if config.upload_output_to_cloud == True:
+        if config.upload_output_to_remote_server == True:
             list_of_files_to_upload = [positive_records_output_file,
                                         negative_records_output_file,
                                         maybe_positive_records_output_file,
@@ -185,7 +185,7 @@ def extract_records(input_files, output_dir, max = None):
 
             archive_path =  os.path.join(os.path.dirname(positive_records_output_file), os.path.splitext(os.path.basename(file_name))[0]+'.zip')
             sharedlib.zip_files(list_of_files_to_upload, archive_path)
-            sharedlib.upload_files_to_cloud_container(list_of_files_to_upload, config.cloud_blob_container_name)
+            sharedlib.upload_files_to_remote_server(list_of_files_to_upload, config.remote_server_output_upload_directory)
 
 
 def extract_matching_records_from_file(input_file, 

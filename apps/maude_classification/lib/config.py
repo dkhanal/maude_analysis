@@ -23,20 +23,19 @@ def load_config():
         config_data = json.load(config_file)
 
     # Configuration items
-    global input_data_files
+    global files_to_classify
     global models_dir
     global output_dir
     global target_file_max_num_records_to_classify
     global models
     global positive_probability_threshold
-    global upload_output_to_cloud
+    global upload_output_to_remote_server
     global upload_positive_files_only
-    global cloud_blob_container_name
-    global azure_account_name
-    global azure_account_key
+    global remote_server_output_upload_directory
+    global remote_server_base_uri
     global verbose
 
-    input_data_files = config_data['input_data_files']
+    files_to_classify = config_data['files_to_classify']
     output_dir = config_data['output_dir']
     models_dir = config_data['models_dir']
     models = config_data['models']
@@ -44,16 +43,10 @@ def load_config():
     positive_probability_threshold = config_data['positive_probability_threshold']
     verbose = config_data['verbose']
 
-    upload_output_to_cloud = config_data['upload_output_to_cloud']
+    upload_output_to_remote_server = config_data['upload_output_to_remote_server']
     upload_positive_files_only = config_data['upload_positive_files_only']
-    cloud_blob_container_name = config_data['cloud_blob_container_name']
-
-    if upload_output_to_cloud == True and ('azure_account_name' not in os.environ or 'azure_account_key' not in os.environ):
-        logging.info('CONFIGURATION ERROR: Environment variable (azure_account_name) must be set to upload output files.')
-    
-    if upload_output_to_cloud == True:
-        azure_account_name = os.environ['azure_account_name']    
-        azure_account_key = os.environ['azure_account_key']
+    remote_server_output_upload_directory = config_data['remote_server_output_upload_directory']
+    remote_server_base_uri = config_data['remote_server_base_uri']
 
     logging.info('Configuration loaded.')
 

@@ -109,7 +109,7 @@ def build_labeled_features(model_name, file, label, skip_duplicates, record_hash
     log('{} => Total {} record(s) processed.'.format(file_base_name, total_data_records))
     return file_features
 
-def generate_models(positive_records_files, negative_records_files, models_config, output_dir, upload_models_to_cloud, upload_container_name):
+def generate_models(positive_records_files, negative_records_files, models_config, output_dir, upload_regenerated_models_to_remote_server, upload_directory_name):
     output_dir = sharedlib.abspath(output_dir)
     start_time = datetime.datetime.now()
     log('modeler::generate_models() starting at {}'.format(start_time))
@@ -209,11 +209,11 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
         generated_models.append((model_name, pickle_file))
 
-        if upload_models_to_cloud == True:
+        if upload_regenerated_models_to_remote_server == True:
             model_archive_name = model_name+'.zip'
             zipped_file = sharedlib.zip_files([pickle_file, all_pos_records_file_path, all_neg_records_file_path], os.path.join(output_dir, model_archive_name))
-            log('Uploading the pickled model ({}) to the Cloud...'.format(model_archive_name))
-            sharedlib.upload_files_to_cloud_container([zipped_file], upload_container_name)
+            log('Uploading the pickled model ({}) to the Remote Server...'.format(model_archive_name))
+            sharedlib.upload_files_to_remote_server([zipped_file], upload_directory_name)
 
         model_end_time = datetime.datetime.now()
         log('Completed creating model for: {} at {}. Duration: {}...'.format(model_name, model_end_time, model_end_time - model_start_time))
@@ -244,4 +244,4 @@ def generate_models_per_config(input_data_files):
         positive_records_files.append(positive_records_file)
         negative_records_files.append(negative_records_file)
 
-        generate_models(positive_records_files, negative_records_files, config.models, output_dir, config.upload_output_to_cloud, config.cloud_blob_container_name)
+        generate_models(positive_records_files, negative_records_files, config.models, output_dir, config.upload_output_to_remote_server, config.remote_server_output_upload_directory)

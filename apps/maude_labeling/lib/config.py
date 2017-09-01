@@ -24,33 +24,35 @@ def load_config():
 
     # Configuration items
     global input_data_file_sets
-    global cloud_files
+    global remote_server_files
     global output_files
     global regen_models
     global auto_regen_models
     global models_auto_regen_records_threshold
     global models
     global models_output_dir
-    global upload_models_to_cloud
-    global models_cloud_blob_container_name
+    global upload_regenerated_models_to_remote_server
+    global remote_server_models_directory
     global input_dir
-    global upload_output_to_cloud
-    global azure_account_name
-    global azure_account_key
+    global upload_output_to_remote_server
+    global remote_server_base_uri
     global verbose
 
     input_data_file_sets = config_data['input_data_file_sets']
-    cloud_files = config_data['cloud_files']
+    remote_server_files = config_data['remote_server_files']
     output_files = config_data['output_files']
     input_dir = config_data['input_dir']
-    upload_output_to_cloud = config_data['upload_output_to_cloud']
+    upload_output_to_remote_server = config_data['upload_output_to_remote_server']
+    remote_server_base_uri = config_data['remote_server_base_uri']
+
     regen_models = config_data['regen_models']
     auto_regen_models = config_data['auto_regen_models']
     models_auto_regen_records_threshold = config_data['models_auto_regen_records_threshold']
     models = config_data['models']
     models_output_dir = config_data['models_output_dir']
-    upload_models_to_cloud = config_data['upload_models_to_cloud']
-    models_cloud_blob_container_name = config_data['models_cloud_blob_container_name']
+    upload_regenerated_models_to_remote_server = config_data['upload_regenerated_models_to_remote_server']
+    remote_server_models_directory = config_data['remote_server_models_directory']
+
     verbose = config_data['verbose']
 
     logging.info('Configuration loaded.')

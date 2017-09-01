@@ -27,7 +27,7 @@ def download_file(url, destination_path):
     log('Downloading {} to {}. This may take a while...'.format(url, file_path))
     urllib.request.urlretrieve(url, file_path)
 
-def classify(input_data_files):
+def classify(files_to_classify):
     output_dir = sharedlib.abspath(config.output_dir)
     models_dir = sharedlib.abspath(config.models_dir)
 
@@ -57,7 +57,7 @@ def classify(input_data_files):
         models.append((model_name, model))
        
     log('Total {} model(s) loaded.'.format(len(models)))
-    for input_data_file in input_data_files:
+    for input_data_file in files_to_classify:
         classify_file(input_data_file, models, True, config.target_file_max_num_records_to_classify)
 
     end_time = datetime.datetime.now()
@@ -193,11 +193,11 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     if config.upload_positive_files_only == False:
         files_to_zip.append(overall_predicted_neg_records_file_path)
 
-    if config.upload_output_to_cloud == True:
+    if config.upload_output_to_remote_server == True:
         archive_name = os.path.splitext(file_base_name)[0]+'.zip'
         zip_file = sharedlib.zip_files(files_to_zip, os.path.join(out_dir, archive_name))
-        log('Uploading the output files ({}) to the Cloud...'.format(archive_name))
-        sharedlib.upload_files_to_cloud_container([zip_file], config.cloud_blob_container_name)
+        log('Uploading the output files ({}) to the Remote Server...'.format(archive_name))
+        sharedlib.upload_files_to_remote_server([zip_file], config.remote_server_output_upload_directory)
 
     end_time = datetime.datetime.now()
     log('classifier::classify_file() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))

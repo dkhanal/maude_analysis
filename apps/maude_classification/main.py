@@ -20,11 +20,12 @@ def initialize():
     add_to_path(os.path.abspath(os.path.join(base_path, '..', '..', 'shared')))
     add_to_path(os.path.abspath(os.path.join(base_path, 'lib')))
 
-    import sharedlib
-    sharedlib.set_current_app_path(__file__)
-
     global log_file_path
-    log_file_path = sharedlib.abspath(os.path.join(base_path, 'out', 'classification_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S"))))
+    log_file_path = os.path.join(base_path, 'out', 'classification_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")))
+
+    import sharedlib
+    sharedlib.initialize(base_path, log_file_path, remote_server_base_uri)
+
 
     sharedlib.initialize_logger(sharedlib.abspath(log_file_path))
     sharedlib.load_environment_vars(sharedlib.abspath(os.path.join(base_path, '.setenv.py')))
@@ -43,20 +44,20 @@ def main(args=None):
     start_time = datetime.datetime.now()
     logging.info('Classification of unknown records starting at {}'.format(start_time))
     
-    input_data_files = config.input_data_files
+    files_to_classify = config.files_to_classify
     if len(args) > 0:
         logging.info('Classifying {}'.format(args[0]))
-        input_data_files = [s for s in config.input_data_files if args[0] in s]
-        logging.info(input_data_files)
+        files_to_classify = [s for s in config.files_to_classify if args[0] in s]
+        logging.info(files_to_classify)
 
 
-    classifier.classify(input_data_files)
+    classifier.classify(files_to_classify)
 
     end_time = datetime.datetime.now()
     logging.info('Classification completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
-    if config.upload_output_to_cloud == True:
-        sharedlib.upload_files_to_cloud_container([log_file_path], config.cloud_blob_container_name)
+    if config.upload_output_to_remote_server == True:
+        sharedlib.upload_files_to_remote_server([log_file_path], config.remote_server_output_upload_directory)
 
 if __name__ == "__main__":
     main()

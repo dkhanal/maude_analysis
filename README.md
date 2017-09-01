@@ -27,7 +27,7 @@ The MAUDE dataset published by the FDA is not labeled. The Labeling application 
 `<input_filename>.maybe.pos.txt` => Potentially positive records, but were rejected due to a potential negative signal.
 `<input_filename>.process.txt` => A processing log file with a specific reason for why a particular record was deemed positive or negative.
 
-The output files are persisted in the output folder, as well as on the Cloud.
+The output files are persisted in the output folder, as well as on the Remote Server.
 
 To run this application, simply execute the main script:
 ```
@@ -43,7 +43,7 @@ $ python why.py <record id>
 
 2. Modeling Application (maude_modeling)
 
-The modeling application takes a set of labeled files as input and creates machine learning models. Labeled files are automatically downloaded from the Cloud. Trained models are then persisted in the output folder, and also uploaded to the Cloud. To run the application, simply run the main script:
+The modeling application takes a set of labeled files as input and creates machine learning models. Labeled files are automatically downloaded from the Remote Server. Trained models are then persisted in the output folder, and also uploaded to the Remote Server. To run the application, simply run the main script:
 
 ```
 $ python main.py
@@ -51,7 +51,7 @@ $ python main.py
 
 3. Classification Application (maude_classification)
 
-The classification application takes a set of files as input and trained models and performs classification using supported NLP algoritms in the models. Trained models (Output of the Modeling Applications) are automatically downloaded form the Cloud, and the result of the classification also posted to the Cloud. To run the classification application, simply run the main script:
+The classification application takes a set of files as input and trained models and performs classification using supported NLP algoritms in the models. Trained models (Output of the Modeling Applications) are automatically downloaded form the Remote Server, and the result of the classification also posted to the Remote Server. To run the classification application, simply run the main script:
 
 ```
 $ python main.py

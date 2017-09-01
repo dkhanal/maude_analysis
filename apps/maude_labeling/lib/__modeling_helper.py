@@ -16,22 +16,22 @@ def rebuild_models(verified_positive_records_file_path, verified_negative_record
         return None
 
     models_config = config.models
-    upload_models_to_cloud = config.upload_models_to_cloud
-    models_cloud_blob_container_name = config.models_cloud_blob_container_name
+    upload_regenerated_models_to_remote_server = config.upload_regenerated_models_to_remote_server
+    remote_server_models_directory = config.remote_server_models_directory
 
-    if config.upload_output_to_cloud == True:
+    if config.upload_output_to_remote_server == True:
         logging.info('Uploading labeled records so far to Cloud...')
         files_to_upload = [verified_positive_records_file_path, verified_negative_records_file_path,
                            already_processed_record_numbers_file]
-        sharedlib.upload_files_to_cloud_container(files_to_upload, config.cloud_files['container'])
+        sharedlib.upload_files_to_remote_server(files_to_upload, config.remote_server_files['directory'])
 
     logging.info('Generating models...')
     model_pickles = modeler.generate_models([verified_positive_records_file_path],
                                             [verified_negative_records_file_path],
                                             models_config,
                                             config.models_output_dir,
-                                            upload_models_to_cloud,
-                                            models_cloud_blob_container_name
+                                            upload_regenerated_models_to_remote_server,
+                                            remote_server_models_directory
                                             )
     models = []
 

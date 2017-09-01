@@ -65,7 +65,7 @@ def main(args=None):
     if not isinstance(upload_confirmation, str):
         upload_confirmation = bytes.decode(upload_confirmation)
     if upload_confirmation == 'y':
-        sharedlib.upload_files_to_cloud_container(files_to_upload, config.cloud_files['container'])
+        sharedlib.upload_files_to_remote_server(files_to_upload, config.remote_server_files['directory'])
 
 if __name__ == "__main__":
     main()

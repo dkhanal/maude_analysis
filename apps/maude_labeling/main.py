@@ -64,9 +64,9 @@ def main(args=None):
     end_time = datetime.datetime.now()
     logging.info('Manual verification session completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
-    if config.upload_output_to_cloud == True:
+    if config.upload_output_to_remote_server == True:
         logging.info('Uploading log file to Cloud...')
-        sharedlib.upload_files_to_cloud_container([log_file_path], config.cloud_files['container'])
+        sharedlib.upload_files_to_remote_server([log_file_path], config.remote_server_files['directory'])
 
 if __name__ == "__main__":
     main()

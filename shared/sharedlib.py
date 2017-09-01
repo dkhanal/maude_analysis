@@ -5,16 +5,19 @@
 import __logging
 import __env
 import __io
-import __azure
+import __remote_server
 import __http
 import __zip
 import __pickle
 import __collections
 
-# Logging related
-def initialize_logger(log_file_abs_path):
-    __logging.initialize_logger(log_file_abs_path)
+# Initialization
+def initialize(application_abs_path, log_file_abs_path, remote_server_base_uri):
+    __io.initialize(application_abs_path)
+    __logging.initialize(log_file_abs_path)
+    __remote_server.initialize(remote_server_base_uri)
 
+# Logging related
 def close_logger():
     __logging.close_logger()
 
@@ -32,15 +35,12 @@ def abspath(path):
 def get_char_input():
     return __io.get_char_input()
 
-def set_current_app_path(path):
-    __io.set_current_app_path(path)
-
 # Cloud
-def upload_files_to_cloud_container(list_of_files, container_name):
-    __azure.upload_files_to_container(list_of_files, container_name)
+def upload_files_to_remote_server(list_of_files, remote_directory):
+    __remote_server.upload_files_to_remote_server(list_of_files, remote_directory)
 
-def get_list_of_files_in_cloud_container(container_name):
-    return __azure.get_list_of_files_in_container(container_name)
+def get_list_of_files_from_remote_server(remote_directory):
+    return __remote_server.get_list_of_files_from_remote_server(remote_directory)
 
 # HTTP
 def download_file(url, save_to_path, force_download=False):

@@ -13,7 +13,7 @@ import sharedlib
 import config
 
 
-import __cloud_helper
+import __remote_server_helper
 import __modeling_helper
 import __classification_helper
 
@@ -79,19 +79,19 @@ def label_records(mode):
     negative_records_output_file = sharedlib.abspath(config.output_files['verified_negative_records_file'])
     already_processed_record_numbers_file = sharedlib.abspath(config.output_files['already_processed_record_numbers_file'])
    
-    existing_work_in_progress = __cloud_helper.all_work_in_progress_files_present_on_cloud(config.cloud_files)
+    existing_work_in_progress = __remote_server_helper.all_work_in_progress_files_present_on_remote_server(config.remote_server_files)
     if existing_work_in_progress:
         # Cloud does not have work in progress
-        __cloud_helper.download_cloud_files(config.cloud_files, config.output_files)
+        __remote_server_helper.download_remote_server_files(config.remote_server_files, config.output_files)
     else:
         # No cloud files or incomplete set. Create new using data files.
         build_potential_file_sets(input_files, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file)
 
-    models = __cloud_helper.download_models_from_cloud(config.models, config.models_cloud_blob_container_name, config.models_output_dir)
+    models = __remote_server_helper.download_models_from_remote_server(config.models, config.remote_server_models_directory, config.models_output_dir)
 
     label(mode, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models)
     
-    if config.upload_output_to_cloud == True:                            
+    if config.upload_output_to_remote_server == True:
         logging.info('Upload output{}? [y/n] '.format( '' if existing_work_in_progress else ' (POTENTIALLY OVERWRITE CLOUD)'))
         upload_confirmation = sharedlib.get_char_input()
         if not isinstance(upload_confirmation, str):
@@ -102,7 +102,7 @@ def label_records(mode):
             if not existing_work_in_progress:
                 files_to_upload += [potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file]
 
-            sharedlib.upload_files_to_cloud_container(files_to_upload, config.cloud_files['container'])
+            sharedlib.upload_files_to_remote_server(files_to_upload, config.remote_server_files['directory'])
 
 
 def get_already_read_records(file_path):

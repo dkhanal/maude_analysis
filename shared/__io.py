@@ -6,9 +6,9 @@ import os
 import sys
 import logging
 
-def set_current_app_path(path):
+def initialize(current_app_path):
     global __current_app_path
-    __current_app_path = os.path.dirname(path)
+    __current_app_path = os.path.dirname(current_app_path)
 
 def create_dirs(list_of_paths):
     for path in list_of_paths:

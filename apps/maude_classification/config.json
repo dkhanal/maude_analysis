@@ -1,7 +1,7 @@
 {
   "output_dir": "out",
   "models_dir": "models",
-  "input_data_files": [
+  "files_to_classify": [
     "../../data/foitext2007.txt",
     "../../data/foitext2008.txt",
     "../../data/foitext2009.txt",
@@ -16,19 +16,26 @@
   "models": [
     {
       "name": "naive_bayes_bow_no_duplicates",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow_no_duplicates.zip",
+      "archive_name": "naive_bayes_bow_no_duplicates.zip",
       "always_download": true
     },
     {
       "name": "naive_bayes_bow_with_duplicates",
-      "remote_url": "https://maude.blob.core.windows.net/models/naive_bayes_bow_with_duplicates.zip",
+      "archive_name": "naive_bayes_bow_with_duplicates.zip",
       "always_download": true
     }
   ],
   "target_file_max_num_records_to_classify": 100,
   "positive_probability_threshold": 0.95,
-  "upload_output_to_cloud": true,
+  "upload_output_to_remote_server": true,
   "upload_positive_files_only":  true,
-  "cloud_blob_container_name": "classification",
+  "remote_server": {
+    "base_uri": "https://maude.blob.core.windows.net/",
+    "narratives_dir": "narratives",
+    "prelabeled_dir": "prelabeled",
+    "labled_dir": "labeled",
+    "models_dir": "models",
+    "classification_dir": "classification"
+  },
   "verbose": false
 }

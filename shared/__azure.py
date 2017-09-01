@@ -19,33 +19,26 @@ def __load_credentials():
 
     return (azure_account_name, azure_account_key)
 
-def upload_files_to_container(list_of_files, container_name):
-    start_time = datetime.datetime.now()
-    logging.info('Uploading {} files to cloud. Starting at {}'.format(len(list_of_files), start_time))
-
+def upload_files_to_directory(list_of_files, directory_name):
     logging.info('Connecting to Azure Blob Storage...')
-
     azure_account_name, azure_account_key = __load_credentials()
     block_blob_service = BlockBlobService(azure_account_name, azure_account_key)
 
     for file in list_of_files:
         file_basename = os.path.basename(file)
-        logging.info('Uploading {} to the Cloud...'.format(file))
-        block_blob_service.create_blob_from_path(container_name,
+        logging.info('Uploading {} to the Remote Server...'.format(file))
+        block_blob_service.create_blob_from_path(directory_name,
                                                  file_basename, file,
                                                  content_settings=ContentSettings(content_type=__get_mime_type(file_basename)))
 
-    end_time = datetime.datetime.now()
-    logging.info('Upload completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
-
-def get_list_of_files_in_container(container_name):
-    logging.info('Getting a list of files from Container: {}..'.format(container_name))
+def get_list_of_files_in_directory(directory_name):
+    logging.info('Getting a list of files from directory: {}..'.format(directory_name))
     logging.info('Connecting to Azure Blob Storage...')
 
     azure_account_name, azure_account_key = __load_credentials()
     block_blob_service = BlockBlobService(azure_account_name, azure_account_key)
 
-    blobs = [item.name for item in block_blob_service.list_blobs(container_name)]
+    blobs = [item.name for item in block_blob_service.list_blobs(directory_name)]
 
     return blobs
 
