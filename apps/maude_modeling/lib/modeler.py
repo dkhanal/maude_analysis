@@ -1,3 +1,7 @@
+# Copyright (c) 2017 Deepak Khanal
+# All Rights Reserved
+# dkhanal AT gmail DOT com
+
 import os
 import sys
 import datetime
@@ -9,24 +13,16 @@ import random
 import hashlib
 import re
 import string
-
+import logging
 
 import nltk
 from nltk import word_tokenize
-from nltk import ngrams
 
+import sharedlib
 import config
-import util
-import uploader
 
 def log(line):
-    __log_file_handle.write(line + '\n')
-    print(line)
-
-def download_file(url, destination_path):
-    file_path = os.path.abspath(destination_path)
-    log('Downloading {} to {}. This may take a while...'.format(url, file_path))
-    urllib.request.urlretrieve(url, file_path)
+    logging.info(line)
 
 def extract_features(model_name, list_of_words):
     features = {}
@@ -113,16 +109,8 @@ def build_labeled_features(model_name, file, label, skip_duplicates, record_hash
     log('{} => Total {} record(s) processed.'.format(file_base_name, total_data_records))
     return file_features
 
-def generate_models(positive_records_files, negative_records_files, models_config, output_dir, upload_models_to_cloud, upload_container_name, log_file_path = None):
-    output_dir = util.fix_path(output_dir)
-    if log_file_path is not None:
-        global __log_file_handle
-        log_file_path = os.path.join(output_dir, 'process.log')
-        __log_file_handle = open(log_file_path, 'w')
-    else:
-        # If the log file path is not supplied, a handle to it must be pre-defined.
-        assert __log_file_handle is not None
-
+def generate_models(positive_records_files, negative_records_files, models_config, output_dir, upload_models_to_cloud, upload_container_name):
+    output_dir = sharedlib.abspath(output_dir)
     start_time = datetime.datetime.now()
     log('modeler::generate_models() starting at {}'.format(start_time))
     process_log_first_line = 'MAUDE Modeling Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
@@ -157,7 +145,7 @@ def generate_models(positive_records_files, negative_records_files, models_confi
         all_pos_records_file = codecs.open(all_pos_records_file_path, 'w', encoding='utf-8', errors='ignore')
         all_neg_records_file = codecs.open(all_neg_records_file_path, 'w', encoding='utf-8', errors='ignore')
 
-        output_dir = util.fix_path(output_dir)
+        output_dir = sharedlib.abspath(output_dir)
 
         positive_file_features = []
         negative_file_features = []
@@ -214,35 +202,28 @@ def generate_models(positive_records_files, negative_records_files, models_confi
             log('Model accuracy is: {}. '.format(accuracy))
             classifier.show_most_informative_features()
 
-        pickle_file = util.fix_path(os.path.join(output_dir, model_name + '.pickle'))
+        pickle_file = sharedlib.abspath(os.path.join(output_dir, model_name + '.pickle'))
         log('Pickling the model as: {}...'.format(os.path.basename(pickle_file)))
-        util.pickle_object(classifier, pickle_file)
+        sharedlib.pickle_object(classifier, pickle_file)
         log('Model pickled. '.format(accuracy))
 
         generated_models.append((model_name, pickle_file))
 
         if upload_models_to_cloud == True:
             model_archive_name = model_name+'.zip'
+            zipped_file = sharedlib.zip_files([pickle_file, all_pos_records_file_path, all_neg_records_file_path], os.path.join(output_dir, model_archive_name))
             log('Uploading the pickled model ({}) to the Cloud...'.format(model_archive_name))
-            uploader.upload_files([pickle_file, all_pos_records_file_path, all_neg_records_file_path], output_dir, os.path.join(output_dir, model_archive_name), upload_container_name)
+            sharedlib.upload_files_to_cloud_container([zipped_file], upload_container_name)
 
         model_end_time = datetime.datetime.now()
         log('Completed creating model for: {} at {}. Duration: {}...'.format(model_name, model_end_time, model_end_time - model_start_time))
 
     end_time = datetime.datetime.now()
-    if log_file_path is not None:
-        __log_file_handle.close()
-        if upload_models_to_cloud == True:
-            uploader.upload_files([log_file_path], output_dir, os.path.join(output_dir, 'log_{}.zip'.format(end_time.strftime("%Y%m%d-%H%M%S"))), upload_container_name)
-
     return generated_models
 
 def generate_models_per_config(input_data_files):
-    input_dir = util.fix_path(config.input_dir)
-    output_dir = util.fix_path(config.output_dir)
-    log_file_path = os.path.join(output_dir, 'process.log')
-    global __log_file_handle
-    __log_file_handle = open(log_file_path, 'w')
+    input_dir = sharedlib.abspath(config.input_dir)
+    output_dir = sharedlib.abspath(config.output_dir)
     start_time = datetime.datetime.now()
     log('modeler::create_models() starting at {}'.format(start_time))
 
@@ -254,8 +235,8 @@ def generate_models_per_config(input_data_files):
         negative_records_file = os.path.join(input_dir, input_data_file_set['negative_records_file'])
         if input_data_file_set['always_download'] == True or os.path.exists(positive_records_file) == False or os.path.exists(negative_records_file) == False:
             log('Labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
-            download_file(input_data_file_set['base_url'] +  input_data_file_set['positive_records_file'], positive_records_file)
-            download_file(input_data_file_set['base_url'] +  input_data_file_set['negative_records_file'], negative_records_file)
+            sharedlib.download_file(input_data_file_set['base_url'] +  input_data_file_set['positive_records_file'], positive_records_file)
+            sharedlib.download_file(input_data_file_set['base_url'] +  input_data_file_set['negative_records_file'], negative_records_file)
 
         log('Positive records file: {}'.format(os.path.basename(positive_records_file)))
         log('Negative records file: {}'.format(os.path.basename(negative_records_file)))
@@ -264,5 +245,3 @@ def generate_models_per_config(input_data_files):
         negative_records_files.append(negative_records_file)
 
         generate_models(positive_records_files, negative_records_files, config.models, output_dir, config.upload_output_to_cloud, config.cloud_blob_container_name)
-
-    __log_file_handle.close()

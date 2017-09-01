@@ -1,17 +1,19 @@
+# Copyright (c) 2017 Deepak Khanal
+# All Rights Reserved
+# dkhanal AT gmail DOT com
+
 import os
 import sys
 import datetime
-import pickle
 import codecs
 import platform
 import urllib
+import logging
 
-import nltk
 from nltk import word_tokenize
 
+import sharedlib
 import config
-import util
-import uploader
 
 def extract_features(list_of_words):
     features = {}
@@ -21,17 +23,13 @@ def extract_features(list_of_words):
     return features
 
 def download_file(url, destination_path):
-    file_path = os.path.abspath(destination_path)
+    file_path = sharedlib.abspath(destination_path)
     log('Downloading {} to {}. This may take a while...'.format(url, file_path))
     urllib.request.urlretrieve(url, file_path)
 
 def classify(input_data_files):
-    output_dir = util.fix_path(config.output_dir)
-    models_dir = util.fix_path(config.models_dir)
-    log_file_path = os.path.join(output_dir, 'process.log')
-
-    global __log_file_handle
-    __log_file_handle = open(log_file_path, 'w')
+    output_dir = sharedlib.abspath(config.output_dir)
+    models_dir = sharedlib.abspath(config.models_dir)
 
     start_time = datetime.datetime.now()
     process_log_first_line = 'MAUDE Classification Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
@@ -49,12 +47,12 @@ def classify(input_data_files):
             download_zip_file_path = os.path.join(models_dir, model_name + '.zip')
             download_file(model_config['remote_url'], download_zip_file_path)
             log('Extracting model archive...')
-            util.unzip(download_zip_file_path, models_dir)
+            sharedlib.unzip(download_zip_file_path, models_dir)
             log('Model extracted.')
         
         log('Model pickle file: {}'.format(os.path.basename(model_pickle_file)))
         log('Loading the pickled model...')
-        model = util.load_pickle(model_pickle_file)
+        model = sharedlib.load_pickle(model_pickle_file)
         log('Model ({}) loaded.'.format(model))
         models.append((model_name, model))
        
@@ -64,11 +62,6 @@ def classify(input_data_files):
 
     end_time = datetime.datetime.now()
     log('classifier::classify_files() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
-    log('Uploading (best effort) logs now...')
-    __log_file_handle.close()
-
-    if config.upload_output_to_cloud == True:
-        uploader.upload_files([log_file_path], output_dir, os.path.join(output_dir, 'log_{}.zip'.format(end_time.strftime("%Y%m%d-%H%M%S"))))
 
 def classify_record(record, models):
     record_lower_case = record.lower()
@@ -87,7 +80,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     log('classifier::classify_file() starting at {}'.format(start_time))
 
     file_base_name = os.path.basename(input_data_file)
-    out_dir = util.fix_path(config.output_dir)
+    out_dir = sharedlib.abspath(config.output_dir)
     predicted_pos_file_ext = '.predicted.pos.txt'
     predicted_neg_file_ext = '.predicted.neg.txt'
 
@@ -110,7 +103,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
                                  predicted_negative_records_file_path, 
                                  open(predicted_negative_records_file_path, 'w', encoding='utf-8', errors='ignore')))
 
-    unknown_records_file = util.fix_path(input_data_file)
+    unknown_records_file = sharedlib.abspath(input_data_file)
     log('Unknown records file: {}'.format(unknown_records_file))
     log('Reading the unknown records file. One record at a time.'.format(classifier))
 
@@ -202,14 +195,12 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
 
     if config.upload_output_to_cloud == True:
         archive_name = os.path.splitext(file_base_name)[0]+'.zip'
+        zip_file = sharedlib.zip_files(files_to_zip, os.path.join(out_dir, archive_name))
         log('Uploading the output files ({}) to the Cloud...'.format(archive_name))
-        uploader.upload_files(files_to_zip, out_dir, os.path.join(out_dir, archive_name))
-
+        sharedlib.upload_files_to_cloud_container([zip_file], config.cloud_blob_container_name)
 
     end_time = datetime.datetime.now()
     log('classifier::classify_file() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
-
-
 
 
 def build_labeled_features(file, label, skip_first_record=False, max_records = None):
@@ -218,7 +209,7 @@ def build_labeled_features(file, label, skip_first_record=False, max_records = N
     file_base_name = os.path.basename(file)
     total_records = 0
     total_data_records = 0
-    fin = codecs.open(unknown_records_file, encoding='utf-8', errors='ignore')
+    fin = codecs.open(file, encoding='utf-8', errors='ignore')
     for record in fin:
         total_records += 1
         sys.stdout.write('{} => Now processing record: {}...\r'.format(file_base_name, total_records))
@@ -246,5 +237,4 @@ def build_labeled_features(file, label, skip_first_record=False, max_records = N
     return file_features
 
 def log(line):
-    __log_file_handle.write(line + '\n')
-    print(line)
+    logging.info(line)

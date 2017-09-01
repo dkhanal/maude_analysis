@@ -1,17 +1,17 @@
 {
-  "output_dir": "../out",
-  "models_dir": "../models",
+  "output_dir": "out",
+  "models_dir": "models",
   "input_data_files": [
-    "../../../data/foitext2007.txt",
-    "../../../data/foitext2008.txt",
-    "../../../data/foitext2009.txt",
-    "../../../data/foitext2010.txt",
-    "../../../data/foitext2011.txt",
-    "../../../data/foitext2012.txt",
-    "../../../data/foitext2013.txt",
-    "../../../data/foitext2014.txt",
-    "../../../data/foitext2015.txt",
-    "../../../data/foitext2016.txt"
+    "../../data/foitext2007.txt",
+    "../../data/foitext2008.txt",
+    "../../data/foitext2009.txt",
+    "../../data/foitext2010.txt",
+    "../../data/foitext2011.txt",
+    "../../data/foitext2012.txt",
+    "../../data/foitext2013.txt",
+    "../../data/foitext2014.txt",
+    "../../data/foitext2015.txt",
+    "../../data/foitext2016.txt"
   ],
   "models": [
     {
@@ -25,7 +25,7 @@
       "always_download": true
     }
   ],
-  "target_file_max_num_records_to_classify": null,
+  "target_file_max_num_records_to_classify": 100,
   "positive_probability_threshold": 0.95,
   "upload_output_to_cloud": true,
   "upload_positive_files_only":  true,

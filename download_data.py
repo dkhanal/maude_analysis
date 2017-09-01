@@ -1,10 +1,10 @@
-# By Deepak Khanal
-# dkhanal@gmail.com
+# Copyright (c) 2017 Deepak Khanal
+# All Rights Reserved
+# dkhanal AT gmail DOT com
 
 # To manually execute:
 # >> exec(open('C:\\Users\\dkhan\\Google Drive\\Dissertation\\Machine Learning\\maude_sw_causes\\download_data.py').read())
 
-import sys
 import os
 import urllib.request
 
@@ -23,7 +23,7 @@ def download_file(args):
     file_path = os.path.abspath(destination_path)
 
     if os.path.isfile(file_path):
-        print ('Data file {} already exists. It will not be downloaded.'.format(file_path))
+        print('Data file {} already exists. It will not be downloaded.'.format(file_path))
         return
 
     print('Downloading {} to {}. It may take a while.'.format(url, file_path))

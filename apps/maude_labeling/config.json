@@ -104,13 +104,13 @@
     "skip_input_files_download_if_already_present": true
   },
   "output_files": {
-    "potential_positive_records_file": "../out/potential_positive_records.txt",
-    "potential_negative_records_file": "../out/potential_negative_records.txt",
-    "questionable_positive_records_file": "../out/questionable_positive_records.txt",
-    "questionable_negative_records_file": "../out/questionable_negative_records.txt",
-    "verified_positive_records_file": "../out/verified_positive_records.txt",
-    "verified_negative_records_file": "../out/verified_negative_records.txt",
-    "already_processed_record_numbers_file": "../out/already_processed_record_numbers.json"
+    "potential_positive_records_file": "out/potential_positive_records.txt",
+    "potential_negative_records_file": "out/potential_negative_records.txt",
+    "questionable_positive_records_file": "out/questionable_positive_records.txt",
+    "questionable_negative_records_file": "out/questionable_negative_records.txt",
+    "verified_positive_records_file": "out/verified_positive_records.txt",
+    "verified_negative_records_file": "out/verified_negative_records.txt",
+    "already_processed_record_numbers_file": "out/already_processed_record_numbers.json"
   },
   "regen_models": true,
   "auto_regen_models": true,
@@ -168,10 +168,10 @@
       "use_equal_positive_and_negative_labeled_records": true
     }
   ],
-  "models_output_dir": "../../maude_modeling/out",
+  "models_output_dir": "../maude_modeling/out",
   "upload_models_to_cloud": true,
   "models_cloud_blob_container_name": "models",
-  "input_dir": "../in",
+  "input_dir": "in",
   "upload_output_to_cloud": true,
   "verbose": false
 }

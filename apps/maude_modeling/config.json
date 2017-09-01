@@ -1,6 +1,6 @@
 {
-  "input_dir": "../in",
-  "output_dir": "../out",
+  "input_dir": "in",
+  "output_dir": "out",
   "input_data_file_sets": [
     {
       "name": "verified_labels",

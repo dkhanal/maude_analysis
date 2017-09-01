@@ -1,4 +1,4 @@
-# maude_analysis
+# maude_experiments
 
 
 This repository contains a set of programs that implements natural-language-processing (NLP)-based machine learning techniques to classify the Manufacturer and User Facility Device Experience (MAUDE) dataset published by the US Food and Drugs Administration (FDA).

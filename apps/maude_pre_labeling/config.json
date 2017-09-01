@@ -221,23 +221,23 @@
     ]
   },
   "input_data_files": [
-    "../../../data/foitext2007.txt",
-    "../../../data/foitext2008.txt",
-    "../../../data/foitext2009.txt",
-    "../../../data/foitext2010.txt",
-    "../../../data/foitext2011.txt",
-    "../../../data/foitext2012.txt",
-    "../../../data/foitext2013.txt",
-    "../../../data/foitext2014.txt",
-    "../../../data/foitext2015.txt",
-    "../../../data/foitext2016.txt"
+    "../../data/foitext2007.txt",
+    "../../data/foitext2008.txt",
+    "../../data/foitext2009.txt",
+    "../../data/foitext2010.txt",
+    "../../data/foitext2011.txt",
+    "../../data/foitext2012.txt",
+    "../../data/foitext2013.txt",
+    "../../data/foitext2014.txt",
+    "../../data/foitext2015.txt",
+    "../../data/foitext2016.txt"
   ],
-  "output_dir": "../out/",
-  "file_split_dir": "../file_chunks",
+  "output_dir": "out/",
+  "file_split_dir": "file_chunks",
   "file_split_lines_per_file": 100000,
   "match_extracted_positive_negative_records_count":  true,
   "upload_output_to_cloud": true,
   "cloud_blob_container_name": "pre-labeled",
-  "max_records_to_extract": 100000,
+  "max_records_to_extract": 10,
   "verbose": false
 }
