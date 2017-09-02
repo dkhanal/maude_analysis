@@ -252,6 +252,6 @@
     "models_dir": "models",
     "classification_dir": "classification"
   },
-  "max_records_to_extract": None,
+  "max_records_to_extract": null,
   "verbose": false
 }
