@@ -238,13 +238,13 @@
   "match_extracted_positive_negative_records_count":  true,
   "upload_output_to_remote_server": true,
   "remote_server": {
-    "base_uri": "C:\\temp\\DataServer\\",
+    "base_uri": "https://maude.blob.core.windows.net/",
     "narratives_dir": "narratives",
     "prelabeled_dir": "pre-labeled",
     "labeled_dir": "labeled",
     "models_dir": "models",
     "classification_dir": "classification"
   },
-  "max_records_to_extract": 10,
+  "max_records_to_extract": None,
   "verbose": false
 }
