@@ -167,3 +167,14 @@ def join_remote_server_paths(path1, path2, path3=None):
         if path3 is None:
             return os.path.join(path1, path2)
         return os.path.join(path1, path2, path3)
+
+def upload_files_to_remote_server_with_prompt(list_of_files, remote_directory):
+    logging.info(list_of_files)
+    logging.info('Upload these {} files to directory ({}) on ({})? [y/n] '.format(len(list_of_files), remote_directory, __base_uri))
+    upload_confirmation = __io.get_char_input()
+    if not isinstance(upload_confirmation, str):
+        upload_confirmation = bytes.decode(upload_confirmation)
+    if upload_confirmation == 'y':
+        upload_files_to_remote_server(list_of_files, remote_directory)
+    else:
+        logging.info('Upload canceled on user request.')

@@ -34,14 +34,51 @@ def initialize():
                            sharedlib.abspath(os.path.join(base_path, 'out')),
                            sharedlib.abspath(os.path.join(base_path, '..', 'maude_modeling', 'out'))
                            ])
+
+def upload_output_to_cloud(also_uplaod_merged_input_files):
+    import config
+    import sharedlib
+
+    logging.info('Uploading output of the previous run(s) to the remote server...')
+
+    output_files = config.output_files
+
+    files_to_upload = [
+        sharedlib.abspath(output_files['verified_positive_records_file']),
+        sharedlib.abspath(output_files['verified_negative_records_file']),
+        sharedlib.abspath(output_files['already_processed_record_numbers_file'])
+        ]
+
+    if also_uplaod_merged_input_files == True:
+        files_to_upload += [
+        sharedlib.abspath(output_files['potential_positive_records_file']),
+        sharedlib.abspath(output_files['potential_negative_records_file']),
+        sharedlib.abspath(output_files['questionable_positive_records_file']),
+        sharedlib.abspath(output_files['questionable_negative_records_file'])
+        ]
+
+    files_to_upload = [f for f in files_to_upload if os.path.exists(f) == True]
+    sharedlib.upload_files_to_remote_server_with_prompt(files_to_upload, config.remote_server['labeled_dir'])
+
 def main(args=None):
     initialize()
 
-    os.system('mode con: cols=200 lines=50')
+    import config
+    import labeler
+    import sharedlib
 
     if args is None:
         args = sys.argv[1:]
+    
+    if len(args) > 0:    
+        if 'upload' in args[0].lower():
+            upload_output_to_cloud(len(args) > 1 and args[1].lower() in 'all')
+            return
 
+        logging.info('Argument: {}'.format(args[0]))
+
+
+    os.system('mode con: cols=200 lines=50')
     start_time = datetime.datetime.now()
     logging.info('Manually verifying pre-labeled records starting at {}'.format(start_time))
     
@@ -52,10 +89,6 @@ def main(args=None):
         return
 
     logging.info('Labeling records. Mode: {}'.format(mode))
-
-    import config
-    import labeler
-    import sharedlib
 
     labeler.label_records(mode)
 

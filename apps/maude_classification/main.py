@@ -29,6 +29,16 @@ def initialize():
 
     sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'in')), sharedlib.abspath(os.path.join(base_path, 'models')), sharedlib.abspath(os.path.join(base_path, 'out'))])
 
+def upload_output_to_cloud():
+    import config
+    import sharedlib
+
+    logging.info('Uploading output of the previous run(s) to the remote server...')
+    output_dir = sharedlib.abspath(config.output_dir)
+    files_in_output_dir = os.listdir(output_dir)
+    files_to_upload = [os.path.join(output_dir, f) for f in files_in_output_dir if f.lower().endswith('.zip')]
+    sharedlib.upload_files_to_remote_server_with_prompt(files_to_upload, config.remote_server['classification_dir'])
+
 def main(args=None):
     initialize()
 
@@ -38,16 +48,19 @@ def main(args=None):
 
     if args is None:
         args = sys.argv[1:]
-
-    start_time = datetime.datetime.now()
-    logging.info('Classification of unknown records starting at {}'.format(start_time))
     
     files_to_classify = config.files_to_classify
     if len(args) > 0:
-        logging.info('Classifying {}'.format(args[0]))
+        if 'upload' in args[0].lower():
+            upload_output_to_cloud()
+            return
+
+        logging.info('Argument: {}'.format(args[0]))
         files_to_classify = [s for s in config.files_to_classify if args[0] in s]
         logging.info(files_to_classify)
 
+    start_time = datetime.datetime.now()
+    logging.info('Classification of unknown records starting at {}'.format(start_time))
 
     classifier.classify(files_to_classify)
 

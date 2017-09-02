@@ -51,6 +51,9 @@ def join_remote_server_paths(path1, path2, path3=None):
 def upload_files_to_remote_server(list_of_files, remote_directory):
     __remote_server.upload_files_to_remote_server(list_of_files, remote_directory)
 
+def upload_files_to_remote_server_with_prompt(list_of_files, remote_directory):
+    __remote_server.upload_files_to_remote_server_with_prompt(list_of_files, remote_directory)
+
 def get_list_of_files_from_remote_server(remote_directory):
     return __remote_server.get_list_of_files_from_remote_server(remote_directory)
 
@@ -68,6 +71,7 @@ def upload_files_to_classification_dir(list_of_files):
 
 def download_file(url, save_to_path, force_download=False):
     __remote_server.download_file(url, save_to_path, force_download)
+
 
 # Zip
 def zip_files(list_of_files, zip_file_path):
