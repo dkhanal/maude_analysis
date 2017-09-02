@@ -168,6 +168,7 @@
   ],
   "models_output_dir": "../maude_modeling/out",
   "input_dir": "in",
+  "output_dir": "out",
   "upload_output_to_remote_server": true,
   "upload_regenerated_models_to_remote_server": true,
   "remote_server": {

@@ -18,11 +18,9 @@ def initialize():
     base_path = os.path.dirname(__file__)
     add_to_path(os.path.abspath(os.path.join(base_path, '..', '..', 'shared')))
     add_to_path(os.path.abspath(os.path.join(base_path, 'lib')))
-    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_modeling', 'lib')))
-    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_classification', 'lib')))
 
     global log_file_path
-    log_file_path = os.path.join(base_path, 'out', 'labeling_upload_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")))
+    log_file_path = os.path.join(base_path, 'out', 'classification_upload_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")))
 
     import config
     import sharedlib
@@ -42,21 +40,11 @@ def main(args=None):
     import config
     import sharedlib
 
-    output_files = config.output_files
+    output_dir = sharedlib.abspath(config.output_dir)
 
-    files_to_upload = [
-        sharedlib.abspath(output_files['verified_positive_records_file']),
-        sharedlib.abspath(output_files['verified_negative_records_file']),
-        sharedlib.abspath(output_files['already_processed_record_numbers_file'])
-        ]
+    files_in_output_dir = os.listdir(output_dir)
 
-    if all == True:
-        files_to_upload += [
-        sharedlib.abspath(output_files['potential_positive_records_blob']),
-        sharedlib.abspath(output_files['potential_negative_records_blob']),
-        sharedlib.abspath(output_files['questionable_positive_records_blob']),
-        sharedlib.abspath(output_files['questionable_negative_records_blob'])
-        ]
+    files_to_upload = [os.path.join(output_dir, f) for f in files_in_output_dir if f.lower().endswith('.zip')]
 
     logging.info(files_to_upload)
     logging.info('Upload these files? [y/n] ')
