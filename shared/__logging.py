@@ -14,6 +14,7 @@ def initialize(log_file_abs_path):
 
     consoleHandler = logging.StreamHandler()
     consoleHandler.setFormatter(formatter)
+
     logger.addHandler(consoleHandler)
 
     log_dir = os.path.dirname(log_file_abs_path)

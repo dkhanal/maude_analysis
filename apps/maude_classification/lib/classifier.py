@@ -22,11 +22,6 @@ def extract_features(list_of_words):
     
     return features
 
-def download_file(url, destination_path):
-    file_path = sharedlib.abspath(destination_path)
-    log('Downloading {} to {}. This may take a while...'.format(url, file_path))
-    urllib.request.urlretrieve(url, file_path)
-
 def classify(files_to_classify):
     output_dir = sharedlib.abspath(config.output_dir)
     models_dir = sharedlib.abspath(config.models_dir)
@@ -45,7 +40,10 @@ def classify(files_to_classify):
         if model_config['always_download'] == True or os.path.exists(model_pickle_file) == False:
             log('Model {} needs to be downloaded.'.format(model_name))
             download_zip_file_path = os.path.join(models_dir, model_name + '.zip')
-            download_file(model_config['remote_url'], download_zip_file_path)
+
+            model_url = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['classification_dir'], model_config['archive_name'])
+
+            sharedlib.download_file(model_url, download_zip_file_path)
             log('Extracting model archive...')
             sharedlib.unzip(download_zip_file_path, models_dir)
             log('Model extracted.')
@@ -197,7 +195,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
         archive_name = os.path.splitext(file_base_name)[0]+'.zip'
         zip_file = sharedlib.zip_files(files_to_zip, os.path.join(out_dir, archive_name))
         log('Uploading the output files ({}) to the Remote Server...'.format(archive_name))
-        sharedlib.upload_files_to_remote_server([zip_file], config.remote_server_output_upload_directory)
+        sharedlib.upload_files_to_classification_dir([zip_file])
 
     end_time = datetime.datetime.now()
     log('classifier::classify_file() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))

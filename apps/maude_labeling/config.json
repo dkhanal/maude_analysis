@@ -171,7 +171,7 @@
   "upload_output_to_remote_server": true,
   "upload_regenerated_models_to_remote_server": true,
   "remote_server": {
-    "base_uri": "C:\\temp\\DataServer\\",
+    "base_uri": "https://maude.blob.core.windows.net/",
     "narratives_dir": "narratives",
     "prelabeled_dir": "pre-labeled",
     "labeled_dir": "labeled",

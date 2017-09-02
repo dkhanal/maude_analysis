@@ -10,6 +10,7 @@ import logging
 
 import __io
 import __azure
+import __http
 
 __CLOUD = 'cloud'
 __FILESYSTEM = 'filesystem'
@@ -142,7 +143,7 @@ def download_file(url, save_to_path, force_download=False):
         return
 
     if __remote_server_type == __CLOUD:
-        __azure.download_file(url, save_to_path)
+        __http.download_file(url, save_to_path)
 
     elif __remote_server_type == __FILESYSTEM:
         __io.copy_file(url, save_to_path)
