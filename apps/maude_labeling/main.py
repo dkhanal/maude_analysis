@@ -35,7 +35,7 @@ def initialize():
                            sharedlib.abspath(os.path.join(base_path, '..', 'maude_modeling', 'out'))
                            ])
 
-def upload_output_to_cloud(also_uplaod_merged_input_files):
+def upload_output_to_remote_server(also_uplaod_merged_input_files):
     import config
     import sharedlib
 
@@ -72,7 +72,7 @@ def main(args=None):
     
     if len(args) > 0:    
         if 'upload' in args[0].lower():
-            upload_output_to_cloud(len(args) > 1 and args[1].lower() in 'all')
+            upload_output_to_remote_server(len(args) > 1 and args[1].lower() in 'all')
             return
 
         logging.info('Argument: {}'.format(args[0]))
@@ -96,7 +96,7 @@ def main(args=None):
     logging.info('Manual verification session completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
     if config.upload_output_to_remote_server == True:
-        logging.info('Uploading log file to Cloud...')
+        logging.info('Uploading log file to Remote Server...')
         sharedlib.upload_files_to_labeled_dir([log_file_path])
 
 if __name__ == "__main__":

@@ -29,14 +29,17 @@ def initialize():
     sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'out')),
                            sharedlib.abspath(os.path.join(base_path, 'file_chunks'))])
 
-def upload_output_to_cloud():
+def upload_output_to_remote_server(pattern_to_match = None):
     import config
     import sharedlib
+
+    if pattern_to_match is None:
+        pattern_to_match = '.zip'
 
     logging.info('Uploading output of the previous run(s) to the remote server...')
     output_dir = sharedlib.abspath(config.output_dir)
     files_in_output_dir = os.listdir(output_dir)
-    files_to_upload = [os.path.join(output_dir, f) for f in files_in_output_dir if f.lower().endswith('.zip')]
+    files_to_upload = [os.path.join(output_dir, f) for f in files_in_output_dir if f.lower().endswith(pattern_to_match)]
     sharedlib.upload_files_to_remote_server_with_prompt(files_to_upload, config.remote_server['prelabeled_dir'])
 
 def main(args=None):
@@ -51,7 +54,7 @@ def main(args=None):
     
     if len(args) > 0:
         if 'upload' in args[0].lower():
-            upload_output_to_cloud()
+            upload_output_to_remote_server(args[1] if len(args) > 1 else None)
             return
 
         logging.info('Argument: {}'.format(args[0]))
@@ -70,7 +73,7 @@ def main(args=None):
     logging.info('Extraction completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
     if config.upload_output_to_remote_server == True:
-        logging.info('Uploading log file to Cloud...')
+        logging.info('Uploading log file to Remote Server...')
         sharedlib.upload_files_to_prelabeled_dir([log_file_path])
 
 
