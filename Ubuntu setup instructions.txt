@@ -20,6 +20,13 @@ Downloader> q
 
 $ pip install azure
 
+$ pip install numpy
+$ pip install scipy
+$ pip install scikit-learn
+
+# Note, numpy, scipy won't install on Windows via pip due to dependency issues. 
+# Build from source, or simply switch to Ubuntu. Under Windows 10, Ubuntu Bash is an attractive option.
+
 $ mkdir Projects
 $ cd Projects
 $ git clone http://github.com/dkhanal/maude_experiments

@@ -8,6 +8,8 @@ import logging
 # Logging related
 def initialize(log_file_abs_path):
     logger = logging.getLogger()
+    logger.handlers = [] # Clears any handlers previously, implicitly,p registered.
+
     logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter("%(asctime)s - [%(threadName)s] - [%(levelname)s] - %(message)s")

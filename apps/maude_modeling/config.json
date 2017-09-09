@@ -54,6 +54,13 @@
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "naive_bayes_trigrams_with_duplicates",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
     }
   ],
   "upload_output_to_remote_server": true,

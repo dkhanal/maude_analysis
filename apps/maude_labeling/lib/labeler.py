@@ -221,22 +221,22 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
     total_available_records[questionable_negative_records_file_basename] = get_total_lines_count(questionable_negative_records_file)
 
     if not potential_positive_records_file_basename in already_read_records:
-        already_read_records[potential_positive_records_file_basename] = []
+        already_read_records[potential_positive_records_file_basename] = {}
 
     if not potential_negative_records_file_basename in already_read_records:
-        already_read_records[potential_negative_records_file_basename] = []
+        already_read_records[potential_negative_records_file_basename] = {}
 
     if not questionable_positive_records_file_basename in already_read_records:
-        already_read_records[questionable_positive_records_file_basename] = []
+        already_read_records[questionable_positive_records_file_basename] = {}
 
     if not questionable_negative_records_file_basename in already_read_records:
-        already_read_records[questionable_negative_records_file_basename] = []
+        already_read_records[questionable_negative_records_file_basename] = {}
 
     verified_positive_records_file_path = sharedlib.abspath(config.output_files['verified_positive_records_file'])
     verified_negative_records_file_path = sharedlib.abspath(config.output_files['verified_negative_records_file'])
 
-    total_verified_positive_records = get_total_lines_count(verified_positive_records_file_path)
-    total_verified_negative_records = get_total_lines_count(verified_negative_records_file_path)
+    total_verified_positive_records = get_total_lines_count(verified_positive_records_file_path) if os.path.exists(verified_positive_records_file_path) else 0
+    total_verified_negative_records = get_total_lines_count(verified_negative_records_file_path) if os.path.exists(verified_negative_records_file_path) else 0
 
     total_new_records_labeled_this_session = 0
     total_new_records_labeled_using_current_models = 0
