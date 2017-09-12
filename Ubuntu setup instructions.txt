@@ -23,6 +23,7 @@ $ pip install azure
 $ pip install numpy
 $ pip install scipy
 $ pip install scikit-learn
+$ pip install pandas
 
 # Note, numpy, scipy won't install on Windows via pip due to dependency issues. 
 # Build from source, or simply switch to Ubuntu. Under Windows 10, Ubuntu Bash is an attractive option.
