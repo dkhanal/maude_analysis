@@ -15,6 +15,26 @@
   ],
   "models": [
     {
+      "name": "sklearn.sgd_with_duplicates",
+      "archive_name": "sklearn_sgd_with_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "sklearn.sgd_no_duplicates",
+      "archive_name": "sklearn_sgd_no_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "sklearn.voting_with_duplicates",
+      "archive_name": "sklearn_voting_with_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "sklearn.voting_no_duplicates",
+      "archive_name": "sklearn_voting_no_duplicates.zip",
+      "always_download": true
+    },
+    {
       "name": "naive_bayes_bow_no_duplicates",
       "archive_name": "naive_bayes_bow_no_duplicates.zip",
       "always_download": true
@@ -22,6 +42,26 @@
     {
       "name": "naive_bayes_bow_with_duplicates",
       "archive_name": "naive_bayes_bow_with_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "naive_bayes_bigrams_no_duplicates",
+      "archive_name": "naive_bayes_bigrams_no_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "naive_bayes_bigrams_with_duplicates",
+      "archive_name": "naive_bayes_bigrams_with_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "naive_bayes_trigrams_no_duplicates",
+      "archive_name": "naive_bayes_trigrams_no_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "naive_bayes_trigrams_with_duplicates",
+      "archive_name": "naive_bayes_trigrams_with_duplicates.zip",
       "always_download": true
     }
   ],

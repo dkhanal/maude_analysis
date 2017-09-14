@@ -7,6 +7,11 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import SGDClassifier
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import VotingClassifier
 
 def get_total_lines_count(file_path):
     line_count = 0
@@ -51,16 +56,30 @@ print(x_train_tf.shape)
 
 # print (labels)
 
-clf = MultinomialNB().fit(x_train_tf, labels)
+
+clf = SGDClassifier(loss='log').fit(x_train_tf, labels)
+
+clf1 = LogisticRegression(random_state=1)
+clf2 = MultinomialNB()
+eclf1 = VotingClassifier(estimators=[('lr', clf1), ('mnb', clf2)], voting='soft')
+eclf1 = eclf1.fit(x_train_tf, labels)
+
 
 print (clf)
 
-docs_new = ['There was a memory overwrite error.', 'The robot failed to pierce the bottle cap.']
+docs_new = ['There was a memory overwrite error.']
 x_new_counts = vectorizer.transform(docs_new)
 x_new_tfidf = tf_transformer.transform(x_new_counts)
 
 predicted = clf.predict(x_new_tfidf)
 predicted_prob = clf.predict_proba(x_new_tfidf)
 
+index_of_pos = numpy.where(clf.classes_ == 'pos')
 print (predicted)
-print (predicted_prob)
+print(predicted_prob)
+print ('Probability of pos: ')
+print(predicted_prob[0][index_of_pos][0])
+
+
+print(eclf1.predict(x_new_tfidf))
+print(eclf1.predict_proba(x_new_tfidf))

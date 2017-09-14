@@ -19,19 +19,39 @@ import nltk
 
 import sharedlib
 import config
-import nltk_naive_bayes
+import _nltk_naive_bayes
+import _sklearn
 
 def log(line):
     logging.info(line)
 
 
-def generate_models(positive_records_files, negative_records_files, models_config, output_dir, upload_generated_models_to_remote_server):
+def generate_models(positive_records_files, negative_records_files, models_config, duplicate_record_check_ignore_pattern,  output_dir, upload_generated_models_to_remote_server):
     output_dir = sharedlib.abspath(output_dir)
     start_time = datetime.datetime.now()
     log('modeler::generate_models() starting at {}'.format(start_time))
     process_log_first_line = 'MAUDE Modeling Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
 
     log(process_log_first_line)
+
+    log('Merging all positive/negative labeled files. Two sets (all and one without duplicate records) will be produced...')
+
+    all_pos_records_file_path = os.path.join(output_dir, 'positive_records_all.txt')
+    all_neg_records_file_path = os.path.join(output_dir,'negative_records_all.txt')
+
+    nodups_pos_records_file_path = os.path.join(output_dir, 'positive_records_nodups.txt')
+    nodups_neg_records_file_path = os.path.join(output_dir,'negative_records_nodups.txt')
+
+    sharedlib.merge_files([sharedlib.abspath(p) for p in positive_records_files], all_pos_records_file_path, False, None)
+    sharedlib.merge_files([sharedlib.abspath(p) for p in negative_records_files], all_neg_records_file_path, False, None)
+
+    sharedlib.merge_files([sharedlib.abspath(p) for p in positive_records_files], nodups_pos_records_file_path, True, duplicate_record_check_ignore_pattern)
+    sharedlib.merge_files([sharedlib.abspath(p) for p in negative_records_files], nodups_neg_records_file_path, True, duplicate_record_check_ignore_pattern)
+
+    log('Combined (merged) positive labeled (all) file: {}'.format(all_pos_records_file_path))
+    log('Combined (merged) positive labeled (no-duplicates) file: {}'.format(nodups_pos_records_file_path))
+    log('Combined (merged) negative labeled (all) file: {}'.format(all_neg_records_file_path))
+    log('Combined (merged) negative labeled (no-duplicates) file: {}'.format(nodups_neg_records_file_path))
 
     generated_models = []
 
@@ -40,18 +60,50 @@ def generate_models(positive_records_files, negative_records_files, models_confi
         model_name = model_config['name']
         log('Starting model generation for: {} at {}...'.format(model_name, model_start_time))
 
-        classifier, all_pos_records_file_path, all_neg_records_file_path  = nltk_naive_bayes.generate_model(positive_records_files, negative_records_files, model_config, output_dir)
+        pos_labeled_file_path = None
+        neg_labeled_file_path = None
 
-        pickle_file = sharedlib.abspath(os.path.join(output_dir, model_name + '.pickle'))
-        logging.info('Pickling the model as: {}...'.format(os.path.basename(pickle_file)))
-        sharedlib.pickle_object(classifier, pickle_file)
+        if 'nltk.naive_bayes' in model_name or 'sklearn' in model_name:
+            if model_config['ignore_duplicate_training_records'] == True:
+                pos_labeled_file_path = nodups_pos_records_file_path
+                neg_labeled_file_path = nodups_neg_records_file_path
+            else:
+                pos_labeled_file_path = all_pos_records_file_path
+                neg_labeled_file_path = all_neg_records_file_path
+        else:
+            raise ValueError('Unsupported model: {}'.format(model_name))
+
+        classifier = None
+        vectorizer = None
+
+        if 'nltk.naive_bayes' in model_name:
+            classifier = _nltk_naive_bayes.generate_model(pos_labeled_file_path, neg_labeled_file_path, model_config, output_dir)
+        else:
+            classifier, vectorizer = _sklearn.generate_model(pos_labeled_file_path, neg_labeled_file_path, model_config, output_dir)
+
+        classifier_pickle_file = sharedlib.abspath(os.path.join(output_dir, model_name + '.pickle'))
+        logging.info('Pickling the model as: {}...'.format(os.path.basename(classifier_pickle_file)))
+        sharedlib.pickle_object(classifier, classifier_pickle_file)
+
+        vectorizer_pickle_file = None
+        if vectorizer is not None:
+            vectorizer_pickle_file = sharedlib.abspath(os.path.join(output_dir, model_name + '.vectorizer.pickle'))
+            logging.info('Pickling the Vectorizer as: {}...'.format(os.path.basename(vectorizer_pickle_file)))
+            sharedlib.pickle_object(vectorizer, vectorizer_pickle_file)
+
+
         logging.info('Model pickled.')
 
-        generated_models.append((model_name, pickle_file))
+        generated_models.append((model_name, classifier_pickle_file, vectorizer_pickle_file))
 
         if upload_generated_models_to_remote_server == True:
-            model_archive_name = model_name+'.zip'
-            zipped_file = sharedlib.zip_files([pickle_file, all_pos_records_file_path, all_neg_records_file_path], sharedlib.abspath(os.path.join(output_dir, model_archive_name)))
+            model_archive_name = model_config['archive_name']
+
+            files_to_zip = [pos_labeled_file_path, neg_labeled_file_path, classifier_pickle_file]
+            if vectorizer is not None:
+                files_to_zip.append(vectorizer_pickle_file)
+
+            zipped_file = sharedlib.zip_files(files_to_zip, sharedlib.abspath(os.path.join(output_dir, model_archive_name)))
             log('Uploading the pickled model ({}) to the Remote Server...'.format(model_archive_name))
             sharedlib.upload_files_to_models_dir([zipped_file])
 
@@ -84,4 +136,4 @@ def generate_models_per_config(input_data_files):
         positive_records_files.append(positive_records_file)
         negative_records_files.append(negative_records_file)
 
-        generate_models(positive_records_files, negative_records_files, config.models, output_dir, config.upload_output_to_remote_server)
+        generate_models(positive_records_files, negative_records_files, config.models, config.duplicate_record_check_ignore_pattern, output_dir, config.upload_output_to_remote_server)

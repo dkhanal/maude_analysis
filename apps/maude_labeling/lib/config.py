@@ -36,6 +36,7 @@ def load_config():
     global output_dir
     global upload_output_to_remote_server
     global remote_server
+    global duplicate_record_check_ignore_pattern
     global verbose
 
     input_data_file_sets = config_data['input_data_file_sets']
@@ -52,6 +53,8 @@ def load_config():
     models_output_dir = config_data['models_output_dir']
     upload_regenerated_models_to_remote_server = config_data['upload_regenerated_models_to_remote_server']
     remote_server = config_data['remote_server']
+
+    duplicate_record_check_ignore_pattern = config_data['duplicate_record_check_ignore_pattern']
 
     verbose = config_data['verbose']
 

@@ -28,6 +28,7 @@ def rebuild_models(verified_positive_records_file_path, verified_negative_record
     model_pickles = modeler.generate_models([verified_positive_records_file_path],
                                             [verified_negative_records_file_path],
                                             models_config,
+                                            config.duplicate_record_check_ignore_pattern,
                                             config.models_output_dir,
                                             upload_regenerated_models_to_remote_server
                                             )

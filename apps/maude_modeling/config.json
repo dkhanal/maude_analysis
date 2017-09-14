@@ -11,53 +11,89 @@
   ],
   "models": [
     {
-      "name": "naive_bayes_bow_no_duplicates",
+      "name": "nltk.naive_bayes_bow_no_duplicates",
+      "archive_name": "nltk_naive_bayes_bow_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
-      "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
     },
     {
-      "name": "naive_bayes_bow_with_duplicates",
+      "name": "nltk.naive_bayes_bow_with_duplicates",
+      "archive_name": "nltk_naive_bayes_bow_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
     },
     {
-      "name": "naive_bayes_bigrams_no_duplicates",
+      "name": "nltk.naive_bayes_bigrams_no_duplicates",
+      "archive_name": "nltk_naive_bayes_bigrams_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
-      "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
     },
     {
-      "name": "naive_bayes_bigrams_with_duplicates",
+      "name": "nltk.naive_bayes_bigrams_with_duplicates",
+      "archive_name": "nltk_naive_bayes_bigrams_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
     },
     {
-      "name": "naive_bayes_trigrams_no_duplicates",
+      "name": "nltk.naive_bayes_trigrams_no_duplicates",
+      "archive_name": "nltk_naive_bayes_trigrams_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
-      "duplicate_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
     },
     {
-      "name": "naive_bayes_trigrams_with_duplicates",
+      "name": "nltk.naive_bayes_trigrams_with_duplicates",
+      "archive_name": "nltk_naive_bayes_trigrams_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
     },
     {
-      "name": "naive_bayes_trigrams_with_duplicates",
+      "name": "nltk.naive_bayes_trigrams_with_duplicates",
+      "archive_name": "nltk_naive_bayes_trigrams_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.sgd_with_duplicates",
+      "archive_name": "sklearn_sgd_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.sgd_no_duplicates",
+      "archive_name": "sklearn_sgd_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.voting_with_duplicates",
+      "archive_name": "sklearn_voting_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.voting_no_duplicates",
+      "archive_name": "sklearn_voting_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
@@ -72,5 +108,6 @@
     "models_dir": "models",
     "classification_dir": "classification"
   },
+  "duplicate_record_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
   "verbose": false
 }

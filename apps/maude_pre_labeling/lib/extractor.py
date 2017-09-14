@@ -71,17 +71,7 @@ def merge_file_sets(file_base_name, out_dir, positive_files, negative_files, may
     return (positive_records_output_file, negative_records_output_file, maybe_positive_records_output_file, maybe_negative_records_output_file, process_log_file)
 
 def merge_files(source_files, destination_file_path):
-    # Merge positive files
-    with open(destination_file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
-        for file_chunk in source_files:
-            logging.info('Merging {} into {}...'.format(os.path.basename(file_chunk), destination_file_path))
-            with open(file_chunk, 'r',  encoding='utf-8', errors='ignore') as fin:
-                line_number = 0
-                for line in fin:
-                    line_number += 1
-                    sys.stdout.write("Merging record {}... \r".format(line_number))
-                    sys.stdout.flush()
-                    fout.write(line)
+    sharedlib.merge_files(source_files, destination_file_path)
 
 def extract_records(input_files, output_dir, max = None):    
     logging.info('Extracting potential positive and negative records from {} file(s)...'.format(len(input_files)))

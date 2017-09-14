@@ -1,10 +1,8 @@
 import os
-import re
 import codecs
 import logging
-import sys
-import hashlib
 import string
+import sys
 import random
 
 import nltk
@@ -28,8 +26,7 @@ def extract_features(model_name, list_of_words):
 
     return features
 
-def build_labeled_features(model_name, file, label, skip_duplicates, record_hash_dict, duplicate_check_ignore_pattern,
-                           skip_first_record=False, max_records=None, output_file=None):
+def build_labeled_features(model_name, file, label, skip_first_record=False, max_records=None, output_file=None):
     logging.info('Building ({}) features for file {}...'.format(label, file))
     file_features = []
     file_base_name = os.path.basename(file)
@@ -46,35 +43,6 @@ def build_labeled_features(model_name, file, label, skip_duplicates, record_hash
 
         if total_records == 1 and skip_first_record == True:
             continue
-
-        if skip_duplicates == True and record_hash_dict is not None:
-            if config.verbose == True:
-                logging.info('Checking if this record is a duplicate...')
-
-            record_to_hash = None
-            if duplicate_check_ignore_pattern is not None:
-                record_to_hash = duplicate_check_ignore_pattern.sub('', record)
-            else:
-                record_to_hash = record
-
-            if config.verbose == True:
-                logging.info('Creating a SHA1 hash of this: {}'.format(record_to_hash))
-
-            record_hash = hashlib.sha1(record_to_hash.upper().encode(errors='ignore')).hexdigest()
-            record_id = record[:40]
-
-            if config.verbose == True:
-                logging.info('Hash for this record ({}...) is: {}'.format(record_id, record_hash))
-
-            if record_hash in record_hash_dict:
-                logging.info('DUPLICATE - Record {} is a duplicate of {}. It will be ignored'.format(record_id, record_hash_dict[
-                    record_hash]))
-                continue
-
-            if config.verbose == True:
-                logging.info('Hash does not already exist, which means this is not a duplicate record.'.format(record_id,
-                                                                                                      record_hash))
-            record_hash_dict[record_hash] = record_id
 
         if output_file is not None:
             output_file.write(record)
@@ -99,42 +67,17 @@ def build_labeled_features(model_name, file, label, skip_duplicates, record_hash
     return file_features
 
 
-def generate_model(positive_records_files, negative_records_files, model_config, output_dir):
+def generate_model(positive_records_file, negative_records_file, model_config, output_dir):
     model_name = model_config['name']
     labeled_files_max_num_records_to_read = model_config['labeled_files_max_num_records_to_read']
     max_num_labeled_records_to_use = model_config['max_num_labeled_records_to_use']
-    ignore_duplicate_training_records = model_config['ignore_duplicate_training_records']
     use_equal_positive_and_negative_labeled_records = model_config['use_equal_positive_and_negative_labeled_records']
 
-    duplicate_check_ignore_pattern = None
-
-    if  ignore_duplicate_training_records == True:
-        duplicate_check_ignore_pattern = model_config['duplicate_check_ignore_pattern']
-
-    if duplicate_check_ignore_pattern is not None:
-        duplicate_check_ignore_pattern = re.compile(duplicate_check_ignore_pattern, re.IGNORECASE)
-
-    record_hash_dict = {}
-
-    output_dir = sharedlib.abspath(output_dir)
-
-    all_pos_records_file_path = os.path.join(output_dir, model_name+'_positive_featureset_records.txt')
-    all_neg_records_file_path = os.path.join(output_dir, model_name+'_negative_featureset_records.txt')
-
-    all_pos_records_file = codecs.open(all_pos_records_file_path, 'w', encoding='utf-8', errors='ignore')
-    all_neg_records_file = codecs.open(all_neg_records_file_path, 'w', encoding='utf-8', errors='ignore')
-
-
-    positive_file_features = []
-    negative_file_features = []
-
     logging.info('Building positive features...')
-    for positive_records_file in positive_records_files:
-        positive_file_features += build_labeled_features(model_name, positive_records_file, 'pos', ignore_duplicate_training_records, record_hash_dict,  duplicate_check_ignore_pattern, False, labeled_files_max_num_records_to_read, all_pos_records_file)
+    positive_file_features = build_labeled_features(model_name, positive_records_file, 'pos', False, labeled_files_max_num_records_to_read)
 
     logging.info('Building negative features...')
-    for negative_records_file in negative_records_files:
-        negative_file_features += build_labeled_features(model_name, negative_records_file, 'neg', ignore_duplicate_training_records, record_hash_dict,  duplicate_check_ignore_pattern, False, labeled_files_max_num_records_to_read, all_neg_records_file)
+    negative_file_features = build_labeled_features(model_name, negative_records_file, 'neg', False, labeled_files_max_num_records_to_read)
 
     if max_num_labeled_records_to_use is not None and len(positive_file_features) > max_num_labeled_records_to_use:
         logging.info('Randomly taking {} records from {} positive features records...'.format(max_num_labeled_records_to_use, len(positive_file_features)))
@@ -160,8 +103,6 @@ def generate_model(positive_records_files, negative_records_files, model_config,
         positive_file_features = positive_file_features[:total_negative_records_count]
 
     logging.info('Total featuresets in this model: Positive featuresets: {} Negative featuresets: {}...'.format(len(positive_file_features), len(negative_file_features)))
-    all_pos_records_file.close()
-    all_neg_records_file.close()
 
     training_set_cut_off_positive = int(len(positive_file_features) * .75)
     training_set_cut_off_negative = int(len(negative_file_features) * .75)
@@ -180,5 +121,4 @@ def generate_model(positive_records_files, negative_records_files, model_config,
         logging.info('Model accuracy is: {}. '.format(accuracy))
         classifier.show_most_informative_features()
 
-    return (classifier, all_pos_records_file_path, all_neg_records_file_path)
-
+    return classifier

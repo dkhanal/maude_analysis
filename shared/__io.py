@@ -5,6 +5,9 @@
 import os
 import sys
 import shutil
+import string
+import re
+import hashlib
 import logging
 
 def initialize(current_app_path):
@@ -48,6 +51,37 @@ def copy_file(src_file, destn_file, skip_if_existing = False):
                          
     shutil.copyfile(src_file, destn_file)
 
+def merge_files(source_files, destination_file_path, skip_duplicates = False, duplicate_record_check_ignore_pattern = None):        
+    line_hash_dict = {}
+    dup_check_ignore_pattern_regex = re.compile(duplicate_record_check_ignore_pattern) if duplicate_record_check_ignore_pattern is not None else None
+    with open(destination_file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
+        for file_chunk in source_files:
+            logging.info('Merging {} into {}...'.format(os.path.basename(file_chunk), destination_file_path))
+            with open(file_chunk, 'r',  encoding='utf-8', errors='ignore') as fin:
+                line_number = 0
+                for line in fin:
+                    line_number += 1
+                    sys.stdout.write("Merging record {}... \r".format(line_number))
+                    sys.stdout.flush()
+
+                    if skip_duplicates == True:
+
+                        line_to_hash = None
+                        if dup_check_ignore_pattern_regex is not None:
+                            line_to_hash = re.sub(dup_check_ignore_pattern_regex, '', line)
+                        else:
+                            line_to_hash = line
+                        
+                        line_hash = hashlib.sha1(line_to_hash.upper().encode(errors='ignore')).hexdigest()
+                        line_id = line[:40]
+
+                        if line_hash in line_hash_dict:
+                            logging.info('DUPLICATE - Record {} is a duplicate of {}. It will be ignored'.format(line_id, line_hash_dict[
+                                line_hash]))
+                            continue
+                        line_hash_dict[line_hash] = line_id                
+                        
+                    fout.write(line)
 
 # The inline code is to register get_char_input() in a platform-agnostic way.
 # The code below executes when this module is loaded.
