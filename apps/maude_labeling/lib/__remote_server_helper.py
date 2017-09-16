@@ -41,18 +41,28 @@ def download_models_from_remote_server(remote_server_config, models_config, outp
 
     models = []
     for model_config in models_config:
-
         name_zip_tuple = (model_config['name'], model_config['archive_name'], os.path.join(output_dir, model_config['archive_name']))
+        classifier = None
+        vectorizer = None
         if name_zip_tuple[1] in remote_files:
-
             sharedlib.download_file(sharedlib.join_remote_server_paths(models_base_uri,  model_config['archive_name']), name_zip_tuple[2])
             sharedlib.unzip(name_zip_tuple[2], output_dir)
             pickle_file = os.path.join(output_dir, name_zip_tuple[0] + '.pickle')
             if os.path.exists(pickle_file):
-                model = sharedlib.load_pickle(pickle_file)
-                models.append((name_zip_tuple[0], model))
+                classifier = sharedlib.load_pickle(pickle_file)
+
+        vectorizer_pickle_file = os.path.join(output_dir, name_zip_tuple[0] + '.vectorizer.pickle')
+        if os.path.exists(vectorizer_pickle_file):
+            logging.info('Vectorizer pickle file: {}'.format(os.path.basename(vectorizer_pickle_file)))
+            logging.info('Loading the pickled vectorizer...')
+            vectorizer = sharedlib.load_pickle(vectorizer_pickle_file)
         else:
-            logging.info('Could not find model file {} on the Remote Server'.format( name_zip_tuple[1]))
+            logging.info('No vectorizer (expected: {}) found for this model.'.format(vectorizer_pickle_file))
+
+        if classifier is not None:
+            models.append((name_zip_tuple[0], classifier, vectorizer))
+        else:
+            logging.info('Could not find pickled classifier in the package {} on the Remote Server'.format( name_zip_tuple[1]))
 
     logging.info('{} MODELS LOADED'.format(len(models)))
     return models

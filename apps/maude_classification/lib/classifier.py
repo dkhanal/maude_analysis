@@ -97,10 +97,35 @@ def classify_record(record, models):
 
     results = []
 
-    for (name, classifier) in models:
-        results.append((name, classifier.classify(record_features)))
+    for (name, classifier, vectorizer) in models:
+        results.append((name, classify(record, name, classifier, vectorizer)))
 
     return results
+
+
+def classify(record, model_name, classifier, vectorizer):
+    predicted_classification = None
+    positive_probability = None
+    if 'nltk.' in model_name:
+        record_lower_case = record.lower()
+        record_words = word_tokenize(record_lower_case)
+        record_features = extract_features(record_words)
+
+        predicted_classification = classifier.classify(record_features)
+        probabilities = classifier.prob_classify(record_features)
+        positive_probability = probabilities.prob('pos')
+    elif 'sklearn.' in model_name:
+        x_counts = vectorizer.transform([record])
+        tf_transformer = TfidfTransformer(use_idf=False)
+        x_tfidf = tf_transformer.transform(x_counts)
+
+        predicted_classification = classifier.predict(x_tfidf)[0]
+        probabilities = classifier.predict_proba(x_tfidf)
+        positive_probability = probabilities[0][numpy.where(classifier.classes_ == 'pos')][0]
+    else:
+        raise ValueError('Unrecognized model name.')
+
+    return (predicted_classification, positive_probability)
 
 def classify_file(input_data_file, models, skip_first_record=True, max_records = None):
     start_time = datetime.datetime.now()
@@ -165,26 +190,8 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
         negative_per_at_least_one_classifier = False
 
         for (name, classifier, vectorizer, pos_file_path, pos_file, neg_file_path, neg_file) in classifiers_info:
-            predicted_classification = None
-            probabilities = None
-            positive_probability = None
 
-            if 'nltk.' in name:
-                record_lower_case = record.lower()
-                record_words = word_tokenize(record_lower_case)
-                record_features = extract_features(record_words)
-
-                predicted_classification = classifier.classify(record_features)
-                probabilities = classifier.prob_classify(record_features)
-                positive_probability = probabilities.prob('pos')
-            elif 'sklearn.' in name:
-                x_counts = vectorizer.transform([record])
-                tf_transformer = TfidfTransformer(use_idf=False)
-                x_tfidf = tf_transformer.transform(x_counts)
-
-                predicted_classification = classifier.predict(x_tfidf)
-                probabilities = classifier.predict_proba(x_tfidf)
-                positive_probability = probabilities[0][numpy.where(classifier.classes_ == 'pos')][0]
+            predicted_classification, positive_probability = classify(record, name, classifier, vectorizer)
 
             is_positive = predicted_classification == 'pos' and positive_probability > config.positive_probability_threshold
 

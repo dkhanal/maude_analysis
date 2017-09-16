@@ -36,8 +36,12 @@ def rebuild_models(verified_positive_records_file_path, verified_negative_record
 
     for model_name_pickle_tuple in model_pickles:
         if os.path.exists(model_name_pickle_tuple[1]):
-            model = sharedlib.load_pickle(model_name_pickle_tuple[1])
-            models.append((model_name_pickle_tuple[0], model))
+            classifier = sharedlib.load_pickle(model_name_pickle_tuple[1])
+            vectorizer = None
+            if model_name_pickle_tuple[2] is not None:
+                vectorizer = sharedlib.load_pickle(model_name_pickle_tuple[2])
+
+            models.append((model_name_pickle_tuple[0], classifier, vectorizer))
 
     logging.info('*** {} MODELS REBUILT ***'.format(len(models)))
     return models

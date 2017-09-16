@@ -105,7 +105,7 @@ def label_records(mode):
             if not existing_work_in_progress:
                 files_to_upload += [potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file]
 
-            sharedlib.upload_files_to_remote_server(files_to_upload, config.remote_server_files['directory'])
+            sharedlib.upload_files_to_remote_server(files_to_upload, config.remote_server['labeled_dir'])
 
 
 def get_already_read_records(file_path):
@@ -278,11 +278,11 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         logging.info('    Per pre-labeling: {}'.format(suggestions[0]))
         classification_results = []
         if len(models) > 0:
-            classification_results = __classification_helper.classify(line, models)
+            classification_results = __classification_helper.classify(line, models) # returns tuple: (name, (predicted_classification, positive_proba))
             for (model_name, result) in classification_results:
-                suggestions.append(result)
+                suggestions.append(result[0])
                 accuracy = model_accuracy_counts[model_name] / total_new_records_labeled_this_session if model_name in model_accuracy_counts and total_new_records_labeled_this_session > 0 else 0
-                logging.info('    Per {} (Accuracy {:}%): {}'.format(model_name, round(accuracy * 100, 2), result.upper()))
+                logging.info('    Per {} (Accuracy {:}%): {}'.format(model_name, round(accuracy * 100, 2), result[0].upper()))
         else:
             logging.info('    No trained model available to provide a suggestion.')
 
@@ -333,10 +333,10 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             total_new_records_labeled_using_current_models += 1
             logging.info('Selected: Unknown')
 
-        for (model_name, result) in classification_results:
-            if decision == 'p' and result.lower() == 'pos':
+        for (model_name, result) in classification_results: # result is a tuple: (predicted_classification, predicted_proba)
+            if decision == 'p' and result[0].lower() == 'pos':
                 model_accuracy_counts[model_name] = model_accuracy_counts[model_name] + 1 if model_name in model_accuracy_counts else 1
-            elif decision == 'n' and result.lower() == 'neg':
+            elif decision == 'n' and result[0].lower() == 'neg':
                 model_accuracy_counts[model_name] = model_accuracy_counts[model_name] + 1 if model_name in model_accuracy_counts else 1
 
         save_already_read_records(already_processed_record_numbers_file, already_read_records)

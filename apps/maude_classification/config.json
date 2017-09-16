@@ -35,33 +35,33 @@
       "always_download": true
     },
     {
-      "name": "naive_bayes_bow_no_duplicates",
-      "archive_name": "naive_bayes_bow_no_duplicates.zip",
+      "name": "nltk.naive_bayes_bow_no_duplicates",
+      "archive_name": "nltk_naive_bayes_bow_no_duplicates.zip",
       "always_download": true
     },
     {
-      "name": "naive_bayes_bow_with_duplicates",
-      "archive_name": "naive_bayes_bow_with_duplicates.zip",
+      "name": "nltk.naive_bayes_bow_with_duplicates",
+      "archive_name": "nltk_naive_bayes_bow_with_duplicates.zip",
       "always_download": true
     },
     {
-      "name": "naive_bayes_bigrams_no_duplicates",
-      "archive_name": "naive_bayes_bigrams_no_duplicates.zip",
+      "name": "nltk.naive_bayes_bigrams_no_duplicates",
+      "archive_name": "nltk_naive_bayes_bigrams_no_duplicates.zip",
       "always_download": true
     },
     {
-      "name": "naive_bayes_bigrams_with_duplicates",
-      "archive_name": "naive_bayes_bigrams_with_duplicates.zip",
+      "name": "nltk.naive_bayes_bigrams_with_duplicates",
+      "archive_name": "nltk_naive_bayes_bigrams_with_duplicates.zip",
       "always_download": true
     },
     {
-      "name": "naive_bayes_trigrams_no_duplicates",
-      "archive_name": "naive_bayes_trigrams_no_duplicates.zip",
+      "name": "nltk.naive_bayes_trigrams_no_duplicates",
+      "archive_name": "nltk_naive_bayes_trigrams_no_duplicates.zip",
       "always_download": true
     },
     {
-      "name": "naive_bayes_trigrams_with_duplicates",
-      "archive_name": "naive_bayes_trigrams_with_duplicates.zip",
+      "name": "nltk.naive_bayes_trigrams_with_duplicates",
+      "archive_name": "nltk_naive_bayes_trigrams_with_duplicates.zip",
       "always_download": true
     }
   ],
