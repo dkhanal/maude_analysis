@@ -6,6 +6,7 @@ import os
 import json
 import random
 import logging
+import datetime
 
 from azure.storage.blob import BlockBlobService
 
@@ -197,6 +198,49 @@ def bulk_close_files(file_handles_to_close):
     for fh in file_handles_to_close:
         fh.close()
 
+def get_labeling_accuracy(model_name, output_dir):
+    accuracy_file_path = os.path.join(sharedlib.abspath(output_dir), model_name + '_accuracy.json')
+    if not os.path.exists(accuracy_file_path):
+        return (0, 0)
+
+    with open(accuracy_file_path, 'r') as f:
+        accuracy_data = json.load(f)
+
+    if accuracy_data is None: # No previous accuracy info for this model
+        return (0, 0)
+
+    total_all_time = len(accuracy_data)
+    last_100 = accuracy_data[-100:]
+    total_last_100 = len(last_100)
+
+    correct_all_time = len([item for item in accuracy_data if item['correct'] == True])
+    correct_last_100 = len([item for item in last_100 if item['correct'] == True])
+
+    return (correct_all_time / total_all_time, correct_last_100 / total_last_100)
+
+
+def save_labeling_accuracy(model_name, output_dir, record_id, classification, is_correct):
+    accuracy_file_path = os.path.join(sharedlib.abspath(output_dir), model_name + '_accuracy.json')
+    
+    accuracy_data = None
+    if os.path.exists(accuracy_file_path):
+        with open(accuracy_file_path, 'r') as f:
+            accuracy_data = json.load(f)
+
+    if accuracy_data is None: # No previous accuracy info for this model
+        accuracy_data = []
+
+    item = {}
+    item['timestamp'] = datetime.datetime.now().isoformat()
+    item['recordid'] = record_id
+    item['classification'] = classification
+    item['correct'] = is_correct
+
+    accuracy_data.append(item)
+
+    logging.info('Saving accuracy data for model {}...'.format(model_name))
+    with open(accuracy_file_path, 'w') as f:
+        json.dump(accuracy_data, f, indent=4)
 
 def label(mode, potential_positive_records_file, potential_negative_records_file,  questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models):
     potential_positive_records_file_basename = os.path.basename(potential_positive_records_file).lower()
@@ -281,8 +325,8 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             classification_results = __classification_helper.classify(line, models) # returns tuple: (name, (predicted_classification, positive_proba))
             for (model_name, result) in classification_results:
                 suggestions.append(result[0])
-                accuracy = model_accuracy_counts[model_name] / total_new_records_labeled_this_session if model_name in model_accuracy_counts and total_new_records_labeled_this_session > 0 else 0
-                logging.info('    Per {} (Accuracy {:}%): {}'.format(model_name, round(accuracy * 100, 2), result[0].upper()))
+                accuracy = get_labeling_accuracy(model_name, os.path.dirname(verified_positive_records_file_path))
+                logging.info('    Per {} (Accuracy {:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2),  round(accuracy[1] * 100, 2), result[0].upper()))
         else:
             logging.info('    No trained model available to provide a suggestion.')
 
@@ -334,10 +378,14 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             logging.info('Selected: Unknown')
 
         for (model_name, result) in classification_results: # result is a tuple: (predicted_classification, predicted_proba)
+            is_correct = False
             if decision == 'p' and result[0].lower() == 'pos':
-                model_accuracy_counts[model_name] = model_accuracy_counts[model_name] + 1 if model_name in model_accuracy_counts else 1
+                is_correct = True
             elif decision == 'n' and result[0].lower() == 'neg':
-                model_accuracy_counts[model_name] = model_accuracy_counts[model_name] + 1 if model_name in model_accuracy_counts else 1
+                is_correct = True
+
+            save_labeling_accuracy(model_name, os.path.dirname(verified_positive_records_file_path), line[:40], result[0], is_correct)
+
 
         save_already_read_records(already_processed_record_numbers_file, already_read_records)
 
