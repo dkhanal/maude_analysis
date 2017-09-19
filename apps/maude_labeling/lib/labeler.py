@@ -7,6 +7,7 @@ import json
 import random
 import logging
 import datetime
+import re
 
 from azure.storage.blob import BlockBlobService
 
@@ -102,6 +103,11 @@ def label_records(mode):
             upload_confirmation = bytes.decode(upload_confirmation)
         if upload_confirmation == 'y':
             files_to_upload = [positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file]
+            accuracy_file_pattern = re.compile('.*_accuracy.json')
+            accuarcy_files = [sharedlib.abspath(os.path.join(config.output_dir, file_name)) for file_name in os.listdir(config.output_dir) if re.search(accuracy_file_pattern, file_name) is not None]
+    
+            files_to_upload += accuarcy_files
+
 
             if not existing_work_in_progress:
                 files_to_upload += [potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file]
@@ -325,7 +331,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             classification_results = __classification_helper.classify(line, models) # returns tuple: (name, (predicted_classification, positive_proba))
             for (model_name, result) in classification_results:
                 suggestions.append(result[0])
-                accuracy = get_labeling_accuracy(model_name, os.path.dirname(verified_positive_records_file_path))
+                accuracy = get_labeling_accuracy(model_name, sharedlib.abspath(config.output_dir))
                 logging.info('    Per {} (Accuracy {:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2),  round(accuracy[1] * 100, 2), result[0].upper()))
         else:
             logging.info('    No trained model available to provide a suggestion.')
@@ -333,7 +339,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         logging.info('Likely: {}'.format(get_likely_suggestion(suggestions)))
 
         logging.info('')
-        logging.info('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models or [Q]uit? ')
+        logging.info('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models, [A]curracy Table or [Q]uit? ')
         logging.info('')
         decision = sharedlib.get_char_input()
         if not isinstance(decision, str):
@@ -344,6 +350,13 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         if decision == 'q':
             logging.info('Selected: Quit')
             break;
+        if decision == 'a':
+            logging.info('Selected: Accuracy Table')
+            for model_config in config.models:
+                logging.info('*** Labeling Accuracy Table  ***')
+                accuracy = get_labeling_accuracy(model_config['name'], sharedlib.abspath(config.output_dir))
+                logging.info('{} => (Accuracy {:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2),  round(accuracy[1] * 100, 2), result[0].upper()))
+            continue;
         elif decision == 'r':
             logging.info('Selected: Rebuild models')
             bulk_close_files([verified_positive_records_file, verified_negative_records_file])

@@ -4,8 +4,8 @@
 
 import sys
 import os
+import re
 
-import os
 import datetime
 import logging
 
@@ -49,6 +49,13 @@ def upload_output_to_remote_server(also_uplaod_merged_input_files):
         sharedlib.abspath(output_files['already_processed_record_numbers_file'])
         ]
 
+    output_dir = sharedlib.abspath(config.output_dir)
+
+    accuracy_file_pattern = re.compile('.*_accuracy.json')
+    accuarcy_files = [sharedlib.abspath(os.path.join(output_dir, file_name)) for file_name in os.listdir(output_dir) if re.search(accuracy_file_pattern, file_name) is not None]
+    
+    files_to_upload += accuarcy_files
+
     if also_uplaod_merged_input_files == True:
         files_to_upload += [
         sharedlib.abspath(output_files['potential_positive_records_file']),
@@ -78,7 +85,7 @@ def main(args=None):
         logging.info('Argument: {}'.format(args[0]))
 
 
-    os.system('mode con: cols=200 lines=50')
+    os.system('mode con: cols=200')
     start_time = datetime.datetime.now()
     logging.info('Manually verifying pre-labeled records starting at {}'.format(start_time))
     

@@ -5,6 +5,7 @@
 import os
 import urllib
 import logging
+import re
 
 import sharedlib
 
@@ -31,6 +32,16 @@ def download_remote_server_files(remote_server_config, remote_server_files, outp
                             sharedlib.abspath(output_files['verified_negative_records_file']), True)
     sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['already_processed_record_numbers_blob']),
                             sharedlib.abspath(output_files['already_processed_record_numbers_file']), True)
+
+    logging.info('Downloading model labeling accuracy files...')
+    accuracy_file_pattern = re.compile('.*_accuracy.json')
+    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['labeled_dir'])
+    accuarcy_files = [file_name for file_name in remote_files if re.search(accuracy_file_pattern, file_name) is not None]
+
+    for accuracy_file in accuarcy_files:
+        file_uri = sharedlib.join_remote_server_paths(labeled_base_uri, accuracy_file)
+        file_local_path = sharedlib.abspath(os.path.join(os.path.dirname(output_files['already_processed_record_numbers_file']), accuracy_file)) 
+        sharedlib.download_file(file_uri, file_local_path, True)
 
 def download_models_from_remote_server(remote_server_config, models_config, output_dir):
     logging.info('Downloading models...')
@@ -69,7 +80,7 @@ def download_models_from_remote_server(remote_server_config, models_config, outp
 
 def all_work_in_progress_files_present_on_remote_server(remote_server_config, remote_server_files):
     logging.info('Checking for the presence of cloud files...')
-    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['models_dir'])
+    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['labeled_dir'])
     if not remote_server_files['potential_positive_records_blob'] in remote_files:
         logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['potential_positive_records_blob']))
         return False
@@ -94,7 +105,7 @@ def all_work_in_progress_files_present_on_remote_server(remote_server_config, re
         logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['verified_negative_records_blob']))
         return False
 
-    if not remote_server_files['already_processed_record_numbers_blob'] in blobsremote_files:
+    if not remote_server_files['already_processed_record_numbers_blob'] in remote_files:
         logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['already_processed_record_numbers_blob']))
         return False
 
