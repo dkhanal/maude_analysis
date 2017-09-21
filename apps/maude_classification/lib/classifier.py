@@ -10,6 +10,7 @@ import platform
 import urllib
 import logging
 
+import nltk
 import numpy
 
 from nltk import word_tokenize
