@@ -26,11 +26,19 @@ from sklearn.ensemble import VotingClassifier
 import sharedlib
 import config
 
-def extract_features(list_of_words):
+def extract_features(model_name, list_of_words):
     features = {}
-    for w in list_of_words:
-        features[w] = True
-    
+
+    if 'bow' in model_name:
+        for w in list_of_words:
+            features[w] = True
+    elif 'bigram' in model_name:
+        for bigram in nltk.bigrams(list_of_words):
+            features[bigram] = True
+    elif 'trigram' in model_name:
+        for trigram in nltk.ngrams(list_of_words, 3):
+            features[trigram] = True
+
     return features
 
 def classify(files_to_classify):
@@ -91,12 +99,7 @@ def classify(files_to_classify):
     log('classifier::classify_files() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
 def classify_record(record, models):
-    record_lower_case = record.lower()
-    record_words = word_tokenize(record_lower_case)
-    record_features = extract_features(record_words)
-
     results = []
-
     for (name, classifier, vectorizer) in models:
         results.append((name, classify(record, name, classifier, vectorizer)))
 
@@ -109,7 +112,7 @@ def classify(record, model_name, classifier, vectorizer):
     if 'nltk.' in model_name:
         record_lower_case = record.lower()
         record_words = word_tokenize(record_lower_case)
-        record_features = extract_features(record_words)
+        record_features = extract_features(model_name, record_words)
 
         predicted_classification = classifier.classify(record_features)
         probabilities = classifier.prob_classify(record_features)
