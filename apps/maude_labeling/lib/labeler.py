@@ -344,11 +344,13 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         logging.info('')
         logging.info('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models, [A]curracy Table or [Q]uit? ')
         logging.info('')
-        decision = sharedlib.get_char_input()
-        if not isinstance(decision, str):
-            decision = bytes.decode(decision)
 
-        decision = decision.lower()
+        decision = None
+        while (decision != 'q' and decision != 'a' and decision != 'r' and decision != 'p' and decision != 'n' and decision != 'u'):
+            decision = sharedlib.get_char_input()
+            if not isinstance(decision, str):
+                decision = bytes.decode(decision)
+            decision = decision.lower()
 
         if decision == 'q':
             logging.info('Selected: Quit')
@@ -358,7 +360,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             for model_config in config.models:
                 logging.info('*** Labeling Accuracy Table  ***')
                 accuracy = get_labeling_accuracy(model_config['name'], sharedlib.abspath(config.output_dir))
-                logging.info('{} => (Accuracy {:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2),  round(accuracy[1] * 100, 2), result[0].upper()))
+                logging.info('{} => (Past accuracy {:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2),  round(accuracy[1] * 100, 2), result[0].upper()))
             continue;
         elif decision == 'r':
             logging.info('Selected: Rebuild models')
