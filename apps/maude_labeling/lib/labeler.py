@@ -317,6 +317,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         logging.info('Input File: {}'.format(os.path.basename(file_to_read)))
         logging.info('Record Number: {}'.format(record_number_to_read))
         line = get_line(file_to_read, record_number_to_read)
+        line_id = line[:40]
         logging.info('')
         logging.info(line)
         logging.info('')
@@ -378,7 +379,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             total_new_records_labeled_this_session += 1
             if not record_number_to_read in already_read_records:
                 aleady_read_record_numbers[record_number_to_read] = []
-            aleady_read_record_numbers[record_number_to_read].append({line[:40]: 'pos'})
+            aleady_read_record_numbers[record_number_to_read].append({line_id: 'pos'})
         elif decision == 'n':
             logging.info('Selected: Negative')
             verified_negative_records_file.write(line)
@@ -387,7 +388,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             total_new_records_labeled_this_session += 1
             if not record_number_to_read in already_read_records:
                 aleady_read_record_numbers[record_number_to_read] = []
-            aleady_read_record_numbers[record_number_to_read].append({line[:40]: 'neg'})
+            aleady_read_record_numbers[record_number_to_read].append({line_id: 'neg'})
         else:
             total_new_records_labeled_using_current_models += 1
             logging.info('Selected: Unknown')
@@ -399,14 +400,14 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             elif decision == 'n' and result[0].lower() == 'neg':
                 is_correct = True
 
-            save_labeling_accuracy(model_name, os.path.dirname(verified_positive_records_file_path), line[:40], result[0], is_correct)
+            save_labeling_accuracy(model_name, os.path.dirname(verified_positive_records_file_path), line_id, result[0], is_correct)
 
         if overall_suggestion is not None:
             if (decision == 'p' and overall_suggestion.lower() == 'pos') or (decision == 'n' and overall_suggestion.lower() == 'neg') :
-                save_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir), line[:40],
+                save_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir), line_id,
                                        overall_suggestion, True)
             else:
-                save_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir), line[:40],
+                save_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir), line_id,
                                        overall_suggestion, False)
 
         save_already_read_records(already_processed_record_numbers_file, already_read_records)
