@@ -325,16 +325,20 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         suggestions.append(get_label_from_filename(file_to_read_basename))
         logging.info('    Per pre-labeling: {}'.format(suggestions[0]))
         classification_results = []
+        overall_suggestion_model_name = 'overall.decision_support'
+        overall_suggestion = None
         if len(models) > 0:
             classification_results = __classification_helper.classify(line, models) # returns tuple: (name, (predicted_classification, positive_proba))
             for (model_name, result) in classification_results:
                 suggestions.append(result[0])
                 accuracy = get_labeling_accuracy(model_name, sharedlib.abspath(config.output_dir))
-                logging.info('    Per {} (Accuracy {:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2),  round(accuracy[1] * 100, 2), result[0].upper()))
+                logging.info('    Per {} (Past accuracy {:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2),  round(accuracy[1] * 100, 2), result[0].upper()))
         else:
             logging.info('    No trained model available to provide a suggestion.')
 
-        logging.info('Likely: {}'.format(get_likely_suggestion(suggestions)))
+        overall_suggestion_accuracy = get_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir))
+        overall_suggestion = get_likely_suggestion(suggestions)
+        logging.info('OVERALL (Past accuracy {:}%/{:}%): {}'.format(round(overall_suggestion_accuracy[0] * 100, 2),  round(overall_suggestion_accuracy[1] * 100, 2), overall_suggestion))
 
         logging.info('')
         logging.info('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models, [A]curracy Table or [Q]uit? ')
@@ -397,6 +401,13 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
 
             save_labeling_accuracy(model_name, os.path.dirname(verified_positive_records_file_path), line[:40], result[0], is_correct)
 
+        if overall_suggestion is not None:
+            if (decision == 'p' and result[0].lower() == 'pos') or (decision == 'n' and result[0].lower() == 'neg') :
+                save_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir), line[:40],
+                                       overall_suggestion, True)
+            else:
+                save_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir), line[:40],
+                                       overall_suggestion, False)
 
         save_already_read_records(already_processed_record_numbers_file, already_read_records)
 
