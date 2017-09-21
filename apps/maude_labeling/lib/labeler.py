@@ -402,7 +402,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             save_labeling_accuracy(model_name, os.path.dirname(verified_positive_records_file_path), line[:40], result[0], is_correct)
 
         if overall_suggestion is not None:
-            if (decision == 'p' and result[0].lower() == 'pos') or (decision == 'n' and result[0].lower() == 'neg') :
+            if (decision == 'p' and overall_suggestion.lower() == 'pos') or (decision == 'n' and overall_suggestion.lower() == 'neg') :
                 save_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir), line[:40],
                                        overall_suggestion, True)
             else:
