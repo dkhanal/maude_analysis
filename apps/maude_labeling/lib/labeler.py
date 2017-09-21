@@ -342,7 +342,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         logging.info('OVERALL (Past accuracy {:}%/{:}%): {}'.format(round(overall_suggestion_accuracy[0] * 100, 2),  round(overall_suggestion_accuracy[1] * 100, 2), overall_suggestion))
 
         logging.info('')
-        logging.info('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models, [A]curracy Table or [Q]uit? ')
+        logging.info('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models or [Q]uit? ')
         logging.info('')
 
         decision = None
