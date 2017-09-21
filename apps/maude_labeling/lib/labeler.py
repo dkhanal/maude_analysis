@@ -243,8 +243,6 @@ def save_labeling_accuracy(model_name, output_dir, record_id, classification, is
     item['correct'] = is_correct
 
     accuracy_data.append(item)
-
-    logging.info('Saving accuracy data for model {}...'.format(model_name))
     with open(accuracy_file_path, 'w') as f:
         json.dump(accuracy_data, f, indent=4)
 
