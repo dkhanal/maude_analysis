@@ -93,7 +93,6 @@ def main(args=None):
 
     if len(args) > 0 and (args[0] == 'pos' or args[0] == 'pos?' or args[0] == 'neg' or args[0] == 'neg?'):
         mode = args[0]
-        return
 
     logging.info('Labeling records. Mode: {}'.format(mode))
 
