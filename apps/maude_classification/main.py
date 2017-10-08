@@ -65,7 +65,7 @@ def main(args=None):
     start_time = datetime.datetime.now()
     logging.info('Classification of unknown records starting at {}'.format(start_time))
 
-    classifier.classify(files_to_classify)
+    classifier.classify_files(files_to_classify)
 
     end_time = datetime.datetime.now()
     logging.info('Classification completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
