@@ -307,6 +307,16 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
 
         logging.info('-------------------------------------------------------------------')
         file_to_read_basename = mode if mode is not None else random.choice([key for key in already_read_records])
+
+        if file_to_read_basename == 'pos':
+            file_to_read_basename = potential_positive_records_file_basename
+        elif file_to_read_basename == 'neg':
+            file_to_read_basename = potential_negative_records_file_basename
+        elif file_to_read_basename == 'pos?':
+            file_to_read_basename = questionable_positive_records_file_basename
+        elif file_to_read_basename == 'neg?':
+            file_to_read_basename = questionable_negative_records_file_basename
+
         logging.info('So far => POS: {}, NEG: {}. Next file to look at: {}. Number of records before models auto re-generated: {}'.format(total_verified_positive_records, total_verified_negative_records, file_to_read_basename, config.models_auto_regen_records_threshold - total_new_records_labeled_using_current_models))
         file_to_read = None
         aleady_read_record_numbers = already_read_records[file_to_read_basename]
