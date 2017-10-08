@@ -281,7 +281,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     prediction_summary_file.close()
 
     files_to_zip = []
-    for (name, classifier, pos_file_path, pos_file_handle, neg_file_path, neg_file_handle) in classifiers_info:
+    for (name, classifier, vectorizer, pos_file_path, pos_file_handle, neg_file_path, neg_file_handle) in classifiers_info:
         files_to_zip.append(pos_file_path)
         if config.upload_positive_files_only == False:
             files_to_zip.append(neg_file_path)
