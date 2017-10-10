@@ -91,7 +91,6 @@ def generate_models(positive_records_files, negative_records_files, models_confi
             logging.info('Pickling the Vectorizer as: {}...'.format(os.path.basename(vectorizer_pickle_file)))
             sharedlib.pickle_object(vectorizer, vectorizer_pickle_file)
 
-
         logging.info('Model pickled.')
 
         generated_models.append((model_name, classifier_pickle_file, vectorizer_pickle_file))
@@ -127,8 +126,10 @@ def generate_models_per_config(input_data_files):
         negative_records_file = os.path.join(input_dir, input_data_file_set['negative_records_file'])
         if input_data_file_set['always_download'] == True or os.path.exists(positive_records_file) == False or os.path.exists(negative_records_file) == False:
             log('Labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
-            sharedlib.download_file(input_data_file_set['base_url'] +  input_data_file_set['positive_records_file'], positive_records_file)
-            sharedlib.download_file(input_data_file_set['base_url'] +  input_data_file_set['negative_records_file'], negative_records_file)
+            positive_records_file_uri = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeled_dir'], input_data_file_set['positive_records_file'])
+            negative_records_file_uri = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeled_dir'], input_data_file_set['negative_records_file'])
+            sharedlib.download_file(positive_records_file_uri, positive_records_file)
+            sharedlib.download_file(negative_records_file_uri, negative_records_file)
 
         log('Positive records file: {}'.format(os.path.basename(positive_records_file)))
         log('Negative records file: {}'.format(os.path.basename(negative_records_file)))
