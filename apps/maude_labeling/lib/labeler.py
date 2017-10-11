@@ -207,22 +207,25 @@ def bulk_close_files(file_handles_to_close):
 def get_labeling_accuracy(model_name, output_dir):
     accuracy_file_path = os.path.join(sharedlib.abspath(output_dir), model_name + '_accuracy.json')
     if not os.path.exists(accuracy_file_path):
-        return (0, 0)
+        return (0, 0, 0) # Tuple structure is: (<all time accuracy>, <accuracy over last 500>, <accuracy over last 100>)
 
     with open(accuracy_file_path, 'r') as f:
         accuracy_data = json.load(f)
 
     if accuracy_data is None: # No previous accuracy info for this model
-        return (0, 0)
+        return (0, 0, 0)
 
     total_all_time = len(accuracy_data)
     last_100 = accuracy_data[-100:]
+    last_500 = accuracy_data[-500:]
     total_last_100 = len(last_100)
+    total_last_500 = len(last_500)
 
     correct_all_time = len([item for item in accuracy_data if item['correct'] == True])
     correct_last_100 = len([item for item in last_100 if item['correct'] == True])
+    correct_last_500 = len([item for item in last_500 if item['correct'] == True])
 
-    return (correct_all_time / total_all_time, correct_last_100 / total_last_100)
+    return (correct_all_time / total_all_time, correct_last_500 / total_last_500, correct_last_100 / total_last_100)
 
 
 def save_labeling_accuracy(model_name, output_dir, record_id, classification, is_correct):
@@ -343,13 +346,13 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             for (model_name, result) in classification_results:
                 suggestions.append(result[0])
                 accuracy = get_labeling_accuracy(model_name, sharedlib.abspath(config.output_dir))
-                logging.info('    Per {} (Past accuracy {:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2),  round(accuracy[1] * 100, 2), result[0].upper()))
+                logging.info('    Per {} (Past accuracy {:}%/{:}%/{:}%): {}'.format(model_name, round(accuracy[0] * 100, 2), round(accuracy[1] * 100, 2), round(accuracy[2] * 100, 2), result[0].upper()))
         else:
             logging.info('    No trained model available to provide a suggestion.')
 
         overall_suggestion_accuracy = get_labeling_accuracy(overall_suggestion_model_name, sharedlib.abspath(config.output_dir))
         overall_suggestion = get_likely_suggestion(suggestions)
-        logging.info('OVERALL (Past accuracy {:}%/{:}%): {}'.format(round(overall_suggestion_accuracy[0] * 100, 2),  round(overall_suggestion_accuracy[1] * 100, 2), overall_suggestion))
+        logging.info('OVERALL (Past accuracy {:}%/{:}%/{:}%): {}'.format(round(overall_suggestion_accuracy[0] * 100, 2), round(overall_suggestion_accuracy[1] * 100, 2), round(overall_suggestion_accuracy[2] * 100, 2), overall_suggestion))
 
         logging.info('')
         logging.info('[P]ositive, [N]egative, [U]nknown, [R]ebuild Models or [Q]uit? ')
