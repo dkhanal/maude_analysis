@@ -100,6 +100,37 @@ def randomize_records(file_path):
     logging.info('Randomized all {} of {} records in {}...'.format(written_record_count, len(records), file_path))
 
 
+def remove_duplicate_records(files_to_read_and_update):
+    # Performs in place removal of duplicate records across files. 
+    # In case of duplicates across multiple files, the file where the record is first found wins.
+
+    logging.info('Removing duplicates across {} files...'.format(len(files_to_read_and_update)))
+    record_hash_dict = {}
+    for file in files_to_read_and_update: 
+        file_name = os.path.basename(file)
+        unique_records = []
+        read_record_count = 0
+        with open(file, 'r',  encoding='utf-8', errors='ignore') as fin:
+            for line in fin:
+                read_record_count += 1
+                record_hash = hashlib.sha1(line.upper().encode(errors='ignore')).hexdigest()
+                record_id = "{}=>{}".format(file_name, line[:40])
+
+                if record_hash in record_hash_dict:
+                    logging.info('DUPLICATE - Record {} is a duplicate of {}. It will be removed.'.format(record_id, record_hash_dict[record_hash]))
+                    continue
+
+                record_hash_dict[line_hash] = record_hash                
+                unique_records.append(line)
+
+        written_record_count = 0
+        with open(file, 'w',  encoding='utf-8', errors='ignore') as fout:
+            for line in unique_records:
+                fout.write(line)
+                written_record_count += 1
+
+        logging.info('Eliminated {} duplicate records from {}. Read: {}, Written: {}'.format(read_record_count - written_record_count, file_name, read_record_count, written_record_count))
+
 # The inline code is to register get_char_input() in a platform-agnostic way.
 # The code below executes when this module is loaded.
 try:

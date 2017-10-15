@@ -49,8 +49,13 @@ def merge_files(source_files, destination_file_path, skip_duplicates = False, du
 def randomize_records(file_path):
     __io.randomize_records(file_path)
 
-# Cloud
+def remove_duplicate_records(files_to_read_and_update):
+    # Performs in place removal of duplicate records across files. 
+    # In case of duplicates across multiple files, the file where the record is first found wins.
+    __io.remove_duplicate_records(files_to_read_and_update)
 
+
+# Cloud
 def join_remote_server_paths(path1, path2, path3=None):
     return __remote_server.join_remote_server_paths(path1, path2, path3)
 

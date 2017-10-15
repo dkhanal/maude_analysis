@@ -96,6 +96,8 @@ def label_records(mode):
 
     label(mode, potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models)
     
+    sharedlib.remove_duplicate_records([positive_records_output_file, negative_records_output_file])
+
     if config.upload_output_to_remote_server == True:
         logging.info('Upload output{}? [y/n] '.format( '' if existing_work_in_progress else ' (POTENTIALLY OVERWRITE CLOUD)'))
         upload_confirmation = sharedlib.get_char_input()
