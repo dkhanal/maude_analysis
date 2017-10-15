@@ -120,7 +120,7 @@ def remove_duplicate_records(files_to_read_and_update):
                     logging.info('DUPLICATE - Record {} is a duplicate of {}. It will be removed.'.format(record_id, record_hash_dict[record_hash]))
                     continue
 
-                record_hash_dict[line_hash] = record_hash                
+                record_hash_dict[record_hash] = record_id                
                 unique_records.append(line)
 
         written_record_count = 0
