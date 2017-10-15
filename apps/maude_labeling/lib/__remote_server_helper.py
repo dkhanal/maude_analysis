@@ -56,7 +56,7 @@ def download_models_from_remote_server(remote_server_config, models_config, outp
         classifier = None
         vectorizer = None
         if name_zip_tuple[1] in remote_files:
-            sharedlib.download_file(sharedlib.join_remote_server_paths(models_base_uri,  model_config['archive_name']), name_zip_tuple[2])
+            sharedlib.download_file(sharedlib.join_remote_server_paths(models_base_uri,  model_config['archive_name']), name_zip_tuple[2], True)
             sharedlib.unzip(name_zip_tuple[2], output_dir)
             pickle_file = os.path.join(output_dir, name_zip_tuple[0] + '.pickle')
             if os.path.exists(pickle_file):
