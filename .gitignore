@@ -9,6 +9,7 @@
 [Ii]n/*
 [Mm]odels/*
 .setenv.py
+.useful_commands
 
 # User-specific files
 *.suo

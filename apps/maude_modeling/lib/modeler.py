@@ -48,10 +48,15 @@ def generate_models(positive_records_files, negative_records_files, models_confi
     sharedlib.merge_files([sharedlib.abspath(p) for p in positive_records_files], nodups_pos_records_file_path, True, duplicate_record_check_ignore_pattern)
     sharedlib.merge_files([sharedlib.abspath(p) for p in negative_records_files], nodups_neg_records_file_path, True, duplicate_record_check_ignore_pattern)
 
-    log('Combined (merged) positive labeled (all) file: {}'.format(all_pos_records_file_path))
-    log('Combined (merged) positive labeled (no-duplicates) file: {}'.format(nodups_pos_records_file_path))
-    log('Combined (merged) negative labeled (all) file: {}'.format(all_neg_records_file_path))
-    log('Combined (merged) negative labeled (no-duplicates) file: {}'.format(nodups_neg_records_file_path))
+    sharedlib.randomize_records(all_pos_records_file_path)
+    sharedlib.randomize_records(nodups_pos_records_file_path)
+    sharedlib.randomize_records(all_neg_records_file_path)
+    sharedlib.randomize_records(nodups_neg_records_file_path)
+
+    log('Combined (merged and randomized) positive labeled (all) file: {}'.format(all_pos_records_file_path))
+    log('Combined (merged and randomized) positive labeled (no-duplicates) file: {}'.format(nodups_pos_records_file_path))
+    log('Combined (merged and randomized) negative labeled (all) file: {}'.format(all_neg_records_file_path))
+    log('Combined (merged and randomized) negative labeled (no-duplicates) file: {}'.format(nodups_neg_records_file_path))
 
     generated_models = []
 
@@ -128,8 +133,8 @@ def generate_models_per_config(input_data_files):
             log('Labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
             positive_records_file_uri = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeled_dir'], input_data_file_set['positive_records_file'])
             negative_records_file_uri = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeled_dir'], input_data_file_set['negative_records_file'])
-            sharedlib.download_file(positive_records_file_uri, positive_records_file)
-            sharedlib.download_file(negative_records_file_uri, negative_records_file)
+            sharedlib.download_file(positive_records_file_uri, positive_records_file, True)
+            sharedlib.download_file(negative_records_file_uri, negative_records_file, True)
 
         log('Positive records file: {}'.format(os.path.basename(positive_records_file)))
         log('Negative records file: {}'.format(os.path.basename(negative_records_file)))

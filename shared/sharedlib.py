@@ -46,6 +46,9 @@ def get_char_input():
 def merge_files(source_files, destination_file_path, skip_duplicates = False, duplicate_record_check_ignore_pattern = None):
     __io.merge_files(source_files, destination_file_path, skip_duplicates, duplicate_record_check_ignore_pattern)
 
+def randomize_records(file_path):
+    __io.randomize_records(file_path)
+
 # Cloud
 
 def join_remote_server_paths(path1, path2, path3=None):

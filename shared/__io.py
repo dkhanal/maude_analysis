@@ -9,6 +9,7 @@ import string
 import re
 import hashlib
 import logging
+import random
 
 def initialize(current_app_path):
     global __current_app_path
@@ -82,6 +83,22 @@ def merge_files(source_files, destination_file_path, skip_duplicates = False, du
                         line_hash_dict[line_hash] = line_id                
                         
                     fout.write(line)
+
+def randomize_records(file_path):
+    # Randomizes records in the specified file. Current implementation is memory-bound 
+    # and very not suitable for files containing more than 10,000 records.
+    logging.info('Randomizing (in place) records in {}...'.format(file_path))
+    records = None
+    with open(file_path, 'r',  encoding='utf-8', errors='ignore') as fin:
+        records = [record for record in fin]
+    random.shuffle(records)
+    written_record_count = 0
+    with open(file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
+        for record in records:
+            fout.write(record)
+            written_record_count += 1
+    logging.info('Randomized all {} of {} records in {}...'.format(written_record_count, len(records), file_path))
+
 
 # The inline code is to register get_char_input() in a platform-agnostic way.
 # The code below executes when this module is loaded.

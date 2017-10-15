@@ -2,16 +2,8 @@
   "output_dir": "out",
   "models_dir": "models",
   "files_to_classify": [
-    "../../data/foitext2007.txt",
-    "../../data/foitext2008.txt",
-    "../../data/foitext2009.txt",
-    "../../data/foitext2010.txt",
-    "../../data/foitext2011.txt",
-    "../../data/foitext2012.txt",
-    "../../data/foitext2013.txt",
-    "../../data/foitext2014.txt",
-    "../../data/foitext2015.txt",
-    "../../data/foitext2016.txt"
+    "../../data/verified_positive_records.txt",
+    "../../data/verified_negative_records.txt"
   ],
   "models": [
     {
@@ -32,36 +24,6 @@
     {
       "name": "sklearn.voting_no_duplicates",
       "archive_name": "sklearn_voting_no_duplicates.zip",
-      "always_download": true
-    },
-    {
-      "name": "nltk.naive_bayes_bow_no_duplicates",
-      "archive_name": "nltk_naive_bayes_bow_no_duplicates.zip",
-      "always_download": true
-    },
-    {
-      "name": "nltk.naive_bayes_bow_with_duplicates",
-      "archive_name": "nltk_naive_bayes_bow_with_duplicates.zip",
-      "always_download": true
-    },
-    {
-      "name": "nltk.naive_bayes_bigrams_no_duplicates",
-      "archive_name": "nltk_naive_bayes_bigrams_no_duplicates.zip",
-      "always_download": true
-    },
-    {
-      "name": "nltk.naive_bayes_bigrams_with_duplicates",
-      "archive_name": "nltk_naive_bayes_bigrams_with_duplicates.zip",
-      "always_download": true
-    },
-    {
-      "name": "nltk.naive_bayes_trigrams_no_duplicates",
-      "archive_name": "nltk_naive_bayes_trigrams_no_duplicates.zip",
-      "always_download": true
-    },
-    {
-      "name": "nltk.naive_bayes_trigrams_with_duplicates",
-      "archive_name": "nltk_naive_bayes_trigrams_with_duplicates.zip",
       "always_download": true
     }
   ],

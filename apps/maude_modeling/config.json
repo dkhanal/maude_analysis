@@ -6,7 +6,7 @@
       "name": "labeled_files",
       "positive_records_file": "verified_positive_records.txt",
       "negative_records_file": "verified_negative_records.txt",
-      "always_download": false
+      "always_download": true
     }
   ],
   "models": [
