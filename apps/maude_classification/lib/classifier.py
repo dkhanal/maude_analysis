@@ -71,7 +71,7 @@ def classify_files(files_to_classify):
 
             model_url = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['models_dir'], model_config['archive_name'])
 
-            sharedlib.download_file(model_url, download_zip_file_path)
+            sharedlib.download_file(model_url, download_zip_file_path, True)
             log('Extracting model archive...')
             sharedlib.unzip(download_zip_file_path, models_dir)
             log('Model extracted.')
