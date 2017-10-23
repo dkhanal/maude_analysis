@@ -182,7 +182,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     log('Prediction summary file: {}'.format(prediction_summary_file_path))
 
     prediction_summary_file =  open(prediction_summary_file_path, 'w', encoding='utf-8', errors='ignore')
-    prediction_summary_file.write('RECORD_ID\tMODEL_NAME\tPOS_PROB\tNEG_PROB\tCLASSIFICATION\n')
+    prediction_summary_file.write('MDR_REPORT_KEY|MDR_TEXT_KEY|TEXT_TYPE_CODE|PATIENT_SEQUENCE_NUMBER|DATE_REPORT|FOI_TEXT|MODEL_NAME|POS_PROB|NEG_PROB|CLASSIFICATION\n')
 
     classifiers_info = []
     for (name, classifier, vectorizer) in models:
@@ -248,7 +248,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
                 classifications.append('neg')
                 neg_file.write(record)
 
-            prediction_summary_file.write('{}\t{}\t{:.2f}\t{:.2f}\t{}\n'.format(record[:40].strip(), name, positive_probability, 1-positive_probability, 'pos' if is_positive == True else 'neg', ))
+            prediction_summary_file.write('{}|{}|{:.2f}|{:.2f}|{}\n'.format(record[:40].strip(), name, positive_probability, 1-positive_probability, 'pos' if is_positive == True else 'neg', ))
 
             if total_data_records % 10000 == 0:
                 pos_file.flush()
@@ -267,7 +267,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
             overall_predicted_neg_records_file.write(record)
             total_negative +=1
 
-        prediction_summary_file.write('{}\t{}\t{:.2f}\t{:.2f}\t{}\n'.format(record[:40].strip(), 'overall',  overall_positive_probability, 1-overall_positive_probability, overall_classification))
+        prediction_summary_file.write('{}|{}|{:.2f}|{:.2f}|{}\n'.format(record[:40].strip(), 'overall',  overall_positive_probability, 1-overall_positive_probability, overall_classification))
 
         positive_percent = (total_positive / total_data_records) * 100
         negative_percent = (total_negative / total_data_records) * 100
