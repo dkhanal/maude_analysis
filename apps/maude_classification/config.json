@@ -35,8 +35,8 @@
       "always_download": true
     }
   ],
-  "target_file_max_num_records_to_classify": null,
-  "positive_probability_threshold": 0.65,
+  "target_file_max_num_records_to_classify": 100000,
+  "positive_probability_threshold": 0.5,
   "upload_output_to_remote_server": true,
   "upload_positive_files_only":  true,
   "remote_server": {
