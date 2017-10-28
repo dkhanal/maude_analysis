@@ -26,15 +26,6 @@ def download_remote_server_files(remote_server_config, remote_server_files, outp
                             sharedlib.abspath(output_files['already_processed_record_numbers_file']),
                   not remote_server_files['skip_download_if_already_present'])
 
-    logging.info('Downloading model labeling accuracy files...')
-    accuracy_file_pattern = re.compile('.*_accuracy.json')
-    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['labeled_dir'])
-    accuarcy_files = [file_name for file_name in remote_files if re.search(accuracy_file_pattern, file_name) is not None]
-
-    for accuracy_file in accuarcy_files:
-        file_uri = sharedlib.join_remote_server_paths(labeled_base_uri, accuracy_file)
-        file_local_path = sharedlib.abspath(os.path.join(os.path.dirname(output_files['already_processed_record_numbers_file']), accuracy_file)) 
-        sharedlib.download_file(file_uri, file_local_path, True)
 
 def download_models_from_remote_server(remote_server_config, models_config, output_dir):
     logging.info('Downloading models...')
