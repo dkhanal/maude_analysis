@@ -1,15 +1,20 @@
+import os
 import io
 import sys
 
 def extract():
-    input_file = 'C:\\Users\\dkhan\\Google Drive\\Dissertation\\Machine Learning\\maude_experiments\\data\\verified_negative_records.txt'
-    output_file = 'C:\\Users\\dkhan\\Google Drive\\Dissertation\\Machine Learning\\maude_experiments\\data\\verified_negative_records_fALSE.txt'
-    keyword = 'FALSE'
+    input_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\data\verified_positive_records.txt'
+    output_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\data\verified_positive_records_lcd.txt'
+    keyword = 'LCD'
     total_lines_count = 0
     extracted_lines_count = 0
 
     print('Extracting all records matching \'{}\' from {}'.format(keyword, input_file))
     print ('Output file will be: {}'.format(output_file))
+
+    if not os.path.exists(input_file):
+        print ('ERROR - Input file does not exist: {}'.format(input_file))
+        return
 
     with open(output_file, 'w') as fout:
         with open(input_file, 'r') as fin:

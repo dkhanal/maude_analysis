@@ -131,6 +131,17 @@ def remove_duplicate_records(files_to_read_and_update):
 
         logging.info('Eliminated {} duplicate records from {}. Read: {}, Written: {}'.format(read_record_count - written_record_count, file_name, read_record_count, written_record_count))
 
+def read_all_records(file_path):
+    logging.info('Reading all records into list from {}...'.format(file_path))
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as fin:
+        return [line for line in fin]
+
+def save_list_to_file(list, file_path):
+    logging.info('Writing all {} records from list to {}...'.format(len(list), file_path))
+    with open(file_path, 'w', encoding='utf-8', errors='ignore') as fout:
+        for line in list:
+            fout.write(line)
+
 # The inline code is to register get_char_input() in a platform-agnostic way.
 # The code below executes when this module is loaded.
 try:

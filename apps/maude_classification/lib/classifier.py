@@ -101,13 +101,16 @@ def classify_files(files_to_classify):
 
 def classify_record(record, models):
     results = []
-    for (name, classifier, vectorizer) in models:
+    for (name, classifier, vectorizer, score) in models:
         results.append((name, classify(record, name, classifier, vectorizer)))
 
     return results
 
 
 def classify(record, model_name, classifier, vectorizer):
+    if len(record.strip()) < 10: # We consider anything less than 10 chars automatically negative.
+        return ('neg', 0)
+
     predicted_classification = None
     positive_probability = None
     if 'nltk.' in model_name:

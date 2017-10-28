@@ -121,4 +121,4 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
         logging.info('Model accuracy is: {}. '.format(accuracy))
         classifier.show_most_informative_features()
 
-    return classifier
+    return (classifier, accuracy)

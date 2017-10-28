@@ -54,6 +54,12 @@ def remove_duplicate_records(files_to_read_and_update):
     # In case of duplicates across multiple files, the file where the record is first found wins.
     __io.remove_duplicate_records(files_to_read_and_update)
 
+def read_all_records(file_path):
+    return __io.read_all_records(file_path)
+
+def save_list_to_file(list, file_path):
+    __io.save_list_to_file(list, file_path)
+
 
 # Cloud
 def join_remote_server_paths(path1, path2, path3=None):
@@ -70,6 +76,9 @@ def get_list_of_files_from_remote_server(remote_directory):
 
 def upload_files_to_prelabeled_dir(list_of_files):
     __remote_server.upload_files_to_prelabled_dir(list_of_files)
+
+def upload_files_to_autolabeled_dir(list_of_files):
+    __remote_server.upload_files_to_autolabeled_dir(list_of_files)
 
 def upload_files_to_labeled_dir(list_of_files):
     __remote_server.upload_files_to_labeled_dir(list_of_files)

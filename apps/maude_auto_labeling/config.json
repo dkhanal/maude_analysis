@@ -1,0 +1,59 @@
+{
+  "input_data_files": [
+    "../../data/foitext2007.txt",
+    "../../data/foitext2008.txt",
+    "../../data/foitext2009.txt",
+    "../../data/foitext2010.txt",
+    "../../data/foitext2011.txt",
+    "../../data/foitext2012.txt",
+    "../../data/foitext2013.txt",
+    "../../data/foitext2014.txt",
+    "../../data/foitext2015.txt",
+    "../../data/foitext2016.txt"
+  ],
+  "models": [
+    {
+      "name": "sklearn.sgd_with_duplicates",
+      "archive_name": "sklearn_sgd_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    }
+  ],
+  "remote_server_files": {
+    "autolabeled_positive_records_blob": "autolabled_positive_records.txt",
+    "autolabeled_negative_records_blob": "autolabled_negative_records.txt",
+    "input_file_total_lines_count_blob": "input_file_total_lines_count.json",
+    "already_processed_record_numbers_blob": "already_processed_record_numbers.json",
+    "skip_download_if_already_present": true
+  },
+  "output_files": {
+    "autolabeled_positive_records_file": "out/autolabeled_positive_records.txt",
+    "autolabeled_negative_records_file": "out/autolabeled_negative_records.txt",
+    "input_file_total_lines_count_file": "out/input_file_total_lines_count.json",
+    "already_processed_record_numbers_file": "out/already_processed_record_numbers.json"
+  },
+  "models_output_dir": "../maude_modeling/out",
+  "input_dir": "in",
+  "output_dir": "out",
+  "upload_output_to_remote_server": true,
+  "upload_regenerated_models_to_remote_server": true,
+  "min_probability_for_auto_labeling": 0.9,
+  "min_model_score_for_auto_labeling": 0.9,
+  "percent_of_new_records_to_qc": 0.1,
+  "regen_models": true,
+  "auto_regen_models": true,
+  "models_auto_regen_records_threshold": 100,
+  "remote_server": {
+    "base_uri": "https://maude.blob.core.windows.net/",
+    "narratives_dir": "narratives",
+    "prelabeled_dir": "pre-labeled",
+    "autolabeled_dir": "auto-labeled",
+    "labeled_dir": "labeled",
+    "models_dir": "models",
+    "classification_dir": "classification"
+  },
+  "duplicate_record_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
+  "verbose": false
+}

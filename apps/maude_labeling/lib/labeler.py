@@ -86,7 +86,6 @@ def label_records(mode):
    
     existing_work_in_progress = __remote_server_helper.all_work_in_progress_files_present_on_remote_server(config.remote_server, config.remote_server_files)
     if existing_work_in_progress:
-        # Cloud does not have work in progress
         __remote_server_helper.download_remote_server_files(config.remote_server, config.remote_server_files, config.output_files)
     else:
         # No cloud files or incomplete set. Create new using data files.

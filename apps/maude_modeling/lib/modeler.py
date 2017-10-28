@@ -80,11 +80,12 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
         classifier = None
         vectorizer = None
+        score = None
 
         if 'nltk.naive_bayes' in model_name:
-            classifier = _nltk_naive_bayes.generate_model(pos_labeled_file_path, neg_labeled_file_path, model_config, output_dir)
+            classifier, score = _nltk_naive_bayes.generate_model(pos_labeled_file_path, neg_labeled_file_path, model_config, output_dir)
         else:
-            classifier, vectorizer = _sklearn.generate_model(pos_labeled_file_path, neg_labeled_file_path, model_config, output_dir)
+            classifier, vectorizer, score = _sklearn.generate_model(pos_labeled_file_path, neg_labeled_file_path, model_config, output_dir)
 
         classifier_pickle_file = sharedlib.abspath(os.path.join(output_dir, model_name + '.pickle'))
         logging.info('Pickling the model as: {}...'.format(os.path.basename(classifier_pickle_file)))
@@ -98,7 +99,7 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
         logging.info('Model pickled.')
 
-        generated_models.append((model_name, classifier_pickle_file, vectorizer_pickle_file))
+        generated_models.append((model_name, classifier_pickle_file, vectorizer_pickle_file, score))
 
         if upload_generated_models_to_remote_server == True:
             model_archive_name = model_config['archive_name']

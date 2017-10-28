@@ -111,4 +111,4 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
     score = classifier.score(x_test_tf, test_labels)
     logging.info('Classifier score: {}'.format(score))
     
-    return classifier, vectorizer
+    return classifier, vectorizer, score

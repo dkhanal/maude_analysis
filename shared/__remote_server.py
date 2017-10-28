@@ -25,6 +25,7 @@ def initialize(remote_server_config):
 
     global __narratives_dir
     global __prelabeled_dir
+    global __autolabeled_dir
     global __labeled_dir
     global __models_dir
     global __classification_dir
@@ -32,6 +33,7 @@ def initialize(remote_server_config):
 
     global __narratives_uri
     global __prelabeled_uri
+    global __autolabeled_uri
     global __labeled_uri
     global __models_uri
     global __classification_uri
@@ -62,6 +64,7 @@ def initialize(remote_server_config):
     __base_uri = remote_server_config['base_uri']
     __narratives_dir = remote_server_config['narratives_dir']
     __prelabeled_dir = remote_server_config['prelabeled_dir']
+    __autolabeled_dir = remote_server_config['autolabeled_dir']
     __labeled_dir = remote_server_config['labeled_dir']
     __models_dir = remote_server_config['models_dir']
     __classification_dir = remote_server_config['classification_dir']
@@ -77,12 +80,14 @@ def initialize(remote_server_config):
     if __remote_server_type == __CLOUD:
         __narratives_uri = urllib.parse.urljoin(base_uri, __narratives_dir)
         __prelabeled_uri = urllib.parse.urljoin(base_uri, __prelabeled_dir)
+        __autolabeled_uri = urllib.parse.urljoin(base_uri, __autolabeled_dir)
         __labeled_uri = urllib.parse.urljoin(base_uri, __labeled_dir)
         __models_uri = urllib.parse.urljoin(base_uri, __models_dir)
         __classification_uri = urllib.parse.urljoin(base_uri, __classification_dir)
     else:
         __narratives_uri = os.path.join(base_uri, __narratives_dir)
         __prelabeled_uri = os.path.join(base_uri, __prelabeled_dir)
+        __autolabeled_uri = os.path.join(base_uri, __autolabeled_dir)
         __labeled_uri = os.path.join(base_uri, __labeled_dir)
         __models_uri = os.path.join(base_uri, __models_dir)
         __classification_uri = os.path.join(base_uri, __classification_dir)
@@ -90,6 +95,9 @@ def initialize(remote_server_config):
 
 def upload_files_to_prelabled_dir(list_of_files):
     upload_files_to_remote_server(list_of_files, __prelabeled_dir)
+
+def upload_files_to_autolabeled_dir(list_of_files):
+    upload_files_to_remote_server(list_of_files, __autolabeled_dir)
 
 def upload_files_to_labeled_dir(list_of_files):
     upload_files_to_remote_server(list_of_files, __labeled_dir)
