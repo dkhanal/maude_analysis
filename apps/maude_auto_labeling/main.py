@@ -46,7 +46,7 @@ def upload_output_to_remote_server():
     files_to_upload = [
         sharedlib.abspath(output_files['autolabeled_positive_records_file']),
         sharedlib.abspath(output_files['autolabeled_negative_records_file']),
-        sharedlib.abspath(output_files['input_file_total_lines_count_file'])
+        sharedlib.abspath(output_files['input_file_total_lines_count_file']),
         sharedlib.abspath(output_files['already_processed_record_numbers_file'])
         ]
 
