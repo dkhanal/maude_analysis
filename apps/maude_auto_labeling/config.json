@@ -26,7 +26,7 @@
     "autolabeled_negative_records_blob": "autolabeled_negative_records.txt",
     "input_file_total_lines_count_blob": "input_file_total_lines_count.json",
     "already_processed_record_numbers_blob": "already_processed_record_numbers.json",
-    "skip_download_if_already_present": true
+    "skip_download_if_already_present": false
   },
   "output_files": {
     "autolabeled_positive_records_file": "out/autolabeled_positive_records.txt",

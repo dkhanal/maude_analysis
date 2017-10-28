@@ -10,28 +10,21 @@ import re
 import sharedlib
 
 def download_remote_server_files(remote_server_config, remote_server_files, output_files):
-    labeled_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['labeled_dir'])
+    labeled_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['autolabeled_dir'])
     logging.info('Downloading cloud files from {}'.format(labeled_base_uri))
 
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['potential_positive_records_blob']),
-                  sharedlib.abspath(output_files['potential_positive_records_file']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['autolabeled_positive_records_blob']),
+                  sharedlib.abspath(output_files['autolabeled_positive_records_file']),
                   not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['potential_negative_records_blob']),
-                            sharedlib.abspath(output_files['potential_negative_records_file']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['autolabeled_negative_records_blob']),
+                            sharedlib.abspath(output_files['autolabeled_negative_records_file']),
                   not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['questionable_positive_records_blob']),
-                            sharedlib.abspath(output_files['questionable_positive_records_file']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['input_file_total_lines_count_blob']),
+                            sharedlib.abspath(output_files['input_file_total_lines_count_file']),
                   not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['questionable_negative_records_blob']),
-                            sharedlib.abspath(output_files['questionable_negative_records_file']),
-                  not remote_server_files['skip_download_if_already_present'])
-
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['verified_positive_records_blob']),
-                            sharedlib.abspath(output_files['verified_positive_records_file']), True)
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['verified_negative_records_blob']),
-                            sharedlib.abspath(output_files['verified_negative_records_file']), True)
     sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['already_processed_record_numbers_blob']),
-                            sharedlib.abspath(output_files['already_processed_record_numbers_file']), True)
+                            sharedlib.abspath(output_files['already_processed_record_numbers_file']),
+                  not remote_server_files['skip_download_if_already_present'])
 
     logging.info('Downloading model labeling accuracy files...')
     accuracy_file_pattern = re.compile('.*_accuracy.json')
