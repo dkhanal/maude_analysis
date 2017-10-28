@@ -35,7 +35,7 @@ def initialize():
                            sharedlib.abspath(os.path.join(base_path, '..', 'maude_modeling', 'out'))
                            ])
 
-def upload_output_to_remote_server(also_uplaod_merged_input_files):
+def upload_output_to_remote_server():
     import config
     import sharedlib
 
@@ -44,23 +44,13 @@ def upload_output_to_remote_server(also_uplaod_merged_input_files):
     output_files = config.output_files
 
     files_to_upload = [
-        sharedlib.abspath(output_files['verified_positive_records_file']),
-        sharedlib.abspath(output_files['verified_negative_records_file']),
+        sharedlib.abspath(output_files['autolabeled_positive_records_file']),
+        sharedlib.abspath(output_files['autolabeled_negative_records_file']),
+        sharedlib.abspath(output_files['input_file_total_lines_count_file'])
         sharedlib.abspath(output_files['already_processed_record_numbers_file'])
         ]
 
     output_dir = sharedlib.abspath(config.output_dir)
-
-    accuracy_file_pattern = re.compile('.*_accuracy.json')
-    accuarcy_files = [sharedlib.abspath(os.path.join(output_dir, file_name)) for file_name in os.listdir(output_dir) if re.search(accuracy_file_pattern, file_name) is not None]
-    
-    files_to_upload += accuarcy_files
-
-    if also_uplaod_merged_input_files == True:
-        files_to_upload += [
-        sharedlib.abspath(output_files['potential_positive_records_file']),
-        sharedlib.abspath(output_files['potential_negative_records_file'])
-        ]
 
     files_to_upload = [f for f in files_to_upload if os.path.exists(f) == True]
     sharedlib.upload_files_to_remote_server_with_prompt(files_to_upload, config.remote_server['autolabeled_dir'])
@@ -77,7 +67,7 @@ def main(args=None):
     
     if len(args) > 0:    
         if 'upload' in args[0].lower():
-            upload_output_to_remote_server(len(args) > 1 and args[1].lower() in 'all')
+            upload_output_to_remote_server()
             return
 
         logging.info('Argument: {}'.format(args[0]))
