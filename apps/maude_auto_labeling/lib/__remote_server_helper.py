@@ -82,14 +82,6 @@ def all_work_in_progress_files_present_on_remote_server(remote_server_config, re
         logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['autolabeled_negative_records_blob']))
         return False
 
-    if not remote_server_files['questionable_positive_records_blob'] in remote_files:
-        logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['questionable_positive_records_blob']))
-        return False
-
-    if not remote_server_files['questionable_negative_records_blob'] in remote_files:
-        logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['questionable_negative_records_blob']))
-        return False
-
     if not remote_server_files['input_file_total_lines_count_blob'] in remote_files:
         logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['input_file_total_lines_count_blob']))
         return False
