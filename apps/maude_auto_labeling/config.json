@@ -7,7 +7,7 @@
   ],
   "models": [
     {
-      "name": "sklearn.sgd_with_duplicates",
+      "name": "sklearn.sgd_with_no_duplicates",
       "archive_name": "sklearn_sgd_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
       "labeled_files_max_num_records_to_read": null,
