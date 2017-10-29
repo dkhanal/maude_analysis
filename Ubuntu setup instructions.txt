@@ -1,3 +1,22 @@
+Instructions on setting up the box
+
+# Login as 'ubuntu' with the key file (PEM)
+# Create a new user:
+$ sudo adduser deepak
+(Follow the prompts)
+$ sudo usermod -aG sudo deepak
+(Gives sudo privilege)
+
+# To enable password auth on AWS Ubuntu EC2 instance
+$ sudo pico /etc/ssh/sshd_config
+PasswordAuthentication yes
+
+$ sudo systemctl reload sshd
+
+# Update apt-get
+$ sudo apt-get update
+
+
 Instructions for Setting Up Ubuntu Environment for Running Programs in This Project:
 
 $ sudo apt-get install python3
@@ -7,6 +26,8 @@ Modify ~/.bashrc
 
 alias python=python3
 alias pip=pip3
+
+Exit and re-login.
 
 $ pip install nltk
 $ python
@@ -27,6 +48,13 @@ $ pip install pandas
 
 # Note, numpy, scipy won't install on Windows via pip due to dependency issues. 
 # Build from source, or simply switch to Ubuntu. Under Windows 10, Ubuntu Bash is an attractive option.
+
+$ tmux
+
+If previous session(s) were over tmux, attach.
+
+$ tmux ls
+$ tmux a -t <session number>
 
 $ mkdir Projects
 $ cd Projects
