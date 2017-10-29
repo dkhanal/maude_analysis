@@ -3,9 +3,9 @@ import io
 import sys
 
 def extract():
-    input_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\data\verified_positive_records.txt'
-    output_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\data\verified_positive_records_lcd.txt'
-    keyword = 'LCD'
+    input_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\data\autolabeled_negative_records.txt'
+    output_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\data\autolabeled_negative_records_processor.txt'
+    keyword = 'PROCESSOR'
     total_lines_count = 0
     extracted_lines_count = 0
 

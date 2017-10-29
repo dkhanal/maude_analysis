@@ -15,28 +15,13 @@
   ],
   "models": [
     {
-      "name": "sklearn.sgd_with_duplicates",
-      "archive_name": "sklearn_sgd_with_duplicates.zip",
-      "always_download": true
-    },
-    {
       "name": "sklearn.sgd_no_duplicates",
       "archive_name": "sklearn_sgd_no_duplicates.zip",
-      "always_download": true
-    },
-    {
-      "name": "sklearn.voting_with_duplicates",
-      "archive_name": "sklearn_voting_with_duplicates.zip",
-      "always_download": true
-    },
-    {
-      "name": "sklearn.voting_no_duplicates",
-      "archive_name": "sklearn_voting_no_duplicates.zip",
       "always_download": true
     }
   ],
   "target_file_max_num_records_to_classify": null,
-  "positive_probability_threshold": 0.5,
+  "positive_probability_threshold": 0.8,
   "upload_output_to_remote_server": true,
   "upload_positive_files_only": true,
   "remote_server": {
