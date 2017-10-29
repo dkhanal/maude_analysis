@@ -96,6 +96,7 @@
     "base_uri": "https://maude.blob.core.windows.net/",
     "narratives_dir": "narratives",
     "prelabeled_dir": "pre-labeled",
+    "autolabeled_dir": "auto-labeled",
     "labeled_dir": "labeled",
     "models_dir": "models",
     "classification_dir": "classification"
