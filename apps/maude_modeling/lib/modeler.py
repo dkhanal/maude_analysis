@@ -131,9 +131,9 @@ def generate_models_per_config(input_data_files):
         positive_records_file = os.path.join(input_dir, input_data_file_set['positive_records_file'])
         negative_records_file = os.path.join(input_dir, input_data_file_set['negative_records_file'])
         if input_data_file_set['always_download'] == True or os.path.exists(positive_records_file) == False or os.path.exists(negative_records_file) == False:
-            log('Labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
-            positive_records_file_uri = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeled_dir'], input_data_file_set['positive_records_file'])
-            negative_records_file_uri = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeled_dir'], input_data_file_set['negative_records_file'])
+            log('Labeled archive for input data needs to be downloaded.')
+            positive_records_file_uri = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], input_data_file_set['remote_blob_dir'], input_data_file_set['positive_records_file'])
+            negative_records_file_uri = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], input_data_file_set['remote_blob_dir'], input_data_file_set['negative_records_file'])
             sharedlib.download_file(positive_records_file_uri, positive_records_file, True)
             sharedlib.download_file(negative_records_file_uri, negative_records_file, True)
 
