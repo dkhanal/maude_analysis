@@ -42,6 +42,10 @@ def download_data_files():
         ('https://maude.blob.core.windows.net/narratives/foitext2014.txt', os.path.join(base_path, 'data', 'foitext2014.txt')),
         ('https://maude.blob.core.windows.net/narratives/foitext2015.txt', os.path.join(base_path, 'data', 'foitext2015.txt')),
         ('https://maude.blob.core.windows.net/narratives/foitext2016.txt', os.path.join(base_path, 'data', 'foitext2016.txt')),
+        ('https://maude.blob.core.windows.net/narratives/potential_positive_records.txt', os.path.join(base_path, 'data', 'potential_positive_records.txt')),
+        ('https://maude.blob.core.windows.net/narratives/potential_ngative_records.txt', os.path.join(base_path, 'data', 'potential_negative_records.txt')),
+        ('https://maude.blob.core.windows.net/narratives/questionable_positive_records.txt', os.path.join(base_path, 'data', 'questionable_positive_records.txt')),
+        ('https://maude.blob.core.windows.net/narratives/questionable_negative_records.txt', os.path.join(base_path, 'data', 'questionable_negative_records.txt'))
         ]
 
     print('Checking if data files need to be downloaded...')
