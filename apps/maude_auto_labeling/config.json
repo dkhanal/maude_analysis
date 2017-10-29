@@ -8,8 +8,8 @@
   "models": [
     {
       "name": "sklearn.sgd_with_duplicates",
-      "archive_name": "sklearn_sgd_with_duplicates.zip",
-      "ignore_duplicate_training_records": false,
+      "archive_name": "sklearn_sgd_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true
