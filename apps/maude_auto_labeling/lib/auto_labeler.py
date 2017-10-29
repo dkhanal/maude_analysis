@@ -288,9 +288,9 @@ def autolabel(mode,
                 new_model = None
                 continue
 
-            logging.info('Model re-built and QC passed. Do you want to continue auto-labeling? [Y]es to continue; [N]o to quit...')
+            logging.info('Model re-built and QC passed. Do you want to continue auto-labeling? [Y]es to continue; [N]o to quit; [R] to re-run QC...')
             decision = None
-            while (decision != 'y' and decision != 'n'):
+            while (decision != 'y' and decision != 'n' and decision != 'r'):
                 decision = sharedlib.get_char_input()
                 if not isinstance(decision, str):
                     decision = bytes.decode(decision)
@@ -299,6 +299,18 @@ def autolabel(mode,
             logging.info('Selected: {}'.format(decision))
             if decision == 'n':
                 break;
+
+            if decision == 'r':
+                # Re-QC, but, the entire set
+                last_num_records_to_qc = min(total_autolabeled_positive_records, total_autolabeled_negative_records)
+                sample_size =   math.ceil(last_num_records_to_qc * config.percent_of_new_records_to_qc)
+                qc_passed = perform_manual_qc(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
+
+                if qc_passed == False:
+                    logging.info('QC found at least one correction needed. Model will be rebuilt with the correction...')
+                    new_model = None
+                    continue
+
 
             output_files = bulk_open_files([autolabeled_positive_records_file_path, autolabeled_negative_records_file_path], 'a+')
             autolabeled_positive_records_file = output_files[0]
