@@ -49,5 +49,6 @@
     "classification_dir": "classification"
   },
   "duplicate_record_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
+  "max_semantic_duplicate_records_allowed": 5,
   "verbose": false
 }

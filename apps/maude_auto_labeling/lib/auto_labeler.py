@@ -9,6 +9,7 @@ import logging
 import datetime
 import re
 import math
+import hashlib
 
 from azure.storage.blob import BlockBlobService
 
@@ -123,6 +124,43 @@ def bulk_close_files(file_handles_to_close):
     for fh in file_handles_to_close:
         fh.close()
 
+def remove_semantically_duplicate_records(file_path, dup_check_ignore_pattern_regex, max_number_of_duplicates_to_tolerate):
+    record_hash_dict = {}
+    subset = []
+    read_record_count = 0
+    with open(file_path, 'r',  encoding='utf-8', errors='ignore') as fin:
+        for line in fin:
+            read_record_count += 1
+            record_to_hash = None
+            if dup_check_ignore_pattern_regex is not None:
+                record_to_hash = re.sub(dup_check_ignore_pattern_regex, '', line)
+            else:
+                record_to_hash = line
+                        
+            record_hash = hashlib.sha1(record_to_hash.upper().encode(errors='ignore')).hexdigest()
+            
+            if record_hash in record_hash_dict:
+                current_duplicate_count = record_hash_dict[record_hash]
+                if current_duplicate_count >= max_number_of_duplicates_to_tolerate:
+                    logging.info('Record {} aleady has {} duplicates, which is maximum tolerated number of duplicates. It will be eliminated.'.format(line[:40], current_duplicate_count))
+                    continue
+                record_hash_dict[record_hash] = current_duplicate_count + 1
+            else:
+                record_hash_dict[record_hash] = 1
+
+            subset.append(line)
+
+    written_record_count = 0
+    with open(file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
+        for line in subset:
+            fout.write(line)
+            written_record_count += 1
+
+    logging.info('Eliminated {} semantically duplicate records from {}. Read: {}, Written: {}'.format(read_record_count - written_record_count, os.path.basename(file_path), read_record_count, written_record_count))
+
+    return record_hash_dict
+
+
 def perform_random_qc(population, eligible_population_size, sample_size, expected_class):    
     population_size = len(population)
     if eligible_population_size > population_size:
@@ -139,6 +177,8 @@ def perform_random_qc(population, eligible_population_size, sample_size, expecte
 
     false_classified_indices = set()
     indeterminate_indices = set()
+
+    user_aborted = False
 
     for index in sample_indices:
         record = population[index]
@@ -162,6 +202,7 @@ def perform_random_qc(population, eligible_population_size, sample_size, expecte
 
         if decision == 'q':
             logging.info('QC exited by User'.format(index))
+            user_aborted = True
             break;
 
         if decision == 'u':
@@ -173,7 +214,7 @@ def perform_random_qc(population, eligible_population_size, sample_size, expecte
 
 
     logging.info('Random QC performed on {} {} samples. {} Falsely classified and {} indeterminate'.format(len(sample_indices), expected_class, len(false_classified_indices), len(indeterminate_indices)))
-    return (false_classified_indices, indeterminate_indices)
+    return (false_classified_indices, indeterminate_indices, user_aborted)
 
 def perform_manual_qc(positive_records_file_path, 
                       negative_records_file_path,
@@ -185,8 +226,8 @@ def perform_manual_qc(positive_records_file_path,
     positive_records = sharedlib.read_all_records(positive_records_file_path)
     negative_records = sharedlib.read_all_records(negative_records_file_path)
 
-    (false_positive_indices,  positive_but_indeterminate_indices) = perform_random_qc(positive_records, qc_eligible_population_size, qc_sample_size, 'pos')
-    (false_negative_indices,  negative_but_indeterminate_indices) = perform_random_qc(negative_records, qc_eligible_population_size, qc_sample_size, 'neg')
+    (false_positive_indices,  positive_but_indeterminate_indices, positive_qc_user_aborted) = perform_random_qc(positive_records, qc_eligible_population_size, qc_sample_size, 'pos')
+    (false_negative_indices,  negative_but_indeterminate_indices, negative_qc_user_aborted) = perform_random_qc(negative_records, qc_eligible_population_size, qc_sample_size, 'neg')
 
     # Join the sets to obtain the superset of removal candidates
     positive_indices_to_remove = false_positive_indices | positive_but_indeterminate_indices
@@ -208,8 +249,8 @@ def perform_manual_qc(positive_records_file_path,
     logging.info('Manual QC found {} false positives, {} false negatives and {} indeterminate records.'.format(len(false_positive_indices), len(false_negative_indices), len(positive_but_indeterminate_indices|negative_but_indeterminate_indices)))
 
     if len(new_positive_records) != len(positive_records) or len(new_negative_records) != len(negative_records):
-        return False
-    return True
+        return (False, positive_qc_user_aborted or negative_qc_user_aborted)
+    return (True, positive_qc_user_aborted or negative_qc_user_aborted)
 
 
 def autolabel(mode, 
@@ -221,6 +262,9 @@ def autolabel(mode,
     
     autolabled_positive_records_file_basename = os.path.basename(autolabeled_positive_records_file_path).lower()
     autolabled_negative_records_file_basename = os.path.basename(autolabeled_negative_records_file_path).lower()
+
+    autolabled_pos_duplicates_table = remove_semantically_duplicate_records(autolabeled_positive_records_file_path, config.duplicate_record_check_ignore_pattern, config.max_semantic_duplicate_records_allowed)
+    autolabled_neg_duplicates_table = remove_semantically_duplicate_records(autolabeled_negative_records_file_path, config.duplicate_record_check_ignore_pattern, config.max_semantic_duplicate_records_allowed)
 
     input_file_basename_to_full_path_map = {}
 
@@ -281,14 +325,14 @@ def autolabel(mode,
 
             last_num_records_to_qc = max(50, total_new_records_labeled_using_current_models)
             sample_size =   math.ceil(last_num_records_to_qc * config.percent_of_new_records_to_qc)
-            qc_passed = perform_manual_qc(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
+            (qc_passed, user_aborted) = perform_manual_qc(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
 
-            if qc_passed == False:
+            if qc_passed == False and user_aborted == False:
                 logging.info('QC found at least one correction needed. Model will be rebuilt with the correction...')
                 new_model = None
                 continue
 
-            logging.info('Model re-built and QC passed. Do you want to continue auto-labeling? [Y]es to continue; [N]o to quit; [R] to re-run QC...')
+            logging.info('Model re-built and QC passed or user skipped. Do you want to continue auto-labeling? [Y]es to continue; [N]o to quit; [R] to re-run QC...')
             decision = None
             while (decision != 'y' and decision != 'n' and decision != 'r'):
                 decision = sharedlib.get_char_input()
@@ -335,6 +379,9 @@ def autolabel(mode,
 
         logging.info('So far => POS: {}, NEG: {}. Model accuracy {:.2f}. Next file to look at: {} Record # {}. Total auto-labeled since last model generation: {}'.format(total_autolabeled_positive_records, total_autolabeled_negative_records, model[3], file_to_read_basename, record_number_to_read, total_new_records_labeled_using_current_models))
         line = get_line(file_to_read, record_number_to_read)
+        
+        record_hash = hashlib.sha1(re.sub(config.duplicate_record_check_ignore_pattern, '', line).upper().encode(errors='ignore')).hexdigest()
+
         line_id = line[:40]
         (model_name, result) = __classification_helper.classify(line, [model])[0] # returns tuple: (name, (predicted_classification, positive_proba))
         
@@ -345,6 +392,16 @@ def autolabel(mode,
             if total_autolabeled_positive_records > total_autolabeled_negative_records:
                 # We maintain positive/negative count parity as we go
                 continue
+
+            # Do not allow more than n duplicates to prevent bias
+            if record_hash not in autolabled_pos_duplicates_table:
+                autolabled_pos_duplicates_table[record_hash] = 0 # Initialize the hash table entry
+
+            if autolabled_pos_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
+                continue
+
+            autolabled_pos_duplicates_table[record_hash] += 1
+
 
             logging.info(line)
             logging.info('Auto-Selected: Positive')
@@ -360,6 +417,16 @@ def autolabel(mode,
             if total_autolabeled_negative_records > total_autolabeled_positive_records:
                 # We maintain positive/negative count parity as we go
                 continue
+
+            # Do not allow more than n duplicates to prevent bias
+            if record_hash not in autolabled_neg_duplicates_table:
+                autolabled_neg_duplicates_table[record_hash] = 0 # Initialize the hash table entry
+
+            if autolabled_neg_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
+                continue
+
+            autolabled_neg_duplicates_table[record_hash] += 1
+
 
             logging.info(line)
             logging.info('Auto-selected: Negative')

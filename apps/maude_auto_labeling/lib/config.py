@@ -40,6 +40,7 @@ def load_config():
     global min_model_score_for_auto_labeling
     global percent_of_new_records_to_qc
     global duplicate_record_check_ignore_pattern
+    global max_semantic_duplicate_records_allowed
     global verbose
 
     input_data_files = config_data['input_data_files']
@@ -61,6 +62,7 @@ def load_config():
     min_model_score_for_auto_labeling = config_data['min_model_score_for_auto_labeling']
     percent_of_new_records_to_qc = config_data['percent_of_new_records_to_qc']
     duplicate_record_check_ignore_pattern = config_data['duplicate_record_check_ignore_pattern']
+    max_semantic_duplicate_records_allowed = config_data['max_semantic_duplicate_records_allowed']
 
     verbose = config_data['verbose']
 
