@@ -21,6 +21,12 @@ import __remote_server_helper
 import __modeling_helper
 import __classification_helper
 
+global positive_class_str
+global negative_class_str
+positive_class_str = 'pos'
+negative_class_str = 'neg'
+
+
 def label_records(mode):
     input_files = config.input_data_files
     logging.info('Auto-labeling known positive and negative records from {} file(s)...'.format(len(input_files)))
@@ -216,7 +222,20 @@ def perform_random_qc(population, eligible_population_size, sample_size, expecte
     logging.info('Random QC performed on {} {} samples. {} Falsely classified and {} indeterminate'.format(len(sample_indices), expected_class, len(false_classified_indices), len(indeterminate_indices)))
     return (false_classified_indices, indeterminate_indices, user_aborted)
 
-def perform_manual_qc(positive_records_file_path, 
+def order_by_pos_probability(model, records, reverse_ordered, class_str):
+    logging.info('Ordering {} {} items by positive probability in {} order...'.format(len(records), class_str, 'reverse' if reverse_ordered else 'ascending'))
+    classified_records = []
+
+    for record in records:
+        (model_name, result) = __classification_helper.classify(record, [model])[0]
+         # returns tuple: (name, (predicted_classification, positive_proba))
+        classified_records.append((record, result[1]))
+
+    classified_records.sort(key=lambda item: item[1], reverse = reverse_ordered)
+    return [record for (record, proba) in classified_records]
+
+
+def perform_manual_qc(model, positive_records_file_path, 
                       negative_records_file_path,
                       qc_eligible_population_size,
                       qc_sample_size):
@@ -226,8 +245,13 @@ def perform_manual_qc(positive_records_file_path,
     positive_records = sharedlib.read_all_records(positive_records_file_path)
     negative_records = sharedlib.read_all_records(negative_records_file_path)
 
-    (false_positive_indices,  positive_but_indeterminate_indices, positive_qc_user_aborted) = perform_random_qc(positive_records, qc_eligible_population_size, qc_sample_size, 'pos')
-    (false_negative_indices,  negative_but_indeterminate_indices, negative_qc_user_aborted) = perform_random_qc(negative_records, qc_eligible_population_size, qc_sample_size, 'neg')
+    if model is not None:
+        # Put potential outliers/falsely classified at the bottom of the list
+        positive_records = order_by_pos_probability(model, positive_records, True, positive_class_str) # Order by highest pos probability to lowest
+        negative_records = order_by_pos_probability(model, negative_records, False, negative_class_str)  # Order by lowest pos probability to highest
+
+    (false_positive_indices,  positive_but_indeterminate_indices, positive_qc_user_aborted) = perform_random_qc(positive_records, qc_eligible_population_size, qc_sample_size, positive_class_str)
+    (false_negative_indices,  negative_but_indeterminate_indices, negative_qc_user_aborted) = perform_random_qc(negative_records, qc_eligible_population_size, qc_sample_size, negative_class_str)
 
     # Join the sets to obtain the superset of removal candidates
     positive_indices_to_remove = false_positive_indices | positive_but_indeterminate_indices
@@ -325,7 +349,7 @@ def autolabel(mode,
 
             last_num_records_to_qc = max(50, total_new_records_labeled_using_current_models)
             sample_size =   math.ceil(last_num_records_to_qc * config.percent_of_new_records_to_qc)
-            (qc_passed, user_aborted) = perform_manual_qc(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
+            (qc_passed, user_aborted) = perform_manual_qc(new_model, autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
 
             if qc_passed == False and user_aborted == False:
                 logging.info('QC found at least one correction needed. Model will be rebuilt with the correction...')
@@ -345,10 +369,10 @@ def autolabel(mode,
                 break;
 
             if decision == 'r':
-                # Re-QC, but, the entire set
+                # Re-QC, but on the entire set
                 last_num_records_to_qc = min(total_autolabeled_positive_records, total_autolabeled_negative_records)
                 sample_size =   math.ceil(last_num_records_to_qc * config.percent_of_new_records_to_qc)
-                qc_passed = perform_manual_qc(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
+                qc_passed = perform_manual_qc(new_model, autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
 
                 if qc_passed == False:
                     logging.info('QC found at least one correction needed. Model will be rebuilt with the correction...')
@@ -411,7 +435,7 @@ def autolabel(mode,
             total_new_records_labeled_this_session += 1
             if not record_number_to_read in already_read_records:
                 aleady_read_record_numbers[record_number_to_read] = []
-            aleady_read_record_numbers[record_number_to_read].append({line_id: 'pos'})
+            aleady_read_record_numbers[record_number_to_read].append({line_id: positive_class_str})
 
         elif neg_prob >= config.min_probability_for_auto_labeling:
             if total_autolabeled_negative_records > total_autolabeled_positive_records:
@@ -436,7 +460,7 @@ def autolabel(mode,
             total_new_records_labeled_this_session += 1
             if not record_number_to_read in already_read_records:
                 aleady_read_record_numbers[record_number_to_read] = []
-            aleady_read_record_numbers[record_number_to_read].append({line_id: 'neg'})
+            aleady_read_record_numbers[record_number_to_read].append({line_id: negative_class_str})
         
         save_already_read_records(already_processed_record_numbers_file_path, already_read_records)
 
