@@ -186,9 +186,12 @@ def perform_random_qc(population, eligible_population_size, sample_size, expecte
 
     user_aborted = False
 
+    record_count = 0
+    total_samples = len(sample_indices)
     for index in sample_indices:
         record = population[index]
-        logging.info('Record #{}:'.format(index))
+        record_count += 1
+        logging.info('Record #{} (QC sample #{} of {}) :'.format(index, record_count, total_samples))
         logging.info(record)
 
         logging.info('')
@@ -414,6 +417,7 @@ def autolabel(mode,
 
         if pos_prob >= config.min_probability_for_auto_labeling:
             if total_autolabeled_positive_records > total_autolabeled_negative_records:
+                logging.info('This is a positive record, but the search is for a negative record to maintain positive/negative parity. Skipping...')
                 # We maintain positive/negative count parity as we go
                 continue
 
@@ -422,6 +426,7 @@ def autolabel(mode,
                 autolabled_pos_duplicates_table[record_hash] = 0 # Initialize the hash table entry
 
             if autolabled_pos_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
+                logging.info('This is a technically unique but semantically duplicate record. There are already {} copies in the positive set. Skipping...'.format(autolabled_pos_duplicates_table[record_hash]))
                 continue
 
             autolabled_pos_duplicates_table[record_hash] += 1
@@ -439,6 +444,7 @@ def autolabel(mode,
 
         elif neg_prob >= config.min_probability_for_auto_labeling:
             if total_autolabeled_negative_records > total_autolabeled_positive_records:
+                logging.info('This is a negative record, but the search is for a positive record to maintain positive/negative parity. Skipping...')
                 # We maintain positive/negative count parity as we go
                 continue
 
@@ -447,6 +453,7 @@ def autolabel(mode,
                 autolabled_neg_duplicates_table[record_hash] = 0 # Initialize the hash table entry
 
             if autolabled_neg_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
+                logging.info('This is a technically unique but semantically duplicate record. There are already {} copies in the negative set. Skipping...'.format(autolabled_pos_duplicates_table[record_hash]))
                 continue
 
             autolabled_neg_duplicates_table[record_hash] += 1
@@ -461,6 +468,11 @@ def autolabel(mode,
             if not record_number_to_read in already_read_records:
                 aleady_read_record_numbers[record_number_to_read] = []
             aleady_read_record_numbers[record_number_to_read].append({line_id: negative_class_str})
+
+        else:
+            logging.info('This record (POS: {:.2f}, NEG:{:.2f}) is not strong enough (min required: {:.2f}) to be in the labeled set. Skipping...'.format(pos_prob, neg_prob, config.min_probability_for_auto_labeling))
+            continue;
+
         
         save_already_read_records(already_processed_record_numbers_file_path, already_read_records)
 
