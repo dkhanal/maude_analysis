@@ -375,10 +375,10 @@ def autolabel(mode,
                 # Re-QC, but on the entire set
                 last_num_records_to_qc = min(total_autolabeled_positive_records, total_autolabeled_negative_records)
                 sample_size =   math.ceil(last_num_records_to_qc * config.percent_of_new_records_to_qc)
-                qc_passed = perform_manual_qc(new_model, autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
+                (qc_passed, user_aborted)  = perform_manual_qc(new_model, autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
 
-                if qc_passed == False:
-                    logging.info('QC found at least one correction needed. Model will be rebuilt with the correction...')
+                if qc_passed == False and user_aborted == False:
+                    logging.info('Re-QC of the sampling of the entire dataset found at least one correction needed. Model will be rebuilt with the correction...')
                     new_model = None
                     continue
 
