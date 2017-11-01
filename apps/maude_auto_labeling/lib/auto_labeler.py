@@ -453,7 +453,7 @@ def autolabel(mode,
                 autolabled_neg_duplicates_table[record_hash] = 0 # Initialize the hash table entry
 
             if autolabled_neg_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
-                logging.info('This is a technically unique but semantically duplicate record. There are already {} copies in the negative set. Skipping...'.format(autolabled_pos_duplicates_table[record_hash]))
+                logging.info('This is a technically unique but semantically duplicate record. There are already {} copies in the negative set. Skipping...'.format(autolabled_neg_duplicates_table[record_hash]))
                 continue
 
             autolabled_neg_duplicates_table[record_hash] += 1
