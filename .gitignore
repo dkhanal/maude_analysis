@@ -4,7 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Application specific
-[Dd]ata/*
+[Nn]arratives/*
 [Oo]ut/*
 [Ii]n/*
 [Mm]odels/*
