@@ -142,6 +142,16 @@ def save_list_to_file(list, file_path):
         for line in list:
             fout.write(line)
 
+def get_total_lines_count(file_path):
+    line_count = 0
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        for line in f:
+            line_count += 1
+
+    print('Total {} lines in {}'.format(line_count, file_path))
+    return line_count
+
+
 # The inline code is to register get_char_input() in a platform-agnostic way.
 # The code below executes when this module is loaded.
 try:

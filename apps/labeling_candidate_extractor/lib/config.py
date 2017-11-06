@@ -32,6 +32,7 @@ def load_config():
     global file_split_lines_per_file
     global max_records_to_extract
     global match_extracted_positive_negative_records_count
+    global max_questionable_records_to_keep
     global upload_output_to_remote_server
     global remote_server
 
@@ -54,6 +55,7 @@ def load_config():
     file_split_lines_per_file = config_data['file_split_lines_per_file']
 
     max_records_to_extract = config_data['max_records_to_extract']
+    max_questionable_records_to_keep = config_data['max_questionable_records_to_keep']
     match_extracted_positive_negative_records_count = config_data['match_extracted_positive_negative_records_count']
 
     upload_output_to_remote_server = config_data['upload_output_to_remote_server']

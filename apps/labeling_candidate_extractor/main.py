@@ -67,7 +67,7 @@ def main(args=None):
         logging.info('Extracting for {}'.format(args[0]))
         input_data_files = [s for s in config.input_data_files if args[0] in s]
         logging.info(input_data_files)
-    candidate_extractor.extract_records(input_data_files, config.output_dir, config.max_records_to_extract)
+    candidate_extractor.extract_records(input_data_files, config.output_dir, config.max_records_to_extract, config.max_questionable_records_to_keep)
 
     end_time = datetime.datetime.now()
     logging.info('Extraction completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))

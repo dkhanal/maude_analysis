@@ -60,6 +60,8 @@ def read_all_records(file_path):
 def save_list_to_file(list, file_path):
     __io.save_list_to_file(list, file_path)
 
+def get_total_lines_count(file_path):
+    return __io.get_total_lines_count(file_path)
 
 # Cloud
 def join_remote_server_paths(path1, path2, path3=None):
