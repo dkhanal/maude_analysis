@@ -1,0 +1,54 @@
+{
+  "input_data_files": [
+    "../../data/potential_positive_records.txt",
+    "../../data/potential_negative_records.txt",
+    "../../data/questionable_positive_records.txt",
+    "../../data/questionable_negative_records.txt"
+  ],
+  "trained-models": [
+    {
+      "name": "sklearn.sgd_no_duplicates",
+      "archive_name": "sklearn_sgd_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    }
+  ],
+  "remote_server_files": {
+    "autolabeled_positive_records_blob": "autolabeled_positive_records.txt",
+    "autolabeled_negative_records_blob": "autolabeled_negative_records.txt",
+    "input_file_total_lines_count_blob": "input_file_total_lines_count.json",
+    "already_processed_record_numbers_blob": "already_processed_record_numbers.json",
+    "skip_download_if_already_present": false
+  },
+  "output_files": {
+    "autolabeled_positive_records_file": "out/autolabeled_positive_records.txt",
+    "autolabeled_negative_records_file": "out/autolabeled_negative_records.txt",
+    "input_file_total_lines_count_file": "out/input_file_total_lines_count.json",
+    "already_processed_record_numbers_file": "out/already_processed_record_numbers.json"
+  },
+  "models_output_dir": "../maude_modeling/out",
+  "input_dir": "in",
+  "output_dir": "out",
+  "upload_output_to_remote_server": true,
+  "upload_regenerated_models_to_remote_server": true,
+  "min_probability_for_auto_labeling": 0.9,
+  "min_model_score_for_auto_labeling": 0.9,
+  "percent_of_new_records_to_qc": 0.1,
+  "regen_models": true,
+  "auto_regen_models": true,
+  "models_auto_regen_records_threshold": 100,
+  "remote_server": {
+    "base_uri": "https://maude.blob.core.windows.net/",
+    "narratives_dir": "narratives",
+    "labeling_candidates_dir": "labeling-candidates",
+    "labeling_auto_labeled_dir": "labeling-auto-labeled",
+    "labeling_verified_samples_dir": "labeling-verified-samples",
+    "trained_models_dir": "trained-models",
+    "classified_dir": "classified"
+  },
+  "duplicate_record_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
+  "max_semantic_duplicate_records_allowed": 5,
+  "verbose": false
+}

@@ -1,0 +1,215 @@
+{
+  "input_data_file_sets": [
+    {
+      "name": "foitext2007",
+      "prelabeled_archive_name": "foitext2007.zip",
+      "potential_positive_records_file": "foitext2007.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2007.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2007.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2007.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2008",
+      "prelabeled_archive_name": "foitext2008.zip",
+      "potential_positive_records_file": "foitext2008.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2008.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2008.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2008.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2009",
+      "prelabeled_archive_name": "foitext2009.zip",
+      "potential_positive_records_file": "foitext2009.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2009.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2009.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2009.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2010",
+      "prelabeled_archive_name": "foitext2010.zip",
+      "potential_positive_records_file": "foitext2010.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2010.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2010.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2010.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2011",
+      "prelabeled_archive_name": "foitext2011.zip",
+      "potential_positive_records_file": "foitext2011.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2011.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2011.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2011.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2012",
+      "prelabeled_archive_name": "foitext2012.zip",
+      "potential_positive_records_file": "foitext2012.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2012.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2012.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2012.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2013",
+      "prelabeled_archive_name": "foitext2013.zip",
+      "potential_positive_records_file": "foitext2013.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2013.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2013.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2013.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2014",
+      "prelabeled_archive_name": "foitext2014.zip",
+      "potential_positive_records_file": "foitext2014.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2014.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2014.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2014.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2015",
+      "prelabeled_archive_name": "foitext2015.zip",
+      "potential_positive_records_file": "foitext2015.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2015.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2015.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2015.questionable_neg.txt",
+      "always_download": true
+    },
+    {
+      "name": "foitext2016",
+      "prelabeled_archive_name": "foitext2016.zip",
+      "potential_positive_records_file": "foitext2016.potential_pos.txt",
+      "questionable_positive_records_file": "foitext2016.questionable_pos.txt",
+      "potential_negative_records_file": "foitext2016.potential_neg.txt",
+      "questionable_negative_records_file": "foitext2016.questionable_neg.txt",
+      "always_download": true
+    }
+  ],
+  "remote_server_files": {
+    "potential_positive_records_blob": "potential_positive_records.txt",
+    "potential_negative_records_blob": "potential_negative_records.txt",
+    "questionable_positive_records_blob": "questionable_positive_records.txt",
+    "questionable_negative_records_blob": "questionable_negative_records.txt",
+    "verified_positive_records_blob": "verified_positive_records.txt",
+    "verified_negative_records_blob": "verified_negative_records.txt",
+    "already_processed_record_numbers_blob": "already_processed_record_numbers.json",
+    "model_labeling_accuraccy_blobs_pattern": ".*_accuracy\\.json",
+    "skip_download_if_already_present": true
+  },
+  "output_files": {
+    "potential_positive_records_file": "out/potential_positive_records.txt",
+    "potential_negative_records_file": "out/potential_negative_records.txt",
+    "questionable_positive_records_file": "out/questionable_positive_records.txt",
+    "questionable_negative_records_file": "out/questionable_negative_records.txt",
+    "verified_positive_records_file": "out/verified_positive_records.txt",
+    "verified_negative_records_file": "out/verified_negative_records.txt",
+    "already_processed_record_numbers_file": "out/already_processed_record_numbers.json"
+  },
+  "regen_models": true,
+  "auto_regen_models": true,
+  "models_auto_regen_records_threshold": 20,
+  "trained-models": [
+    {
+      "name": "nltk.naive_bayes_bow_no_duplicates",
+      "archive_name": "nltk_naive_bayes_bow_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "nltk.naive_bayes_bow_with_duplicates",
+      "archive_name": "nltk_naive_bayes_bow_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "nltk.naive_bayes_bigrams_no_duplicates",
+      "archive_name": "nltk_naive_bayes_bigrams_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "nltk.naive_bayes_bigrams_with_duplicates",
+      "archive_name": "nltk_naive_bayes_bigrams_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "nltk.naive_bayes_trigrams_no_duplicates",
+      "archive_name": "nltk_naive_bayes_trigrams_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "nltk.naive_bayes_trigrams_with_duplicates",
+      "archive_name": "nltk_naive_bayes_trigrams_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.sgd_with_duplicates",
+      "archive_name": "sklearn_sgd_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.sgd_no_duplicates",
+      "archive_name": "sklearn_sgd_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.voting_with_duplicates",
+      "archive_name": "sklearn_voting_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.voting_no_duplicates",
+      "archive_name": "sklearn_voting_no_duplicates.zip",
+      "ignore_duplicate_training_records": true,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    }
+  ],
+  "models_output_dir": "../maude_modeling/out",
+  "input_dir": "in",
+  "output_dir": "out",
+  "upload_output_to_remote_server": true,
+  "upload_regenerated_models_to_remote_server": true,
+  "remote_server": {
+    "base_uri": "https://maude.blob.core.windows.net/",
+    "narratives_dir": "narratives",
+    "labeling_candidates_dir": "labeling-candidates",
+    "labeling_auto_labeled_dir": "labeling-auto-labeled",
+    "labeling_verified_samples_dir": "labeling-verified-samples",
+    "trained_models_dir": "trained-models",
+    "classified_dir": "classified"
+  },
+  "duplicate_record_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
+  "verbose": false
+}

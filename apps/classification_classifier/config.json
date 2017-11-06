@@ -1,0 +1,52 @@
+{
+  "output_dir": "out",
+  "trained_models_dir": "trained-models",
+  "files_to_classify": [
+    "../../data/foitext2007.txt",
+    "../../data/foitext2008.txt",
+    "../../data/foitext2009.txt",
+    "../../data/foitext2010.txt",
+    "../../data/foitext2011.txt",
+    "../../data/foitext2012.txt",
+    "../../data/foitext2013.txt",
+    "../../data/foitext2014.txt",
+    "../../data/foitext2015.txt",
+    "../../data/foitext2016.txt"
+  ],
+  "trained-models": [
+    {
+      "name": "sklearn.sgd_with_duplicates",
+      "archive_name": "sklearn_sgd_with_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "sklearn.sgd_no_duplicates",
+      "archive_name": "sklearn_sgd_no_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "sklearn.voting_with_duplicates",
+      "archive_name": "sklearn_voting_with_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "sklearn.voting_no_duplicates",
+      "archive_name": "sklearn_voting_no_duplicates.zip",
+      "always_download": true
+    }
+  ],
+  "target_file_max_num_records_to_classify": null,
+  "positive_probability_threshold": 0.5,
+  "upload_output_to_remote_server": true,
+  "upload_positive_files_only": true,
+  "remote_server": {
+    "base_uri": "https://maude.blob.core.windows.net/",
+    "narratives_dir": "narratives",
+    "labeling_candidates_dir": "labeling-candidates",
+    "labeling_auto_labeled_dir": "labeling-auto-labeled",
+    "labeling_verified_samples_dir": "labeling-verified-samples",
+    "trained_models_dir": "trained-models",
+    "classified_dir": "classified"
+  },
+  "verbose": false
+}
