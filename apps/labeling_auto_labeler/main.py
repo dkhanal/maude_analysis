@@ -20,8 +20,8 @@ def initialize():
     base_path = os.path.dirname(__file__)
     add_to_path(os.path.abspath(os.path.join(base_path, '..', '..', 'shared')))
     add_to_path(os.path.abspath(os.path.join(base_path, 'lib')))
-    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_modeling', 'lib')))
-    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_classification', 'lib')))
+    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'modeling_trained_model_generator', 'lib')))
+    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'classification_classifier', 'lib')))
 
     global log_file_path
     log_file_path = os.path.join(base_path, 'out', 'autolabeling_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")))

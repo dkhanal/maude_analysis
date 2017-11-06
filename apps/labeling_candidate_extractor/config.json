@@ -142,6 +142,7 @@
       "SCRIPT",
       "SCRIPTING",
       "SERVER",
+      "SETTINGS",
       "SMART CARD",
       "SMARTCARD",
       "SOAP",
@@ -172,7 +173,8 @@
       "WHITESCREEN",
       "WINDOWS",
       "WSDL",
-      "XML"
+      "XML",
+      "Y2K"
 
     ],
     "qualifying_postfix_terms": [

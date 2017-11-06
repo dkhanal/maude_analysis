@@ -1,11 +1,11 @@
 {
   "input_data_files": [
-    "../../data/potential_positive_records.txt",
-    "../../data/potential_negative_records.txt",
-    "../../data/questionable_positive_records.txt",
-    "../../data/questionable_negative_records.txt"
+    "in/potential_positive_records.txt",
+    "in/potential_negative_records.txt",
+    "in/questionable_positive_records.txt",
+    "in/questionable_negative_records.txt"
   ],
-  "trained-models": [
+  "models": [
     {
       "name": "sklearn.sgd_no_duplicates",
       "archive_name": "sklearn_sgd_no_duplicates.zip",
@@ -28,7 +28,7 @@
     "input_file_total_lines_count_file": "out/input_file_total_lines_count.json",
     "already_processed_record_numbers_file": "out/already_processed_record_numbers.json"
   },
-  "models_output_dir": "../maude_modeling/out",
+  "models_output_dir": "../modeling_trained_model_generator/out",
   "input_dir": "in",
   "output_dir": "out",
   "upload_output_to_remote_server": true,

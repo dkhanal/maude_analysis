@@ -110,7 +110,7 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
             zipped_file = sharedlib.zip_files(files_to_zip, sharedlib.abspath(os.path.join(output_dir, model_archive_name)))
             log('Uploading the pickled model ({}) to the Remote Server...'.format(model_archive_name))
-            sharedlib.upload_files_to_trained_trained_models_dir([zipped_file])
+            sharedlib.upload_files_to_trained_models_dir([zipped_file])
 
         model_end_time = datetime.datetime.now()
         log('Completed creating model for: {} at {}. Duration: {}...'.format(model_name, model_end_time, model_end_time - model_start_time))

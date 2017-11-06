@@ -10,29 +10,47 @@ import re
 import sharedlib
 
 def download_remote_server_files(remote_server_config, remote_server_files, output_files):
-    labeled_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['labeling_auto_labeled_dir'])
-    logging.info('Downloading cloud files from {}'.format(labeled_base_uri))
+    auto_labeled_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['labeling_auto_labeled_dir'])
+    logging.info('Downloading cloud files from {}'.format(auto_labeled_base_uri))
 
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['autolabeled_positive_records_blob']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['autolabeled_positive_records_blob']),
                   sharedlib.abspath(output_files['autolabeled_positive_records_file']),
                   not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['autolabeled_negative_records_blob']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['autolabeled_negative_records_blob']),
                             sharedlib.abspath(output_files['autolabeled_negative_records_file']),
                   not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['input_file_total_lines_count_blob']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['input_file_total_lines_count_blob']),
                             sharedlib.abspath(output_files['input_file_total_lines_count_file']),
                   not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['already_processed_record_numbers_blob']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['already_processed_record_numbers_blob']),
                             sharedlib.abspath(output_files['already_processed_record_numbers_file']),
                   not remote_server_files['skip_download_if_already_present'])
+
+    verified_samples_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['labeling_verified_samples_dir'])
+    logging.info('Downloading cloud files from {}'.format(verified_samples_base_uri))
+
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['autolabeled_positive_records_blob']),
+                  sharedlib.abspath(output_files['autolabeled_positive_records_file']),
+                  not remote_server_files['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['autolabeled_negative_records_blob']),
+                            sharedlib.abspath(output_files['autolabeled_negative_records_file']),
+                  not remote_server_files['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['input_file_total_lines_count_blob']),
+                            sharedlib.abspath(output_files['input_file_total_lines_count_file']),
+                  not remote_server_files['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['already_processed_record_numbers_blob']),
+                            sharedlib.abspath(output_files['already_processed_record_numbers_file']),
+                  not remote_server_files['skip_download_if_already_present'])
+
+
 
 
 def download_models_from_remote_server(remote_server_config, models_config, output_dir):
     logging.info('Downloading models...')
     output_dir = sharedlib.abspath(output_dir)
-    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['trained_trained_models_dir'])
+    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['trained_models_dir'])
     
-    models_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['trained_trained_models_dir'])
+    models_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['trained_models_dir'])
 
     models = []
     for model_config in models_config:

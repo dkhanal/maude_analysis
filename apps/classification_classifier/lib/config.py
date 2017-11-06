@@ -24,7 +24,7 @@ def load_config():
 
     # Configuration items
     global files_to_classify
-    global trained_trained_models_dir
+    global trained_models_dir
     global output_dir
     global target_file_max_num_records_to_classify
     global models
@@ -36,7 +36,7 @@ def load_config():
 
     files_to_classify = config_data['files_to_classify']
     output_dir = config_data['output_dir']
-    trained_trained_models_dir = config_data['trained_trained_models_dir']
+    trained_models_dir = config_data['trained_models_dir']
     models = config_data['models']
     target_file_max_num_records_to_classify = config_data['target_file_max_num_records_to_classify']
     positive_probability_threshold = config_data['positive_probability_threshold']

@@ -20,8 +20,8 @@ def initialize():
     base_path = os.path.dirname(__file__)
     add_to_path(os.path.abspath(os.path.join(base_path, '..', '..', 'shared')))
     add_to_path(os.path.abspath(os.path.join(base_path, 'lib')))
-    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_modeling', 'lib')))
-    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'maude_classification', 'lib')))
+    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'modeling_trained_model_generator', 'lib')))
+    add_to_path(os.path.abspath(os.path.join(base_path, '..', 'classification_classifier', 'lib')))
 
     global log_file_path
     log_file_path = os.path.join(base_path, 'out', 'labeling_{}.log'.format(datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S")))
@@ -32,7 +32,7 @@ def initialize():
     
     sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'in')),
                            sharedlib.abspath(os.path.join(base_path, 'out')),
-                           sharedlib.abspath(os.path.join(base_path, '..', 'maude_modeling', 'out'))
+                           sharedlib.abspath(os.path.join(base_path, '..', 'modeling_trained_model_generator', 'out'))
                            ])
 
 def upload_output_to_remote_server(also_uplaod_merged_input_files):
@@ -65,13 +65,13 @@ def upload_output_to_remote_server(also_uplaod_merged_input_files):
         ]
 
     files_to_upload = [f for f in files_to_upload if os.path.exists(f) == True]
-    sharedlib.upload_files_to_remote_server_with_prompt(files_to_upload, config.remote_server[labeling_verified_samples_dir'])
+    sharedlib.upload_files_to_remote_server_with_prompt(files_to_upload, config.remote_server['labeling_verified_samples_dir'])
 
 def main(args=None):
     initialize()
 
     import config
-    import labeler
+    import verified_sample_generator
     import sharedlib
 
     if args is None:
@@ -96,7 +96,7 @@ def main(args=None):
 
     logging.info('Labeling records. Mode: {}'.format(mode))
 
-    labeler.label_records(mode)
+    verified_sample_generator.label_records(mode)
 
     end_time = datetime.datetime.now()
     logging.info('Manual verification session completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))

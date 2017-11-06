@@ -113,7 +113,7 @@ def label_records(mode):
             if not existing_work_in_progress:
                 files_to_upload += [potential_positive_records_file, potential_negative_records_file, questionable_positive_records_file, questionable_negative_records_file]
 
-            sharedlib.upload_files_to_remote_server(files_to_upload, config.remote_server[labeling_verified_samples_dir'])
+            sharedlib.upload_files_to_remote_server(files_to_upload, config.remote_server['labeling_verified_samples_dir'])
 
 
 def get_already_read_records(file_path):

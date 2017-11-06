@@ -39,14 +39,14 @@ def upload_output_to_remote_server(pattern_to_match = None):
     output_dir = sharedlib.abspath(config.output_dir)
     files_in_output_dir = os.listdir(output_dir)
     files_to_upload = [os.path.join(output_dir, f) for f in files_in_output_dir if f.lower().endswith(pattern_to_match)]
-    sharedlib.upload_files_to_remote_server_with_prompt(files_to_upload, config.remote_server['trained_trained_models_dir'])
+    sharedlib.upload_files_to_remote_server_with_prompt(files_to_upload, config.remote_server['trained_models_dir'])
 
 def main(args=None):
     initialize()
 
     import sharedlib
     import config
-    import modeler
+    import trained_model_generator
 
     if args is None:
         args = sys.argv[1:]
@@ -64,14 +64,14 @@ def main(args=None):
     if len(args) > 0:
         logging.info('Generating model(s) for {}'.format(args[0]))
         input_data_files = [s for s in config.input_data_file_sets if args[0] in s['name']]
-    modeler.generate_models_per_config(input_data_files)
+    trained_model_generator.generate_models_per_config(input_data_files)
 
     end_time = datetime.datetime.now()
     logging.info('Model generation completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
     if config.upload_output_to_remote_server == True:
         logging.info('Uploading log file to Remote Server...')
-        sharedlib.upload_files_to_trained_trained_models_dir([log_file_path])
+        sharedlib.upload_files_to_trained_models_dir([log_file_path])
 
 if __name__ == "__main__":
     main()

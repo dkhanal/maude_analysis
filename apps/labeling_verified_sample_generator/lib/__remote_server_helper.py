@@ -10,7 +10,7 @@ import re
 import sharedlib
 
 def download_remote_server_files(remote_server_config, remote_server_files, output_files):
-    labeled_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config[labeling_verified_samples_dir'])
+    labeled_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['labeling_verified_samples_dir'])
     logging.info('Downloading cloud files from {}'.format(labeled_base_uri))
 
     sharedlib.download_file(sharedlib.join_remote_server_paths(labeled_base_uri, remote_server_files['potential_positive_records_blob']),
@@ -35,7 +35,7 @@ def download_remote_server_files(remote_server_config, remote_server_files, outp
 
     logging.info('Downloading model labeling accuracy files...')
     accuracy_file_pattern = re.compile('.*_accuracy.json')
-    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config[labeling_verified_samples_dir'])
+    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['labeling_verified_samples_dir'])
     accuarcy_files = [file_name for file_name in remote_files if re.search(accuracy_file_pattern, file_name) is not None]
 
     for accuracy_file in accuarcy_files:
@@ -46,9 +46,9 @@ def download_remote_server_files(remote_server_config, remote_server_files, outp
 def download_models_from_remote_server(remote_server_config, models_config, output_dir):
     logging.info('Downloading models...')
     output_dir = sharedlib.abspath(output_dir)
-    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['trained_trained_models_dir'])
+    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['trained_models_dir'])
     
-    models_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['trained_trained_models_dir'])
+    models_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['trained_models_dir'])
 
     models = []
     for model_config in models_config:
@@ -80,7 +80,7 @@ def download_models_from_remote_server(remote_server_config, models_config, outp
 
 def all_work_in_progress_files_present_on_remote_server(remote_server_config, remote_server_files):
     logging.info('Checking for the presence of cloud files...')
-    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config[labeling_verified_samples_dir'])
+    remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['labeling_verified_samples_dir'])
     if not remote_server_files['potential_positive_records_blob'] in remote_files:
         logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['potential_positive_records_blob']))
         return False

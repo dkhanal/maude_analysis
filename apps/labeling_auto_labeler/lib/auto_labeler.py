@@ -86,7 +86,7 @@ def save_already_read_records(file_path, json_data):
         f.write(json.dumps(json_data, indent=4))
 
 def get_total_lines_count(file_path):
-    return get_lines_count(file_path)
+    return sharedlib.get_total_lines_count(file_path)
 
 def get_unique_random_record_number(total_autolabled_positive_records, already_read_record_numbers):
    all_possible = set(range(1, total_autolabled_positive_records+1))

@@ -1,7 +1,7 @@
 {
   "input_data_file_sets": [
     {
-      "name": "foitext2007",
+      "name": "foitext2007.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2007.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2007.potential_pos.txt",
       "questionable_positive_records_file": "foitext2007.questionable_pos.txt",
@@ -10,7 +10,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2008",
+      "name": "foitext2008.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2008.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2008.potential_pos.txt",
       "questionable_positive_records_file": "foitext2008.questionable_pos.txt",
@@ -19,7 +19,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2009",
+      "name": "foitext2009.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2009.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2009.potential_pos.txt",
       "questionable_positive_records_file": "foitext2009.questionable_pos.txt",
@@ -28,7 +28,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2010",
+      "name": "foitext2010.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2010.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2010.potential_pos.txt",
       "questionable_positive_records_file": "foitext2010.questionable_pos.txt",
@@ -37,7 +37,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2011",
+      "name": "foitext2011.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2011.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2011.potential_pos.txt",
       "questionable_positive_records_file": "foitext2011.questionable_pos.txt",
@@ -46,7 +46,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2012",
+      "name": "foitext2012.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2012.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2012.potential_pos.txt",
       "questionable_positive_records_file": "foitext2012.questionable_pos.txt",
@@ -55,7 +55,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2013",
+      "name": "foitext2013.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2013.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2013.potential_pos.txt",
       "questionable_positive_records_file": "foitext2013.questionable_pos.txt",
@@ -64,7 +64,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2014",
+      "name": "foitext2014.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2014.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2014.potential_pos.txt",
       "questionable_positive_records_file": "foitext2014.questionable_pos.txt",
@@ -73,7 +73,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2015",
+      "name": "foitext2015.labeling_candidates",
       "labeling_candidates_archive_name": "foitext2015.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2015.potential_pos.txt",
       "questionable_positive_records_file": "foitext2015.questionable_pos.txt",
@@ -82,7 +82,7 @@
       "always_download": true
     },
     {
-      "name": "foitext2016",
+      "name": "foitext2016.labeling_candidates.zip",
       "labeling_candidates_archive_name": "foitext2016.labeling_candidates.zip",
       "potential_positive_records_file": "foitext2016.potential_pos.txt",
       "questionable_positive_records_file": "foitext2016.questionable_pos.txt",
@@ -92,6 +92,10 @@
     }
   ],
   "remote_server_files": {
+    "potential_positive_records_blob": "potential_positive_records.txt",
+    "potential_negative_records_blob": "potential_negative_records.txt",
+    "questionable_positive_records_blob": "questionable_positive_records.txt",
+    "questionable_negative_records_blob": "questionable_negative_records.txt",
     "verified_positive_records_blob": "verified_positive_records.txt",
     "verified_negative_records_blob": "verified_negative_records.txt",
     "already_processed_record_numbers_blob": "already_processed_record_numbers.json",
@@ -99,6 +103,10 @@
     "skip_download_if_already_present": true
   },
   "output_files": {
+    "potential_positive_records_file": "out/potential_positive_records.txt",
+    "potential_negative_records_file": "out/potential_negative_records.txt",
+    "questionable_positive_records_file": "out/questionable_positive_records.txt",
+    "questionable_negative_records_file": "out/questionable_negative_records.txt",
     "verified_positive_records_file": "out/verified_positive_records.txt",
     "verified_negative_records_file": "out/verified_negative_records.txt",
     "already_processed_record_numbers_file": "out/already_processed_record_numbers.json"
@@ -106,7 +114,7 @@
   "regen_models": true,
   "auto_regen_models": true,
   "models_auto_regen_records_threshold": 20,
-  "trained-models": [
+  "models": [
     {
       "name": "nltk.naive_bayes_bow_no_duplicates",
       "archive_name": "nltk_naive_bayes_bow_no_duplicates.zip",
@@ -188,7 +196,7 @@
       "use_equal_positive_and_negative_labeled_records": true
     }
   ],
-  "models_output_dir": "../maude_modeling/out",
+  "models_output_dir": "../modeling_trained_model_generator/out",
   "input_dir": "in",
   "output_dir": "out",
   "upload_output_to_remote_server": true,

@@ -44,7 +44,7 @@ def extract_features(model_name, list_of_words):
 
 def classify_files(files_to_classify):
     output_dir = sharedlib.abspath(config.output_dir)
-    trained_trained_models_dir = sharedlib.abspath(config.trained_trained_models_dir)
+    trained_models_dir = sharedlib.abspath(config.trained_models_dir)
 
     start_time = datetime.datetime.now()
     process_log_first_line = 'MAUDE Classification Process Log. Computer: {}. OS: {} {}  Date/Time: {}. Python Version: {}\n'.format(platform.node(), platform.system(), platform.release(), start_time, sys.version)
@@ -55,11 +55,11 @@ def classify_files(files_to_classify):
     models = []
     log('Checking if model(s) need to be downloaded...')
 
-    models_on_remote_server = sharedlib.get_list_of_files_from_remote_server(config.remote_server['trained_trained_models_dir'])
+    models_on_remote_server = sharedlib.get_list_of_files_from_remote_server(config.remote_server['trained_models_dir'])
     for model_config in models_config:
         model_name = model_config['name'] 
-        classifier_pickle_file = os.path.join(trained_trained_models_dir, model_name + '.pickle')
-        vectorizer_pickle_file = os.path.join(trained_trained_models_dir, model_name + '.vectorizer.pickle')
+        classifier_pickle_file = os.path.join(trained_models_dir, model_name + '.pickle')
+        vectorizer_pickle_file = os.path.join(trained_models_dir, model_name + '.vectorizer.pickle')
         if model_config['always_download'] == True or os.path.exists(classifier_pickle_file) == False:
             log('Model {} needs to be downloaded.'.format(model_name))
 
@@ -67,13 +67,13 @@ def classify_files(files_to_classify):
                 log('Model archive {} not found on the remote server. This model will be skipped.'.format(model_config['archive_name']))
                 continue
 
-            download_zip_file_path = os.path.join(trained_trained_models_dir, model_config['archive_name'])
+            download_zip_file_path = os.path.join(trained_models_dir, model_config['archive_name'])
 
-            model_url = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['trained_trained_models_dir'], model_config['archive_name'])
+            model_url = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['trained_models_dir'], model_config['archive_name'])
 
             sharedlib.download_file(model_url, download_zip_file_path, True)
             log('Extracting model archive...')
-            sharedlib.unzip(download_zip_file_path, trained_trained_models_dir)
+            sharedlib.unzip(download_zip_file_path, trained_models_dir)
             log('Model extracted.')
         
         log('Classifier pickle file: {}'.format(os.path.basename(classifier_pickle_file)))
