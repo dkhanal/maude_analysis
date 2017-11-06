@@ -24,15 +24,15 @@ def initialize(remote_server_config):
     global __base_uri
 
     global __narratives_dir
-    global __prelabeled_dir
-    global __autolabeled_dir
-    global __labeled_dir
-    global __models_dir
-    global __classification_dir
+    global __labeling_candidates_dir
+    global __labeling_auto_labeled_dir
+    global __labeling_verified_samples_dir
+    global __trained_models_dir
+    global __classified_dir
 
 
     global __narratives_uri
-    global __prelabeled_uri
+    global __labeling_candidates_uri
     global __autolabeled_uri
     global __labeled_uri
     global __models_uri
@@ -47,27 +47,27 @@ def initialize(remote_server_config):
     if not 'narratives_dir' in remote_server_config:
         raise ValueError('narratives_dir not specified in remote server config.')
 
-    if not 'prelabeled_dir' in remote_server_config:
-        raise ValueError('prelabeled_dir not specified in remote server config.')
+    if not 'labeling_candidates_dir' in remote_server_config:
+        raise ValueError('labeling_candidates_dir not specified in remote server config.')
 
-    if not 'labeled_dir' in remote_server_config:
-        raise ValueError('labeled_dir not specified in remote server config.')
+    if not 'labeling_verified_samples_dir' in remote_server_config:
+        raise ValueError('labeling_verified_samples_dir not specified in remote server config.')
 
-    if not 'models_dir' in remote_server_config:
-        raise ValueError('models_dir not specified in remote server config.')
+    if not 'trained_models_dir' in remote_server_config:
+        raise ValueError('trained_models_dir not specified in remote server config.')
 
-    if not 'classification_dir' in remote_server_config:
-        raise ValueError('classification_dir not specified in remote server config.')
+    if not 'classified_dir' in remote_server_config:
+        raise ValueError('classified_dir not specified in remote server config.')
 
     __remote_server_config = remote_server_config
 
     __base_uri = remote_server_config['base_uri']
     __narratives_dir = remote_server_config['narratives_dir']
-    __prelabeled_dir = remote_server_config['prelabeled_dir']
-    __autolabeled_dir = remote_server_config['autolabeled_dir']
-    __labeled_dir = remote_server_config['labeled_dir']
-    __models_dir = remote_server_config['models_dir']
-    __classification_dir = remote_server_config['classification_dir']
+    __labeling_candidates_dir = remote_server_config['labeling_candidates_dir']
+    __labeling_auto_labeled_dir = remote_server_config['labeling_auto_labeled_dir']
+    __labeling_verified_samples_dir = remote_server_config['labeling_verified_samples_dir']
+    __trained_models_dir = remote_server_config['trained_models_dir']
+    __classified_dir = remote_server_config['classified_dir']
 
     base_uri = __remote_server_config['base_uri']
     base_uri_lower = base_uri.lower()
@@ -79,34 +79,34 @@ def initialize(remote_server_config):
 
     if __remote_server_type == __CLOUD:
         __narratives_uri = urllib.parse.urljoin(base_uri, __narratives_dir)
-        __prelabeled_uri = urllib.parse.urljoin(base_uri, __prelabeled_dir)
-        __autolabeled_uri = urllib.parse.urljoin(base_uri, __autolabeled_dir)
-        __labeled_uri = urllib.parse.urljoin(base_uri, __labeled_dir)
-        __models_uri = urllib.parse.urljoin(base_uri, __models_dir)
-        __classification_uri = urllib.parse.urljoin(base_uri, __classification_dir)
+        __labeling_candidates_uri = urllib.parse.urljoin(base_uri, __labeling_candidates_dir)
+        __autolabeled_uri = urllib.parse.urljoin(base_uri, __labeling_auto_labeled_dir)
+        __labeled_uri = urllib.parse.urljoin(base_uri, __labeling_verified_samples_dir)
+        __models_uri = urllib.parse.urljoin(base_uri, __trained_models_dir)
+        __classification_uri = urllib.parse.urljoin(base_uri, __classified_dir)
     else:
         __narratives_uri = os.path.join(base_uri, __narratives_dir)
-        __prelabeled_uri = os.path.join(base_uri, __prelabeled_dir)
-        __autolabeled_uri = os.path.join(base_uri, __autolabeled_dir)
-        __labeled_uri = os.path.join(base_uri, __labeled_dir)
-        __models_uri = os.path.join(base_uri, __models_dir)
-        __classification_uri = os.path.join(base_uri, __classification_dir)
+        __labeling_candidates_uri = os.path.join(base_uri, __labeling_candidates_dir)
+        __autolabeled_uri = os.path.join(base_uri, __labeling_auto_labeled_dir)
+        __labeled_uri = os.path.join(base_uri, __labeling_verified_samples_dir)
+        __models_uri = os.path.join(base_uri, __trained_models_dir)
+        __classification_uri = os.path.join(base_uri, __classified_dir)
 
 
 def upload_files_to_prelabled_dir(list_of_files):
-    upload_files_to_remote_server(list_of_files, __prelabeled_dir)
+    upload_files_to_remote_server(list_of_files, __labeling_candidates_dir)
 
-def upload_files_to_autolabeled_dir(list_of_files):
-    upload_files_to_remote_server(list_of_files, __autolabeled_dir)
+def upload_files_to_labeling_auto_labeled_dir(list_of_files):
+    upload_files_to_remote_server(list_of_files, __labeling_auto_labeled_dir)
 
-def upload_files_to_labeled_dir(list_of_files):
-    upload_files_to_remote_server(list_of_files, __labeled_dir)
+def upload_files_to_labeling_verified_samples_dir(list_of_files):
+    upload_files_to_remote_server(list_of_files, __labeling_verified_samples_dir)
 
-def upload_files_to_models_dir(list_of_files):
-    upload_files_to_remote_server(list_of_files, __models_dir)
+def upload_files_to_trained_models_dir(list_of_files):
+    upload_files_to_remote_server(list_of_files, __trained_models_dir)
 
-def upload_files_to_classification_dir(list_of_files):
-    upload_files_to_remote_server(list_of_files, __classification_dir)
+def upload_files_to_classified_dir(list_of_files):
+    upload_files_to_remote_server(list_of_files, __classified_dir)
 
 
 def upload_files_to_remote_server(list_of_files, remote_directory):

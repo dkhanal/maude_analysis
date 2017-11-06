@@ -36,10 +36,10 @@ def build_potential_file_sets(input_files,  potential_positive_records_file_merg
                         if input_data_file_set['always_download'] == True or os.path.exists(potential_positive_records_file) == False or os.path.exists(potential_negative_records_file) == False:
                             logging.info('Pre-labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
 
-                            prelabeled_file_url = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeling_candidates_dir'], input_data_file_set['prelabeled_archive_name'])
+                            labeling_candidates_file_url = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeling_candidates_dir'], input_data_file_set['labeling_candidates_archive_name'])
 
                             download_zip_file_path = os.path.join(input_dir, input_data_file_set['name'] + '.zip')
-                            sharedlib.download_file(prelabeled_file_url, download_zip_file_path)
+                            sharedlib.download_file(labeling_candidates_file_url, download_zip_file_path)
                             logging.info('Extracting auto-labeled archive...')
                             sharedlib.unzip(download_zip_file_path, input_dir)
                             logging.info('Pre-labeled files extracted.')

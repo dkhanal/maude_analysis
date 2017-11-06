@@ -103,7 +103,7 @@ def main(args=None):
 
     if config.upload_output_to_remote_server == True:
         logging.info('Uploading log file to Remote Server...')
-        sharedlib.upload_files_to_labeled_dir([log_file_path])
+        sharedlib.upload_files_to_labeling_verified_samples_dir([log_file_path])
 
 if __name__ == "__main__":
     main()

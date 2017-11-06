@@ -74,20 +74,20 @@ def upload_files_to_remote_server_with_prompt(list_of_files, remote_directory):
 def get_list_of_files_from_remote_server(remote_directory):
     return __remote_server.get_list_of_files_from_remote_server(remote_directory)
 
-def upload_files_to_prelabeled_dir(list_of_files):
+def upload_files_to_labeling_candidates_dir(list_of_files):
     __remote_server.upload_files_to_prelabled_dir(list_of_files)
 
-def upload_files_to_autolabeled_dir(list_of_files):
-    __remote_server.upload_files_to_autolabeled_dir(list_of_files)
+def upload_files_to_labeling_auto_labeled_dir(list_of_files):
+    __remote_server.upload_files_to_labeling_auto_labeled_dir(list_of_files)
 
-def upload_files_to_labeled_dir(list_of_files):
-    __remote_server.upload_files_to_labeled_dir(list_of_files)
+def upload_files_to_labeling_verified_samples_dir(list_of_files):
+    __remote_server.upload_files_to_labeling_verified_samples_dir(list_of_files)
 
-def upload_files_to_models_dir(list_of_files):
-    __remote_server.upload_files_to_models_dir(list_of_files)
+def upload_files_to_trained_models_dir(list_of_files):
+    __remote_server.upload_files_to_trained_models_dir(list_of_files)
 
-def upload_files_to_classification_dir(list_of_files):
-    __remote_server.upload_files_to_classification_dir(list_of_files)
+def upload_files_to_classified_dir(list_of_files):
+    __remote_server.upload_files_to_classified_dir(list_of_files)
 
 def download_file(url, save_to_path, force_download=False):
     __remote_server.download_file(url, save_to_path, force_download)
