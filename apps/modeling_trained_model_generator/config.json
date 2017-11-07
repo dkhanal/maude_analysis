@@ -9,7 +9,7 @@
       "always_download": true
     }
   ],
-  "trained-models": [
+  "models": [
     {
       "name": "nltk.naive_bayes_bow_no_duplicates",
       "archive_name": "nltk_naive_bayes_bow_no_duplicates.zip",

@@ -11,38 +11,42 @@ import sharedlib
 
 def download_remote_server_files(remote_server_config, remote_server_files, output_files):
     auto_labeled_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['labeling_auto_labeled_dir'])
-    logging.info('Downloading cloud files from {}'.format(auto_labeled_base_uri))
+    logging.info('Downloading remote server files from {}...'.format(auto_labeled_base_uri))
 
-    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['autolabeled_positive_records_blob']),
+    remote_auto_labeled_files_from_config = remote_server_files['auto_labeled_files']
+
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_auto_labeled_files_from_config['autolabeled_positive_records_blob']),
                   sharedlib.abspath(output_files['autolabeled_positive_records_file']),
-                  not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['autolabeled_negative_records_blob']),
+                  not remote_auto_labeled_files_from_config['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_auto_labeled_files_from_config['autolabeled_negative_records_blob']),
                             sharedlib.abspath(output_files['autolabeled_negative_records_file']),
-                  not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['input_file_total_lines_count_blob']),
+                  not remote_auto_labeled_files_from_config['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_auto_labeled_files_from_config['input_file_total_lines_count_blob']),
                             sharedlib.abspath(output_files['input_file_total_lines_count_file']),
-                  not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['already_processed_record_numbers_blob']),
+                  not remote_auto_labeled_files_from_config['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_auto_labeled_files_from_config['already_processed_record_numbers_blob']),
                             sharedlib.abspath(output_files['already_processed_record_numbers_file']),
-                  not remote_server_files['skip_download_if_already_present'])
+                  not remote_auto_labeled_files_from_config['skip_download_if_already_present'])
+
+
+def download_input_files(remote_server_config, remote_server_files, input_dir):
+    remote_labeling_candidate_files_from_config = remote_server_files['labeling_candidate_files']
 
     verified_samples_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['labeling_verified_samples_dir'])
-    logging.info('Downloading cloud files from {}'.format(verified_samples_base_uri))
+    logging.info('Downloading input files from {}...'.format(verified_samples_base_uri))
 
-    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['autolabeled_positive_records_blob']),
-                  sharedlib.abspath(output_files['autolabeled_positive_records_file']),
-                  not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['autolabeled_negative_records_blob']),
-                            sharedlib.abspath(output_files['autolabeled_negative_records_file']),
-                  not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['input_file_total_lines_count_blob']),
-                            sharedlib.abspath(output_files['input_file_total_lines_count_file']),
-                  not remote_server_files['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(auto_labeled_base_uri, remote_server_files['already_processed_record_numbers_blob']),
-                            sharedlib.abspath(output_files['already_processed_record_numbers_file']),
-                  not remote_server_files['skip_download_if_already_present'])
-
-
+    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_samples_base_uri, remote_labeling_candidate_files_from_config['potential_positive_records_blob']),
+                  sharedlib.abspath(os.path.join(input_dir, remote_labeling_candidate_files_from_config['potential_positive_records_blob'])),
+                  not remote_labeling_candidate_files_from_config['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_samples_base_uri, remote_labeling_candidate_files_from_config['potential_negative_records_blob']),
+                            sharedlib.abspath(os.path.join(input_dir, remote_labeling_candidate_files_from_config['potential_negative_records_blob'])),
+                  not remote_labeling_candidate_files_from_config['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_samples_base_uri, remote_labeling_candidate_files_from_config['questionable_positive_records_blob']),
+                            sharedlib.abspath(os.path.join(input_dir, remote_labeling_candidate_files_from_config['questionable_positive_records_blob'])),
+                  not remote_labeling_candidate_files_from_config['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_samples_base_uri, remote_labeling_candidate_files_from_config['potential_negative_records_blob']),
+                            sharedlib.abspath(os.path.join(input_dir, remote_labeling_candidate_files_from_config['questionable_negative_records_blob'])),
+                  not remote_labeling_candidate_files_from_config['skip_download_if_already_present'])
 
 
 def download_models_from_remote_server(remote_server_config, models_config, output_dir):
@@ -82,21 +86,24 @@ def download_models_from_remote_server(remote_server_config, models_config, outp
 
 def all_work_in_progress_files_present_on_remote_server(remote_server_config, remote_server_files):
     logging.info('Checking for the presence of cloud files...')
+
+    remote_auto_labeled_files_from_config = remote_server_files['auto_labeled_files']
+
     remote_files = sharedlib.get_list_of_files_from_remote_server(remote_server_config['labeling_auto_labeled_dir'])
-    if not remote_server_files['autolabeled_positive_records_blob'] in remote_files:
-        logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['autolabeled_positive_records_blob']))
+    if not remote_auto_labeled_files_from_config['autolabeled_positive_records_blob'] in remote_files:
+        logging.info('Could not find file {} on the Remote Server'.format(remote_auto_labeled_files_from_config['autolabeled_positive_records_blob']))
         return False
 
-    if not remote_server_files['autolabeled_negative_records_blob'] in remote_files:
-        logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['autolabeled_negative_records_blob']))
+    if not remote_auto_labeled_files_from_config['autolabeled_negative_records_blob'] in remote_files:
+        logging.info('Could not find file {} on the Remote Server'.format(remote_auto_labeled_files_from_config['autolabeled_negative_records_blob']))
         return False
 
-    if not remote_server_files['input_file_total_lines_count_blob'] in remote_files:
-        logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['input_file_total_lines_count_blob']))
+    if not remote_auto_labeled_files_from_config['input_file_total_lines_count_blob'] in remote_files:
+        logging.info('Could not find file {} on the Remote Server'.format(remote_auto_labeled_files_from_config['input_file_total_lines_count_blob']))
         return False
 
-    if not remote_server_files['already_processed_record_numbers_blob'] in remote_files:
-        logging.info('Could not find file {} on the Remote Server'.format(remote_server_files['already_processed_record_numbers_blob']))
+    if not remote_auto_labeled_files_from_config['already_processed_record_numbers_blob'] in remote_files:
+        logging.info('Could not find file {} on the Remote Server'.format(remote_auto_labeled_files_from_config['already_processed_record_numbers_blob']))
         return False
 
     return True

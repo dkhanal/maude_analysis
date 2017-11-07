@@ -297,11 +297,15 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
     verified_positive_records_file = open(verified_positive_records_file_path, 'a+', encoding='utf-8', errors='ignore')
     verified_negative_records_file = open(verified_negative_records_file_path, 'a+', encoding='utf-8', errors='ignore')
 
+    new_models = None
     while True:
-        if config.auto_regen_models == True and total_new_records_labeled_using_current_models >= config.models_auto_regen_records_threshold:
-            logging.info('Models need to re regenerated because {} records have been labeled in this session without models regenerated.'.format(total_new_records_labeled_using_current_models))
+        if config.auto_regen_models == True and (new_models is None or total_new_records_labeled_using_current_models >= config.models_auto_regen_records_threshold):
+            logging.info('Models need to re-regenerated because {} records have been labeled in this session without models regenerated.'.format(total_new_records_labeled_using_current_models))
             bulk_close_files([verified_positive_records_file, verified_negative_records_file])
             new_models = __modeling_helper.rebuild_models(verified_positive_records_file_path, verified_negative_records_file_path, already_processed_record_numbers_file)
+            for (name, classifier, vectorizer, score) in new_models:
+                logging.info('{}-->{}'.format(name, score))
+
             output_files = bulk_open_files([verified_positive_records_file_path, verified_negative_records_file_path], 'a+')
             verified_positive_records_file = output_files[0]
             verified_negative_records_file = output_files[1]

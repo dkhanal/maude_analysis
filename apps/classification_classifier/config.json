@@ -13,7 +13,7 @@
     "../../narratives/foitext2015.txt",
     "../../narratives/foitext2016.txt"
   ],
-  "trained-models": [
+  "models": [
     {
       "name": "sklearn.sgd_with_duplicates",
       "archive_name": "sklearn_sgd_with_duplicates.zip",
