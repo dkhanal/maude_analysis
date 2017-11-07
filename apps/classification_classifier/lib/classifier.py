@@ -99,16 +99,16 @@ def classify_files(files_to_classify):
     end_time = datetime.datetime.now()
     log('classifier::classify_files() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
-def classify_record(record, models):
+def classify_record(record, models, min_required_record_length):
     results = []
     for (name, classifier, vectorizer, score) in models:
-        results.append((name, classify(record, name, classifier, vectorizer)))
+        results.append((name, classify(record, name, classifier, vectorizer, min_required_record_length)))
 
     return results
 
 
-def classify(record, model_name, classifier, vectorizer):
-    if len(record.strip()) < 10: # We consider anything less than 10 chars automatically negative.
+def classify(record, model_name, classifier, vectorizer, min_required_record_length = 40):
+    if len(record.strip()) < min_required_record_length: # We consider anything less than this automatically negative.
         return ('neg', 0)
 
     predicted_classification = None
@@ -236,7 +236,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
         classifications = []
         for (name, classifier, vectorizer, pos_file_path, pos_file, neg_file_path, neg_file) in classifiers_info:
 
-            predicted_classification, positive_probability = classify(record, name, classifier, vectorizer)
+            predicted_classification, positive_probability = classify(record, name, classifier, vectorizer, config.min_required_record_length)
 
             is_positive = predicted_classification == 'pos' and positive_probability > config.positive_probability_threshold
 

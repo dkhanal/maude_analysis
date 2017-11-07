@@ -36,6 +36,7 @@
     }
   ],
   "target_file_max_num_records_to_classify": null,
+  "min_required_record_length": 40,
   "positive_probability_threshold": 0.5,
   "upload_output_to_remote_server": true,
   "upload_positive_files_only": true,
