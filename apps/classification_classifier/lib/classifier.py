@@ -99,7 +99,7 @@ def classify_files(files_to_classify):
     end_time = datetime.datetime.now()
     log('classifier::classify_files() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
-def classify_record(record, models, min_required_record_length):
+def classify_record(record, models, min_required_record_length = 40):
     results = []
     for (name, classifier, vectorizer, score) in models:
         results.append((name, classify(record, name, classifier, vectorizer, min_required_record_length)))
@@ -107,7 +107,7 @@ def classify_record(record, models, min_required_record_length):
     return results
 
 
-def classify(record, model_name, classifier, vectorizer, min_required_record_length = 40):
+def classify(record, model_name, classifier, vectorizer, min_required_record_length):
     if len(record.strip()) < min_required_record_length: # We consider anything less than this automatically negative.
         return ('neg', 0)
 
