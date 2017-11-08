@@ -15,7 +15,7 @@ import re
 import string
 import logging
 
-import nltk
+import nltkn
 
 import sharedlib
 import config

@@ -211,5 +211,6 @@
     "classified_dir": "classified"
   },
   "duplicate_record_check_ignore_pattern": ".*\\|.*\\|.*\\|.*\\|.*\\|",
+  "max_semantic_duplicate_records_allowed": 10,
   "verbose": false
 }

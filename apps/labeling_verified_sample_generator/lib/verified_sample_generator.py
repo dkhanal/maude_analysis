@@ -8,8 +8,7 @@ import random
 import logging
 import datetime
 import re
-
-from azure.storage.blob import BlockBlobService
+import hashlib
 
 import sharedlib
 import config
@@ -250,6 +249,44 @@ def save_labeling_accuracy(model_name, output_dir, record_id, classification, is
     with open(accuracy_file_path, 'w') as f:
         json.dump(accuracy_data, f, indent=4)
 
+def remove_semantically_duplicate_lines(files_to_fix, dup_check_ignore_pattern_regex, max_number_of_duplicates_to_tolerate):
+    line_hash_dict = {}
+    subset = []
+    read_line_count = 0
+    written_line_count = 0
+
+    for file_path in files_to_fix:
+        with open(file_path, 'r',  encoding='utf-8', errors='ignore') as fin:
+            for line in fin:
+                read_line_count += 1
+                line_to_hash = None
+                if dup_check_ignore_pattern_regex is not None:
+                    line_to_hash = re.sub(dup_check_ignore_pattern_regex, '', line)
+                else:
+                    line_to_hash = line
+                        
+                line_hash = hashlib.sha1(line_to_hash.upper().encode(errors='ignore')).hexdigest()
+            
+                if line_hash in line_hash_dict:
+                    current_duplicate_count = line_hash_dict[line_hash]
+                    if current_duplicate_count >= max_number_of_duplicates_to_tolerate:
+                        logging.info('line {} already has {} duplicates, which is maximum tolerated number of duplicates. It will be eliminated.'.format(line[:40], current_duplicate_count))
+                        continue
+                    line_hash_dict[line_hash] = current_duplicate_count + 1
+                else:
+                    line_hash_dict[line_hash] = 1
+
+                subset.append(line)
+
+        with open(file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
+            for line in subset:
+                fout.write(line)
+                written_line_count += 1
+
+    logging.info('Eliminated {} semantically duplicate lines. Read: {}, Written: {}'.format(read_line_count - written_line_count, os.path.basename(file_path), read_line_count, written_line_count))
+
+    return line_hash_dict
+
 def label(mode, potential_positive_records_file, potential_negative_records_file,  questionable_positive_records_file, questionable_negative_records_file, positive_records_output_file, negative_records_output_file, already_processed_record_numbers_file, models):
     potential_positive_records_file_basename = os.path.basename(potential_positive_records_file).lower()
     potential_negative_records_file_basename = os.path.basename(potential_negative_records_file).lower()
@@ -286,6 +323,8 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
 
     verified_positive_records_file_path = sharedlib.abspath(config.output_files['verified_positive_records_file'])
     verified_negative_records_file_path = sharedlib.abspath(config.output_files['verified_negative_records_file'])
+
+    semantic_duplicates_table = remove_semantically_duplicate_lines([positive_records_output_file, negative_records_output_file], config.duplicate_record_check_ignore_pattern, config.max_semantic_duplicate_records_allowed)
 
     total_verified_positive_records = get_total_lines_count(verified_positive_records_file_path) if os.path.exists(verified_positive_records_file_path) else 0
     total_verified_negative_records = get_total_lines_count(verified_negative_records_file_path) if os.path.exists(verified_negative_records_file_path) else 0
@@ -336,6 +375,19 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         logging.info('Record Number: {}'.format(record_number_to_read))
         line = get_line(file_to_read, record_number_to_read)
         line_id = line[:40]
+
+        line_hash = hashlib.sha1(re.sub(config.duplicate_record_check_ignore_pattern, '', line).upper().encode(errors='ignore')).hexdigest()
+
+        if line_hash not in semantic_duplicates_table:
+            semantic_duplicates_table[line_hash] = 0 
+
+        if semantic_duplicates_table[line_hash] >= config.max_semantic_duplicate_records_allowed:
+            logging.info('This is a semantically duplicate record. There are already {} copies in the set. Skipping...'.format(semantic_duplicates_table[line_hash]))
+            continue
+
+        logging.info('Duplicates of this record in the verified set before this: {}'.format(semantic_duplicates_table[line_hash]))
+        semantic_duplicates_table[line_hash] += 1 
+
         logging.info('')
         logging.info(line)
         logging.info('')

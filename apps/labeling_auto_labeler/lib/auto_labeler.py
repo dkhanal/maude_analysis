@@ -11,8 +11,6 @@ import re
 import math
 import hashlib
 
-from azure.storage.blob import BlockBlobService
-
 import sharedlib
 import config
 
@@ -144,7 +142,7 @@ def remove_semantically_duplicate_records(file_path, dup_check_ignore_pattern_re
             if record_hash in record_hash_dict:
                 current_duplicate_count = record_hash_dict[record_hash]
                 if current_duplicate_count >= max_number_of_duplicates_to_tolerate:
-                    logging.info('Record {} aleady has {} duplicates, which is maximum tolerated number of duplicates. It will be eliminated.'.format(line[:40], current_duplicate_count))
+                    logging.info('Record {} already has {} duplicates, which is maximum tolerated number of duplicates. It will be eliminated.'.format(line[:40], current_duplicate_count))
                     continue
                 record_hash_dict[record_hash] = current_duplicate_count + 1
             else:

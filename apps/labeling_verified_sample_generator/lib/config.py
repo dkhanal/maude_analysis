@@ -37,6 +37,7 @@ def load_config():
     global upload_output_to_remote_server
     global remote_server
     global duplicate_record_check_ignore_pattern
+    global max_semantic_duplicate_records_allowed
     global verbose
 
     input_data_file_sets = config_data['input_data_file_sets']
@@ -55,6 +56,7 @@ def load_config():
     remote_server = config_data['remote_server']
 
     duplicate_record_check_ignore_pattern = config_data['duplicate_record_check_ignore_pattern']
+    max_semantic_duplicate_records_allowed = config_data['max_semantic_duplicate_records_allowed']
 
     verbose = config_data['verbose']
 
