@@ -403,6 +403,9 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
                 aleady_read_record_numbers[record_number_to_read] = []
             aleady_read_record_numbers[record_number_to_read].append({line_id: 'neg'})
         else:
+            if not record_number_to_read in already_read_records:
+                aleady_read_record_numbers[record_number_to_read] = []
+            aleady_read_record_numbers[record_number_to_read].append({line_id: 'unk'})
             total_new_records_labeled_using_current_models += 1
             logging.info('Selected: Unknown')
 
@@ -411,6 +414,8 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
             if decision == 'p' and result[0].lower() == 'pos':
                 is_correct = True
             elif decision == 'n' and result[0].lower() == 'neg':
+                is_correct = True
+            elif decision == 'u': # If the human's final decision is indeterminate, machine's feedback is correct no matter what that is.
                 is_correct = True
 
             save_labeling_accuracy(model_name, os.path.dirname(verified_positive_records_file_path), line_id, result[0], is_correct)

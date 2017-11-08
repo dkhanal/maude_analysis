@@ -1,3 +1,7 @@
+# Copyright (c) 2017 Deepak Khanal
+# All Rights Reserved
+# dkhanal AT gmail DOT com
+
 import os
 import io
 import sys

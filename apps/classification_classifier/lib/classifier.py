@@ -2,6 +2,15 @@
 # All Rights Reserved
 # dkhanal AT gmail DOT com
 
+
+#TODO:
+
+#    Use all 10 models
+#    Remove overall
+#        At least 6 required for positive
+#    Trim the record of al special chars before placing in summary file
+
+
 import os
 import sys
 import datetime
