@@ -1,6 +1,6 @@
-maude_labeling
+Verified Sample Generator
 
-This application allows the User to perform manual labeling of records. The objective is to generate a carefully curated set of positive and negative records, that could be used to train machine learning models.
+This application allows the User to perform manual labeling of records. The objective is to generate a carefully curated set of positive and negative records, that could be used as seeds to generate more training records to train the computer models.
 
 The application runs in an infinite loop (until User selects to quit) prompting the User to label a randomly selected record from a set of input files (supplied through configuration -- see config.json).
 

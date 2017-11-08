@@ -1,6 +1,7 @@
-maude_auto_labeling
+Auto Labeler
 
-This application performs an iterative auto-labeling.
+This application performs an iterative auto-labeling with integrated quality control (QC). Labeling is based on classification using a high-accuracy model. The model is re-trained 
+after each QC.
 
 
 To Run:

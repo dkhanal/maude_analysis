@@ -1,11 +1,12 @@
-maude_pre_labeling
+Labeling Candidate Extractor
 
-This application goes through a set of input files and extracts *potential* positive and negative records. Four different sets of records are extracted:
+The MAUDE dataset published by the FDA is not labeled. This application goes through each file in the MAUDE dataset and determines if a particular record is 'positive' or 'negative' candidate. To achieve this, explict and strong string matches are performed. The output of this application are a set of these files:
 
-- Potential Positive Records -- records that are likely to be positive.
-- Potential Negative Records -- records that are likely to be negative
-- Questionable Positive Records -- records that could be positive (with lower confidence)
-- Questionable Negative Records -- records that could be negative (with lower confidence)
+`<input_filename>.pos.txt` => Positive records
+`<input_filename>.neg.txt` => Negative records
+`<input_filename>.maybe.neg.txt` => Potentially negative records, but were rejected due to a potential positive signal.
+`<input_filename>.maybe.pos.txt` => Potentially positive records, but were rejected due to a potential negative signal.
+`<input_filename>.process.txt` => A processing log file with a specific reason for why a particular record was deemed positive or negative.
 
 To Run:
 

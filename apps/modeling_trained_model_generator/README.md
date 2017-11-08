@@ -1,4 +1,4 @@
-maude_modeling
+Trained Model Generator
 
 This application generates trained models based on the labeled records. The labeled records are supplied through configuration (see config.json). The list of models to be generated is also supplied through configuration.
 

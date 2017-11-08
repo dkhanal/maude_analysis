@@ -1,4 +1,4 @@
-maude_classification
+Classifier
 
 This application performs the classification of each record in the input files into the following binary classes:
 
