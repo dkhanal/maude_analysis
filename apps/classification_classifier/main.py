@@ -27,7 +27,7 @@ def initialize():
     import sharedlib
     sharedlib.initialize(base_path, log_file_path, config.remote_server)
 
-    sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'in')), sharedlib.abspath(os.path.join(base_path, 'models')), sharedlib.abspath(os.path.join(base_path, 'out'))])
+    sharedlib.create_dirs([sharedlib.abspath(os.path.join(base_path, 'in')), sharedlib.abspath(os.path.join(base_path, 'trained-models')), sharedlib.abspath(os.path.join(base_path, 'out'))])
 
 def upload_output_to_remote_server(pattern_to_match = None):
     import config

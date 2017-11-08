@@ -1,6 +1,6 @@
 {
   "output_dir": "out",
-  "trained_models_dir": "trained-models",
+  "trained_models_dir": "trained_models",
   "files_to_classify": [
     "../../narratives/foitext2007.txt",
     "../../narratives/foitext2008.txt",
@@ -14,6 +14,26 @@
     "../../narratives/foitext2016.txt"
   ],
   "models": [
+    {
+      "name": "nltk.naive_bayes_bow_no_duplicates",
+      "archive_name": "nltk_naive_bayes_bow_no_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "nltk.naive_bayes_bow_with_duplicates",
+      "archive_name": "nltk_naive_bayes_bow_with_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "nltk.naive_bayes_bigrams_no_duplicates",
+      "archive_name": "nltk_naive_bayes_bigrams_no_duplicates.zip",
+      "always_download": true
+    },
+    {
+      "name": "nltk.naive_bayes_bigrams_with_duplicates",
+      "archive_name": "nltk_naive_bayes_bigrams_with_duplicates.zip",
+      "always_download": true
+    },
     {
       "name": "sklearn.sgd_with_duplicates",
       "archive_name": "sklearn_sgd_with_duplicates.zip",

@@ -2,15 +2,6 @@
 # All Rights Reserved
 # dkhanal AT gmail DOT com
 
-
-#TODO:
-
-#    Use all 10 models
-#    Remove overall
-#        At least 6 required for positive
-#    Trim the record of al special chars before placing in summary file
-
-
 import os
 import sys
 import datetime
@@ -21,6 +12,7 @@ import logging
 
 import nltk
 import numpy
+import math
 
 from nltk import word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer
@@ -152,13 +144,11 @@ def get_overall_classification(classifications):
     negative_classifications = len([s for s in classifications if 'neg' in s.lower()])
     positive_prob = positive_classifications/total_classifications
 
-    if  positive_classifications >= total_classifications/2:
+    if  positive_classifications >= (math.floor(total_classifications/2) + 1):
         return ('pos', positive_prob)
 
-    if negative_classifications >= total_classifications/2:
-        return ('neg', positive_prob) # The probability returned is always for positive classification
+    return ('neg', positive_prob) # The probability returned is always for positive classification
 
-    return None
 
 def get_total_lines_count(file_path):
     line_count = 0
