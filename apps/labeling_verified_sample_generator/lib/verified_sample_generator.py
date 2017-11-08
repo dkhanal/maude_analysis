@@ -251,11 +251,11 @@ def save_labeling_accuracy(model_name, output_dir, record_id, classification, is
 
 def remove_semantically_duplicate_lines(files_to_fix, dup_check_ignore_pattern_regex, max_number_of_duplicates_to_tolerate):
     line_hash_dict = {}
-    subset = []
     read_line_count = 0
     written_line_count = 0
 
     for file_path in files_to_fix:
+        remaining = []
         if not os.path.exists(file_path):
             logging.info('No duplicates to remove from this file because the file does not exist {}'.format(file_path))
             continue
@@ -280,14 +280,14 @@ def remove_semantically_duplicate_lines(files_to_fix, dup_check_ignore_pattern_r
                 else:
                     line_hash_dict[line_hash] = 1
 
-                subset.append(line)
+                remaining.append(line)
 
         with open(file_path, 'w',  encoding='utf-8', errors='ignore') as fout:
-            for line in subset:
+            for line in remaining:
                 fout.write(line)
                 written_line_count += 1
 
-    logging.info('Eliminated {} semantically duplicate lines. Read: {}, Written: {}'.format(read_line_count - written_line_count, os.path.basename(file_path), read_line_count, written_line_count))
+    logging.info('Eliminated {} semantically duplicate lines. Read: {}, Written: {}'.format(read_line_count - written_line_count, read_line_count, written_line_count))
 
     return line_hash_dict
 
