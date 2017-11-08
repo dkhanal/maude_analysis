@@ -33,7 +33,7 @@ def build_potential_file_sets(input_files,  potential_positive_records_file_merg
                         questionable_positive_records_file = os.path.join(input_dir, input_data_file_set['questionable_positive_records_file'])
                         questionable_negative_records_file = os.path.join(input_dir, input_data_file_set['questionable_negative_records_file'])
                         if input_data_file_set['always_download'] == True or os.path.exists(potential_positive_records_file) == False or os.path.exists(potential_negative_records_file) == False:
-                            logging.info('Pre-labeled archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
+                            logging.info('Labeling candidate archive for {} needs to be downloaded.'.format(input_data_file_set['name']))
 
                             labeling_candidates_file_url = sharedlib.join_remote_server_paths(config.remote_server['base_uri'], config.remote_server['labeling_candidates_dir'], input_data_file_set['labeling_candidates_archive_name'])
 
@@ -41,7 +41,7 @@ def build_potential_file_sets(input_files,  potential_positive_records_file_merg
                             sharedlib.download_file(labeling_candidates_file_url, download_zip_file_path)
                             logging.info('Extracting auto-labeled archive...')
                             sharedlib.unzip(download_zip_file_path, input_dir)
-                            logging.info('Pre-labeled files extracted.')
+                            logging.info('Labeling candidate files extracted.')
                         logging.info('Merging {} into {}...'.format(input_data_file_set['potential_positive_records_file'], potential_positive_records_file_merged))
                         fin = open(potential_positive_records_file, encoding='utf-8', errors='ignore')
                         for record in fin:
@@ -398,7 +398,7 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         logging.info('SUGGESTIONS:')
         suggestions = []
         suggestions.append(get_label_from_filename(file_to_read_basename))
-        logging.info('    Per pre-labeling: {}'.format(suggestions[0]))
+        logging.info('    Per candidate extractor: {}'.format(suggestions[0]))
         classification_results = []
         overall_suggestion_model_name = 'overall.decision_support'
         overall_suggestion = None

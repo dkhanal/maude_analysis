@@ -87,7 +87,7 @@ def main(args=None):
 
     os.system('mode con: cols=200')
     start_time = datetime.datetime.now()
-    logging.info('Manually verifying pre-labeled records starting at {}'.format(start_time))
+    logging.info('Verified labeling sample generation starting at {}'.format(start_time))
     
     mode = None
 
@@ -99,7 +99,7 @@ def main(args=None):
     verified_sample_generator.label_records(mode)
 
     end_time = datetime.datetime.now()
-    logging.info('Manual verification session completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
+    logging.info('Verified labeling sample generation completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
 
     if config.upload_output_to_remote_server == True:
         logging.info('Uploading log file to Remote Server...')
