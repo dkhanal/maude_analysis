@@ -256,6 +256,10 @@ def remove_semantically_duplicate_lines(files_to_fix, dup_check_ignore_pattern_r
     written_line_count = 0
 
     for file_path in files_to_fix:
+        if not os.path.exists(file_path):
+            logging.info('No duplicates to remove from this file because the file does not exist {}'.format(file_path))
+            continue
+
         with open(file_path, 'r',  encoding='utf-8', errors='ignore') as fin:
             for line in fin:
                 read_line_count += 1
