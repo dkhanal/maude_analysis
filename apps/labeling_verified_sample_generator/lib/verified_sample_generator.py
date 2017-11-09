@@ -371,23 +371,28 @@ def label(mode, potential_positive_records_file, potential_negative_records_file
         logging.info('So far => POS: {}, NEG: {}. Next file to look at: {}. Number of records before models auto re-generated: {}'.format(total_verified_positive_records, total_verified_negative_records, file_to_read_basename, config.models_auto_regen_records_threshold - total_new_records_labeled_using_current_models))
         file_to_read = None
         aleady_read_record_numbers = already_read_records[file_to_read_basename]
-        record_number_to_read = get_unique_random_record_number(total_available_records[file_to_read_basename],
-                                                                aleady_read_record_numbers)
         file_to_read = input_file_basename_to_full_path_map[file_to_read_basename]
 
-        logging.info('Input File: {}'.format(os.path.basename(file_to_read)))
-        logging.info('Record Number: {}'.format(record_number_to_read))
-        line = get_line(file_to_read, record_number_to_read)
-        line_id = line[:40]
+        record_number_to_read = None
+        line = None
+        line_id = None
+        while record_number_to_read is None:
+            record_number_to_read = get_unique_random_record_number(total_available_records[file_to_read_basename],
+                                                                aleady_read_record_numbers)
 
-        line_hash = hashlib.sha1(re.sub(config.duplicate_record_check_ignore_pattern, '', line).upper().encode(errors='ignore')).hexdigest()
+            logging.info('Input File: {}'.format(os.path.basename(file_to_read)))
+            logging.info('Record Number: {}'.format(record_number_to_read))
+            line = get_line(file_to_read, record_number_to_read)
+            line_id = line[:40]
 
-        if line_hash not in semantic_duplicates_table:
-            semantic_duplicates_table[line_hash] = 0 
+            line_hash = hashlib.sha1(re.sub(config.duplicate_record_check_ignore_pattern, '', line).upper().encode(errors='ignore')).hexdigest()
 
-        if semantic_duplicates_table[line_hash] >= config.max_semantic_duplicate_records_allowed:
-            logging.info('This is a semantically duplicate record. There are already {} copies in the set. Skipping...'.format(semantic_duplicates_table[line_hash]))
-            continue
+            if line_hash not in semantic_duplicates_table:
+                semantic_duplicates_table[line_hash] = 0 
+
+            if semantic_duplicates_table[line_hash] >= config.max_semantic_duplicate_records_allowed:
+                logging.info('This is a semantically duplicate record. There are already {} copies in the set. Skipping...'.format(semantic_duplicates_table[line_hash]))
+                record_number_to_read = None
 
         logging.info('Duplicates of this record in the verified set before this: {}'.format(semantic_duplicates_table[line_hash]))
         semantic_duplicates_table[line_hash] += 1 
