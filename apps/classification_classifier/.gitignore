@@ -7,6 +7,7 @@
 [Dd]ata/*
 [Ii]n/*
 [Mm]odels/*
+[Pp]ickles/*
 [Tt]rained-models/*
 [Oo]ut/*
 .setenv.py
