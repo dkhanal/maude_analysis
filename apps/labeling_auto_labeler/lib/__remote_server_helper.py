@@ -54,10 +54,10 @@ def download_labeled_seed_files(remote_server_config, remote_server_files, outpu
 
     remote_seed_files_from_config = remote_server_files['labeled_seed_files']
 
-    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_records_base_uri, remote_seed_files_from_config['verified_positive_records_adjusted_blob']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_records_base_uri, remote_seed_files_from_config['verified_positive_records_final_blob']),
                   sharedlib.abspath(output_files['autolabeled_positive_records_file']),
                   not remote_seed_files_from_config['skip_download_if_already_present'])
-    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_records_base_uri, remote_seed_files_from_config['verified_negative_records_adjusted_blob']),
+    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_records_base_uri, remote_seed_files_from_config['verified_negative_records_final_blob']),
                             sharedlib.abspath(output_files['autolabeled_negative_records_file']),
                   not remote_seed_files_from_config['skip_download_if_already_present'])
 

@@ -17,8 +17,8 @@
   ],
   "remote_server_files": {
     "labeled_seed_files": {
-      "verified_positive_records_adjusted_blob": "verified_positive_records_adjusted.txt",
-      "verified_negative_records_adjusted_blob": "verified_negative_records_adjusted.txt",
+      "verified_positive_records_final_blob": "verified_positive_records_final.txt",
+      "verified_negative_records_final_blob": "verified_negative_records_final.txt",
       "skip_download_if_already_present": false
     },
     "labeling_candidate_files": {
