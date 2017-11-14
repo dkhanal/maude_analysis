@@ -201,10 +201,9 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
                                  predicted_negative_records_file_path, 
                                  open(predicted_negative_records_file_path, 'w', encoding='utf-8', errors='ignore')))
 
-    unknown_records_file = sharedlib.abspath(input_data_file)
+    file_to_classify = sharedlib.abspath(input_data_file)
     log('Total {} models loaded.'.format(len(classifiers_info)))
-    log('Unknown records file: {}'.format(unknown_records_file))
-    log('Reading the unknown records file. One record at a time.'.format(classifier))
+    log('File to classify: {}. Reading one record at a time...'.format(file_to_classify))
 
     total_records = 0
     total_data_records = 0
@@ -215,7 +214,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     
     overall_predicted_pos_records_file = open(overall_predicted_pos_records_file_path, 'w', encoding='utf-8', errors='ignore')
     overall_predicted_neg_records_file = open(overall_predicted_neg_records_file_path, 'w', encoding='utf-8', errors='ignore')
-    fin = codecs.open(unknown_records_file, mode='r+', encoding='utf-8', errors='ignore')
+    fin = codecs.open(file_to_classify, mode='r+', encoding='utf-8', errors='ignore')
     for record in fin:
         total_records += 1
         sys.stdout.write('{} => POS: {}/{:.2f}% NEG: {}/{:.2f}% . Next: {}...\r'.format(file_base_name, 

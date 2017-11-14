@@ -3,9 +3,9 @@
   "output_dir": "out",
   "input_data_file_sets": [
     {
-      "remote_blob_dir": "labeling-auto-labeled",
-      "positive_records_file": "autolabeled_positive_records.txt",
-      "negative_records_file": "autolabeled_negative_records.txt",
+      "remote_blob_dir": "labeling-verified-samples",
+      "positive_records_file": "verified_positive_records_adjusted.txt",
+      "negative_records_file": "verified_negative_records_adjusted.txt",
       "always_download": true
     }
   ],

@@ -55,7 +55,7 @@
       "always_download": true
     }
   ],
-  "target_file_max_num_records_to_classify": null,
+  "target_file_max_num_records_to_classify": 10000,
   "min_required_record_length": 40,
   "positive_probability_threshold": 0.5,
   "upload_output_to_remote_server": true,
