@@ -48,6 +48,20 @@ def download_input_files(remote_server_config, remote_server_files, input_dir):
                             sharedlib.abspath(os.path.join(input_dir, remote_labeling_candidate_files_from_config['questionable_negative_records_blob'])),
                   not remote_labeling_candidate_files_from_config['skip_download_if_already_present'])
 
+def download_labeled_seed_files(remote_server_config, remote_server_files, output_files):
+    verified_records_base_uri = sharedlib.join_remote_server_paths(remote_server_config['base_uri'], remote_server_config['labeling_verified_samples_dir'])
+    logging.info('Downloading remote server files from {}...'.format(verified_records_base_uri))
+
+    remote_seed_files_from_config = remote_server_files['labeled_seed_files']
+
+    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_records_base_uri, remote_seed_files_from_config['verified_positive_records_adjusted_blob']),
+                  sharedlib.abspath(output_files['autolabeled_positive_records_file']),
+                  not remote_seed_files_from_config['skip_download_if_already_present'])
+    sharedlib.download_file(sharedlib.join_remote_server_paths(verified_records_base_uri, remote_seed_files_from_config['verified_negative_records_adjusted_blob']),
+                            sharedlib.abspath(output_files['autolabeled_negative_records_file']),
+                  not remote_seed_files_from_config['skip_download_if_already_present'])
+
+
 
 def download_models_from_remote_server(remote_server_config, models_config, output_dir):
     logging.info('Downloading models...')

@@ -40,6 +40,10 @@ def label_records(mode):
     existing_work_in_progress = __remote_server_helper.all_work_in_progress_files_present_on_remote_server(config.remote_server, config.remote_server_files)
     if existing_work_in_progress:
         __remote_server_helper.download_remote_server_files(config.remote_server, config.remote_server_files, config.output_files)
+    else:
+        logging.info('This appears the first auto-labeling session. Labeled seeds files now will be downloaded from the remote server...')
+        __remote_server_helper.download_labeled_seed_files(config.remote_server, config.remote_server_files, config.output_files)
+
 
     models = __remote_server_helper.download_models_from_remote_server(config.remote_server, config.models, config.models_output_dir)
 
@@ -183,9 +187,11 @@ def perform_random_qc(population, eligible_population_size, sample_size, expecte
     record_count = 0
     total_samples = len(sample_indices)
     for index in sample_indices:
-        record = population[index]
+        # Each item in the population list has the record in the 0th index, positive probability in index 1.
+        record = population[index][0]  
+        pos_proba = population[index][1]
         record_count += 1
-        logging.info('Record #{} (QC sample #{} of {}) :'.format(index, record_count, total_samples))
+        logging.info('Record #{} (QC sample #{} of {}). Positive Probability: {:.2f}, Negative: {:.2f}'.format(index, record_count, total_samples, pos_proba, 1-pos_proba))
         logging.info(record)
 
         logging.info('')
@@ -229,7 +235,7 @@ def order_by_pos_probability(model, records, reverse_ordered, class_str):
         classified_records.append((record, result[1]))
 
     classified_records.sort(key=lambda item: item[1], reverse = reverse_ordered)
-    return [record for (record, proba) in classified_records]
+    return classified_records
 
 
 def perform_manual_qc(model, positive_records_file_path, 
@@ -242,24 +248,23 @@ def perform_manual_qc(model, positive_records_file_path,
     positive_records = sharedlib.read_all_records(positive_records_file_path)
     negative_records = sharedlib.read_all_records(negative_records_file_path)
 
-    if model is not None:
-        # Put potential outliers/falsely classified at the bottom of the list
-        positive_records = order_by_pos_probability(model, positive_records, True, positive_class_str) # Order by highest pos probability to lowest
-        negative_records = order_by_pos_probability(model, negative_records, False, negative_class_str)  # Order by lowest pos probability to highest
+    # Put potential outliers/falsely classified at the bottom of the list
+    positive_records_sorted = order_by_pos_probability(model, positive_records, True, positive_class_str) # Order by highest pos probability to lowest
+    negative_records_sorted = order_by_pos_probability(model, negative_records, False, negative_class_str)  # Order by lowest pos probability to highest
 
-    (false_positive_indices,  positive_but_indeterminate_indices, positive_qc_user_aborted) = perform_random_qc(positive_records, qc_eligible_population_size, qc_sample_size, positive_class_str)
-    (false_negative_indices,  negative_but_indeterminate_indices, negative_qc_user_aborted) = perform_random_qc(negative_records, qc_eligible_population_size, qc_sample_size, negative_class_str)
+    (false_positive_indices,  positive_but_indeterminate_indices, positive_qc_user_aborted) = perform_random_qc(positive_records_sorted, qc_eligible_population_size, qc_sample_size, positive_class_str)
+    (false_negative_indices,  negative_but_indeterminate_indices, negative_qc_user_aborted) = perform_random_qc(negative_records_sorted, qc_eligible_population_size, qc_sample_size, negative_class_str)
 
     # Join the sets to obtain the superset of removal candidates
     positive_indices_to_remove = false_positive_indices | positive_but_indeterminate_indices
     negative_indices_to_remove = false_negative_indices | negative_but_indeterminate_indices
 
     # List comprehension
-    false_positive_records = [positive_records[i] for i in false_positive_indices]
-    false_negative_records = [negative_records[i] for i in false_negative_indices]   
+    false_positive_records = [positive_records_sorted[i][0] for i in false_positive_indices]    # Each item in the sorted list has the record in the 0th index, probability in index 1.
+    false_negative_records = [negative_records_sorted[i][0] for i in false_negative_indices]   
     
-    true_positive_records = [record for i, record in enumerate(positive_records) if not i in positive_indices_to_remove]
-    true_negative_records = [record for i, record in enumerate(negative_records) if not i in negative_indices_to_remove]
+    true_positive_records = [record for i, (record, proba) in enumerate(positive_records_sorted) if not i in positive_indices_to_remove]
+    true_negative_records = [record for i, (record, proba) in enumerate(negative_records_sorted) if not i in negative_indices_to_remove]
 
     new_positive_records = true_positive_records + false_negative_records
     new_negative_records = true_negative_records + false_positive_records
