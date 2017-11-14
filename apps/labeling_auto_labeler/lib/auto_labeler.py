@@ -381,6 +381,17 @@ def autolabel(mode,
                     new_model = None
                     continue
 
+                logging.info('QC passed or user skipped. Do you want to continue auto-labeling? [Y]es to continue; [N]o to quit...')
+                decision = None
+                while (decision != 'y' and decision != 'n'):
+                    decision = sharedlib.get_char_input()
+                    if not isinstance(decision, str):
+                        decision = bytes.decode(decision)
+                    decision = decision.lower()
+
+                logging.info('Selected: {}'.format(decision))
+                if decision == 'n':
+                    break;
 
             output_files = bulk_open_files([autolabeled_positive_records_file_path, autolabeled_negative_records_file_path], 'a+')
             autolabeled_positive_records_file = output_files[0]
