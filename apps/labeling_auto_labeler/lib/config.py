@@ -38,9 +38,10 @@ def load_config():
     global remote_server
     global min_probability_for_auto_labeling
     global min_model_score_for_auto_labeling
-    global percent_of_new_records_to_qc
+    global inaccuracy_to_qc_sample_size_multiplier
     global duplicate_record_check_ignore_pattern
     global max_semantic_duplicate_records_allowed
+    global minibatch_size
     global verbose
 
     input_data_files = config_data['input_data_files']
@@ -60,9 +61,10 @@ def load_config():
 
     min_probability_for_auto_labeling = config_data['min_probability_for_auto_labeling']
     min_model_score_for_auto_labeling = config_data['min_model_score_for_auto_labeling']
-    percent_of_new_records_to_qc = config_data['percent_of_new_records_to_qc']
+    inaccuracy_to_qc_sample_size_multiplier = config_data['inaccuracy_to_qc_sample_size_multiplier']
     duplicate_record_check_ignore_pattern = config_data['duplicate_record_check_ignore_pattern']
     max_semantic_duplicate_records_allowed = config_data['max_semantic_duplicate_records_allowed']
+    minibatch_size = config_data['minibatch_size']
 
     verbose = config_data['verbose']
 

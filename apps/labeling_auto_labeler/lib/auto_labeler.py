@@ -221,9 +221,9 @@ def perform_random_qc(population, eligible_population_size, sample_size, expecte
             logging.info('Item # {} corrected as falsely classified'.format(index))
             false_classified_indices.add(index)
 
-
-    logging.info('Random QC performed on {} {} samples. {} Falsely classified and {} indeterminate'.format(len(sample_indices), expected_class, len(false_classified_indices), len(indeterminate_indices)))
-    return (false_classified_indices, indeterminate_indices, user_aborted)
+    total_qced_records = record_count -1 if user_aborted == True else record_count
+    logging.info('Random QC performed on {} {} samples. {} Falsely classified and {} indeterminate'.format(total_qced_records, expected_class, len(false_classified_indices), len(indeterminate_indices)))
+    return (false_classified_indices, indeterminate_indices, total_qced_records, user_aborted)
 
 def order_by_pos_probability(model, records, reverse_ordered, class_str):
     logging.info('Ordering {} {} items by positive probability in {} order...'.format(len(records), class_str, 'reverse' if reverse_ordered else 'ascending'))
@@ -252,8 +252,12 @@ def perform_manual_qc(model, positive_records_file_path,
     positive_records_sorted = order_by_pos_probability(model, positive_records, True, positive_class_str) # Order by highest pos probability to lowest
     negative_records_sorted = order_by_pos_probability(model, negative_records, False, negative_class_str)  # Order by lowest pos probability to highest
 
-    (false_positive_indices,  positive_but_indeterminate_indices, positive_qc_user_aborted) = perform_random_qc(positive_records_sorted, qc_eligible_population_size, qc_sample_size, positive_class_str)
-    (false_negative_indices,  negative_but_indeterminate_indices, negative_qc_user_aborted) = perform_random_qc(negative_records_sorted, qc_eligible_population_size, qc_sample_size, negative_class_str)
+    (false_positive_indices,  positive_but_indeterminate_indices, total_qced_positive_records, positive_qc_user_aborted) = perform_random_qc(positive_records_sorted, qc_eligible_population_size, qc_sample_size, positive_class_str)
+    (false_negative_indices,  negative_but_indeterminate_indices, total_qced_negative_records, negative_qc_user_aborted) = perform_random_qc(negative_records_sorted, qc_eligible_population_size, qc_sample_size, negative_class_str)
+
+    total_misclassified = len(false_positive_indices) + len(false_negative_indices)
+    total_indeterminate = len(positive_but_indeterminate_indices) + len(negative_but_indeterminate_indices)
+    total_qced = total_qced_positive_records + total_qced_negative_records
 
     # Join the sets to obtain the superset of removal candidates
     positive_indices_to_remove = false_positive_indices | positive_but_indeterminate_indices
@@ -272,11 +276,10 @@ def perform_manual_qc(model, positive_records_file_path,
     sharedlib.save_list_to_file(new_positive_records, positive_records_file_path)
     sharedlib.save_list_to_file(new_negative_records, negative_records_file_path)
 
-    logging.info('Manual QC found {} false positives, {} false negatives and {} indeterminate records.'.format(len(false_positive_indices), len(false_negative_indices), len(positive_but_indeterminate_indices|negative_but_indeterminate_indices)))
+    qc_score = 0 if total_qced == 0 else (total_qced - (total_misclassified + total_indeterminate) / total_qced)
+    logging.info('Manual QC found {} false positives, {} false negatives and {} indeterminate records. Overall QC score: {:.2f}.'.format(len(false_positive_indices), len(false_negative_indices), len(positive_but_indeterminate_indices|negative_but_indeterminate_indices), qc_score))
 
-    if len(new_positive_records) != len(positive_records) or len(new_negative_records) != len(negative_records):
-        return (False, positive_qc_user_aborted or negative_qc_user_aborted)
-    return (True, positive_qc_user_aborted or negative_qc_user_aborted)
+    return (qc_score, positive_qc_user_aborted or negative_qc_user_aborted)
 
 
 def autolabel(mode, 
@@ -285,80 +288,216 @@ def autolabel(mode,
          autolabeled_negative_records_file_path, 
          already_processed_record_numbers_file_path, 
          input_file_total_lines_count_file_path, model):
-    
+        
     autolabled_positive_records_file_basename = os.path.basename(autolabeled_positive_records_file_path).lower()
     autolabled_negative_records_file_basename = os.path.basename(autolabeled_negative_records_file_path).lower()
 
     autolabled_pos_duplicates_table = remove_semantically_duplicate_records(autolabeled_positive_records_file_path, config.duplicate_record_check_ignore_pattern, config.max_semantic_duplicate_records_allowed)
     autolabled_neg_duplicates_table = remove_semantically_duplicate_records(autolabeled_negative_records_file_path, config.duplicate_record_check_ignore_pattern, config.max_semantic_duplicate_records_allowed)
 
-    input_file_basename_to_full_path_map = {}
+    sharedlib.remove_duplicate_records([autolabeled_positive_records_file_path, autolabeled_negative_records_file_path])
+    
+    # Perform QC of the master labeled set    
+    while True:
+        # QC until it passes 100% or user skips
+        new_model = __modeling_helper.rebuild_models(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, already_processed_record_numbers_file_path, input_file_total_lines_count_file_path)[0]
+        (qc_score, user_aborted)  = perform_manual_qc(new_model, autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, 50, 20)
 
-    for input_file in input_files:
-        input_file_basename_to_full_path_map[os.path.basename(input_file).lower()] = sharedlib.abspath(input_file)
+        if qc_score != 1 and user_aborted == False:
+            logging.info('QC of the sampling of the entire dataset found at least one correction needed (QC Score: {:.2f}). Performing another round of QC...'.format(qc_score))
+            continue
 
-    already_read_records = get_already_read_records(already_processed_record_numbers_file_path)
-    if already_read_records is None or len(already_read_records) == 0:
-        logging.info('Already read records data not found. Creating new...')
-        already_read_records = {}
+        logging.info('QC (Score: {:.2f}) passed or user skipped. Do you want to continue auto-labeling? [Y]es to continue; [N]o to quit, [R] to re-QC...'.format(qc_score))
+        decision = None
+        while (decision != 'y' and decision != 'n' and decision != 'r'):
+            decision = sharedlib.get_char_input()
+            if not isinstance(decision, str):
+                decision = bytes.decode(decision)
+            decision = decision.lower()
 
-    for input_file in input_files:
-        input_file_basename = os.path.basename(input_file).lower()
-        if input_file_basename not in already_read_records:
-            already_read_records[os.path.basename(input_file).lower()] = {}
-
-    total_available_records = get_total_available_records(input_file_total_lines_count_file_path)
-    if total_available_records is None or len(total_available_records) == 0:
-        logging.info('Input file total available records data not found. Creating new...')
-        total_available_records = {}
-
-    for input_file in input_files:
-        input_file_basename = os.path.basename(input_file).lower()
-        if input_file_basename not in total_available_records:
-            logging.info('Creating new...')
-            total_available_records[os.path.basename(input_file).lower()] = get_total_lines_count(input_file_basename_to_full_path_map[input_file_basename])
-
-    save_already_read_records(already_processed_record_numbers_file_path, already_read_records)
-    save_total_available_records(input_file_total_lines_count_file_path, total_available_records)
-
-    total_autolabeled_positive_records = get_total_lines_count(autolabeled_positive_records_file_path) if os.path.exists(autolabeled_positive_records_file_path) else 0
-    total_autolabeled_negative_records = get_total_lines_count(autolabeled_negative_records_file_path) if os.path.exists(autolabeled_negative_records_file_path) else 0
+        logging.info('Selected: {}'.format(decision))
+        if decision == 'n':
+            return;
+        elif decision == 'r':
+            continue
+        else:
+            break; # QC of master set complete, exit the loop and continue with auto-labeling.
 
     total_new_records_labeled_this_session = 0
-    total_new_records_labeled_using_current_models = 0
+    autolabeled_positive_records_pending_qc_file_path = sharedlib.abspath(os.path.join(config.output_dir, 'positive_records_pending_qc.txt'))
+    autolabeled_negative_records_pending_qc_file_path = sharedlib.abspath(os.path.join(config.output_dir, 'negative_records_pending_qc.txt'))
 
-    autolabeled_positive_records_file = open(autolabeled_positive_records_file_path, 'a+', encoding='utf-8', errors='ignore')
-    autolabeled_negative_records_file = open(autolabeled_negative_records_file_path, 'a+', encoding='utf-8', errors='ignore')
-
-    new_model = None
+    # Create the model for auto labeling
     while True:
-        if config.auto_regen_models == True and ((total_new_records_labeled_this_session == 0 and new_model is None) or total_new_records_labeled_using_current_models >= config.models_auto_regen_records_threshold):
-            logging.info('Models need to re regenerated because {} records have been labeled in this session without models regenerated or QC requires a regen.'.format(total_new_records_labeled_using_current_models))
-            bulk_close_files([autolabeled_positive_records_file, autolabeled_negative_records_file])
+        logging.info('[Re]building model to be used in classification...')
 
-            # Remove entirely duplicate records.
-            sharedlib.remove_duplicate_records([autolabeled_positive_records_file_path, autolabeled_negative_records_file_path])
+        new_model = __modeling_helper.rebuild_models(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, already_processed_record_numbers_file_path, input_file_total_lines_count_file_path)[0]
+        min_required_model_score = config.min_model_score_for_auto_labeling
+        model_score = new_model[3]
+        if model_score < min_required_model_score:
+            logging.info('Model accuracy score is {}, which is less than the minimum required for auto labeling. Quitting...'.format(model_score, min_required_model_score))
+            break
+        
+        
+        total_new_records_labeled_using_current_models = 0
+        previous_qc_score = .8 # For the very first QC of the session, we assume 20% failure. This then gets updated with every QC performed.
 
-            new_model = __modeling_helper.rebuild_models(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, already_processed_record_numbers_file_path, input_file_total_lines_count_file_path)[0]
-                      
-            min_required_model_score = config.min_model_score_for_auto_labeling
-            model_score = new_model[3]
-            if model_score < min_required_model_score:
-                logging.info('Model accuracy score is {}, which is less than the minimum required for auto labeling. Quitting...'.format(model_score, min_required_model_score))
-                break
+        input_file_basename_to_full_path_map = {}
 
-            logging.info('Model (with accuracy score {:2f}) was just generated. The new model needs a manual QC. Entering QC...'.format(model_score))
+        for input_file in input_files:
+            input_file_basename_to_full_path_map[os.path.basename(input_file).lower()] = sharedlib.abspath(input_file)
 
-            last_num_records_to_qc = max(50, total_new_records_labeled_using_current_models)
-            sample_size =   math.ceil(last_num_records_to_qc * config.percent_of_new_records_to_qc)
-            (qc_passed, user_aborted) = perform_manual_qc(new_model, autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
+        already_read_records = get_already_read_records(already_processed_record_numbers_file_path)
+        if already_read_records is None or len(already_read_records) == 0:
+            logging.info('Already read records data not found. Creating new...')
+            already_read_records = {}
 
-            if qc_passed == False and user_aborted == False:
-                logging.info('QC found at least one correction needed. Model will be rebuilt with the correction...')
-                new_model = None
+        for input_file in input_files:
+            input_file_basename = os.path.basename(input_file).lower()
+            if input_file_basename not in already_read_records:
+                already_read_records[os.path.basename(input_file).lower()] = {}
+
+        total_available_records = get_total_available_records(input_file_total_lines_count_file_path)
+        if total_available_records is None or len(total_available_records) == 0:
+            logging.info('Input file total available records data not found. Creating new...')
+            total_available_records = {}
+
+        for input_file in input_files:
+            input_file_basename = os.path.basename(input_file).lower()
+            if input_file_basename not in total_available_records:
+                logging.info('Creating new...')
+                total_available_records[os.path.basename(input_file).lower()] = get_total_lines_count(input_file_basename_to_full_path_map[input_file_basename])
+
+        save_already_read_records(already_processed_record_numbers_file_path, already_read_records)
+        save_total_available_records(input_file_total_lines_count_file_path, total_available_records)
+
+        total_autolabeled_positive_records_pending_qc = get_total_lines_count(autolabeled_positive_records_pending_qc_file_path) if os.path.exists(autolabeled_positive_records_pending_qc_file_path) else 0
+        total_autolabeled_negative_records_pending_qc = get_total_lines_count(autolabeled_negative_records_pending_qc_file_path) if os.path.exists(autolabeled_negative_records_pending_qc_file_path) else 0
+
+        autolabeled_positive_records_pending_qc_file = open(autolabeled_positive_records_pending_qc_file_path, 'w', encoding='utf-8', errors='ignore')
+        autolabeled_negative_records_pending_qc_file = open(autolabeled_negative_records_pending_qc_file_path, 'w', encoding='utf-8', errors='ignore')
+
+        input_file_basenames = [key for key in total_available_records for input_file in input_files if key in input_file.lower()]
+        while total_new_records_labeled_using_current_models <= config.models_auto_regen_records_threshold:
+            logging.info('-------------------------------------------------------------------')
+            file_to_read_basename = None if mode is None else next([file for file in input_file_basenames if file == mode.lower()], None)
+            if file_to_read_basename == None:
+                file_to_read_basename = random.choice(input_file_basenames)
+
+            file_to_read = None
+            aleady_read_record_numbers = already_read_records[file_to_read_basename]
+            record_number_to_read = get_unique_random_record_number(total_available_records[file_to_read_basename],
+                                                                    aleady_read_record_numbers)
+            file_to_read = input_file_basename_to_full_path_map[file_to_read_basename]
+
+            minibatch_labeled_records_count = 0
+            minibatch_attempted_records_count =  0
+
+            configured_minibatch_size = config.minibatch_size
+        
+            logging.info('Entering minibatch loop for file {}, starting Record# {}. Looking for {} labeled records in this file...'.format(file_to_read_basename, record_number_to_read, configured_minibatch_size))
+            while minibatch_labeled_records_count < configured_minibatch_size:
+                if minibatch_attempted_records_count != 0:
+                    # This means this pass is not the first in the minibatch loop. Advance the record number.
+                    record_number_to_read += 1
+
+                if record_number_to_read >= total_available_records[file_to_read_basename]: 
+                    # End of the file reached. Exit the minibatch loop to determine the next file and/or entry point
+                    break;
+            
+                if total_new_records_labeled_using_current_models > config.models_auto_regen_records_threshold:
+                    # Model re-generation is due
+                    break;
+
+                logging.info('So far pending QC => POS: {}, NEG: {}. Model accuracy {:.2f}. File: {} Record#: {}. Auto-labeled since last model generation: {}. Still looking for {} labeled in this minibatch.'.format(total_autolabeled_positive_records_pending_qc, total_autolabeled_negative_records_pending_qc, new_model[3], file_to_read_basename, record_number_to_read, total_new_records_labeled_using_current_models, (config.minibatch_size - minibatch_labeled_records_count)))
+                line = get_line(file_to_read, record_number_to_read)
+                minibatch_attempted_records_count +=1 
+
+                record_hash = hashlib.sha1(re.sub(config.duplicate_record_check_ignore_pattern, '', line).upper().encode(errors='ignore')).hexdigest()
+
+                line_id = line[:40]
+                (model_name, result) = __classification_helper.classify(line, [new_model])[0] # returns tuple: (name, (predicted_classification, positive_proba))
+        
+                pos_prob = result[1]
+                neg_prob = 1 - pos_prob
+
+                if pos_prob >= config.min_probability_for_auto_labeling:
+                    if total_autolabeled_positive_records_pending_qc > total_autolabeled_negative_records_pending_qc:
+                        logging.info('This is a positive record, but the search is for a negative record to maintain positive/negative parity. Skipping...')
+                        # We maintain positive/negative count parity as we go
+                        continue
+
+                    # Do not allow more than n duplicates to prevent bias
+                    if record_hash not in autolabled_pos_duplicates_table:
+                        autolabled_pos_duplicates_table[record_hash] = 0 # Initialize the hash table entry
+
+                    if autolabled_pos_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
+                        logging.info('This is a technically unique but semantically duplicate record. There are already {} copies in the positive set. Skipping...'.format(autolabled_pos_duplicates_table[record_hash]))
+                        continue
+
+                    autolabled_pos_duplicates_table[record_hash] += 1
+
+
+                    logging.info(line)
+                    logging.info('Auto-Selected: Positive')
+                    autolabeled_positive_records_pending_qc_file.write(line)
+                    total_autolabeled_positive_records_pending_qc += 1
+                    minibatch_labeled_records_count += 1
+                    total_new_records_labeled_using_current_models += 1
+                    total_new_records_labeled_this_session += 1
+                    if not record_number_to_read in already_read_records:
+                        aleady_read_record_numbers[record_number_to_read] = []
+                    aleady_read_record_numbers[record_number_to_read].append({line_id: positive_class_str})
+
+                elif neg_prob >= config.min_probability_for_auto_labeling:
+                    if total_autolabeled_negative_records_pending_qc > total_autolabeled_positive_records_pending_qc:
+                        logging.info('This is a negative record, but the search is for a positive record to maintain positive/negative parity. Skipping...')
+                        # We maintain positive/negative count parity as we go
+                        continue
+
+                    # Do not allow more than n duplicates to prevent bias
+                    if record_hash not in autolabled_neg_duplicates_table:
+                        autolabled_neg_duplicates_table[record_hash] = 0 # Initialize the hash table entry
+
+                    if autolabled_neg_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
+                        logging.info('This is a technically unique but semantically duplicate record. There are already {} copies in the negative set. Skipping...'.format(autolabled_neg_duplicates_table[record_hash]))
+                        continue
+
+                    autolabled_neg_duplicates_table[record_hash] += 1
+
+
+                    logging.info(line)
+                    logging.info('Auto-selected: Negative')
+                    autolabeled_negative_records_pending_qc_file.write(line)
+                    minibatch_labeled_records_count += 1
+                    total_autolabeled_negative_records_pending_qc += 1
+                    total_new_records_labeled_using_current_models += 1
+                    total_new_records_labeled_this_session += 1
+                    if not record_number_to_read in already_read_records:
+                        aleady_read_record_numbers[record_number_to_read] = []
+                    aleady_read_record_numbers[record_number_to_read].append({line_id: negative_class_str})
+
+                else:
+                    logging.info('This record (POS: {:.2f}, NEG: {:.2f}) is not strong enough (min required: {:.2f}) to be in the labeled set. Skipping...'.format(pos_prob, neg_prob, config.min_probability_for_auto_labeling))
+                    continue;
+
+        
+                save_already_read_records(already_processed_record_numbers_file_path, already_read_records)
+
+
+        autolabeled_positive_records_pending_qc_file.close()
+        autolabeled_negative_records_pending_qc_file.close()
+        logging.info('{} records auto-labeled since the last model. These new records must be QCed...'.format(total_new_records_labeled_using_current_models))
+        while True:
+            sample_size =   math.ceil(total_new_records_labeled_using_current_models * ((1-previous_qc_score) * config.inaccuracy_to_qc_sample_size_multiplier))
+            (qc_score, user_aborted) = perform_manual_qc(new_model, autolabeled_positive_records_pending_qc_file_path, autolabeled_negative_records_pending_qc_file_path, total_new_records_labeled_using_current_models, sample_size)
+
+            previous_qc_score = qc_score
+            if qc_score != 1 and user_aborted == False:
+                logging.info('QC found at least one correction needed (QC Score: {:.2f}). Additional QC will be needed...'.format(qc_score))
                 continue
 
-            logging.info('Model re-built and QC passed or user skipped. Do you want to continue auto-labeling? [Y]es to continue; [N]o to quit; [R] to re-run QC...')
+            logging.info('Model re-built and QC (Score: {:.2f}) passed or user skipped. Do you want to merge pending QC records to the master set? [Y]es to continue; [N]o to quit; [R] to re-run QC...'.format(qc_score))
             decision = None
             while (decision != 'y' and decision != 'n' and decision != 'r'):
                 decision = sharedlib.get_char_input()
@@ -369,122 +508,21 @@ def autolabel(mode,
             logging.info('Selected: {}'.format(decision))
             if decision == 'n':
                 break;
-
-            if decision == 'r':
-                # Re-QC, but on the entire set
-                last_num_records_to_qc = min(total_autolabeled_positive_records, total_autolabeled_negative_records)
-                sample_size =   math.ceil(last_num_records_to_qc * config.percent_of_new_records_to_qc)
-                (qc_passed, user_aborted)  = perform_manual_qc(new_model, autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, last_num_records_to_qc, sample_size)
-
-                if qc_passed == False and user_aborted == False:
-                    logging.info('Re-QC of the sampling of the entire dataset found at least one correction needed. Model will be rebuilt with the correction...')
-                    new_model = None
-                    continue
-
-                logging.info('QC passed or user skipped. Do you want to continue auto-labeling? [Y]es to continue; [N]o to quit...')
-                decision = None
-                while (decision != 'y' and decision != 'n'):
-                    decision = sharedlib.get_char_input()
-                    if not isinstance(decision, str):
-                        decision = bytes.decode(decision)
-                    decision = decision.lower()
-
-                logging.info('Selected: {}'.format(decision))
-                if decision == 'n':
-                    break;
-
-            output_files = bulk_open_files([autolabeled_positive_records_file_path, autolabeled_negative_records_file_path], 'a+')
-            autolabeled_positive_records_file = output_files[0]
-            autolabeled_negative_records_file = output_files[1]
-            if new_model is not None:
-                model = new_model
-                total_new_records_labeled_using_current_models = 0
-
-
-        logging.info('-------------------------------------------------------------------')
-        input_file_basenames = [key for key in total_available_records for input_file in input_files if key in input_file.lower()]
-        file_to_read_basename = None if mode is None else next([file for file in input_file_basenames if file == mode.lower()], None)
-        if file_to_read_basename == None:
-            file_to_read_basename = random.choice(input_file_basenames)
-
-
-        file_to_read = None
-        aleady_read_record_numbers = already_read_records[file_to_read_basename]
-        record_number_to_read = get_unique_random_record_number(total_available_records[file_to_read_basename],
-                                                                aleady_read_record_numbers)
-        file_to_read = input_file_basename_to_full_path_map[file_to_read_basename]
-
-        logging.info('So far => POS: {}, NEG: {}. Model accuracy {:.2f}. Next file to look at: {} Record # {}. Total auto-labeled since last model generation: {}'.format(total_autolabeled_positive_records, total_autolabeled_negative_records, model[3], file_to_read_basename, record_number_to_read, total_new_records_labeled_using_current_models))
-        line = get_line(file_to_read, record_number_to_read)
-        
-        record_hash = hashlib.sha1(re.sub(config.duplicate_record_check_ignore_pattern, '', line).upper().encode(errors='ignore')).hexdigest()
-
-        line_id = line[:40]
-        (model_name, result) = __classification_helper.classify(line, [model])[0] # returns tuple: (name, (predicted_classification, positive_proba))
-        
-        pos_prob = result[1]
-        neg_prob = 1 - pos_prob
-
-        if pos_prob >= config.min_probability_for_auto_labeling:
-            if total_autolabeled_positive_records > total_autolabeled_negative_records:
-                logging.info('This is a positive record, but the search is for a negative record to maintain positive/negative parity. Skipping...')
-                # We maintain positive/negative count parity as we go
+            elif decision == 'r':
                 continue
+            else:
+                # User chose 'y'. Proceed with the merge.
+                logging.info('Merging pending QC files to positive/negative master set...')
+                tmp_merged_positive_file = autolabeled_positive_records_file_path + '.tmp'
+                sharedlib.merge_files([autolabeled_positive_records_file_path, autolabeled_positive_records_pending_qc_file], tmp_merged_positive_file, True, config.duplicate_record_check_ignore_pattern)
+                shutil.move(tmp_merged_positive_file, autolabeled_positive_records_file_path)
 
-            # Do not allow more than n duplicates to prevent bias
-            if record_hash not in autolabled_pos_duplicates_table:
-                autolabled_pos_duplicates_table[record_hash] = 0 # Initialize the hash table entry
+                tmp_merged_negative_file = autolabeled_negative_records_file_path + '.tmp'
+                sharedlib.merge_files([autolabeled_negative_records_file_path, autolabeled_negative_records_pending_qc_file], tmp_merged_negative_file, True, config.duplicate_record_check_ignore_pattern)
+                shutil.move(tmp_merged_negative_file, autolabeled_negative_records_file_path)
 
-            if autolabled_pos_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
-                logging.info('This is a technically unique but semantically duplicate record. There are already {} copies in the positive set. Skipping...'.format(autolabled_pos_duplicates_table[record_hash]))
-                continue
+                total_autolabeled_positive_records = get_total_lines_count(autolabeled_positive_records_file_path) if os.path.exists(autolabeled_positive_records_file_path) else 0
+                total_autolabeled_negative_records = get_total_lines_count(autolabeled_negative_records_file_path) if os.path.exists(autolabeled_negative_records_file_path) else 0
 
-            autolabled_pos_duplicates_table[record_hash] += 1
-
-
-            logging.info(line)
-            logging.info('Auto-Selected: Positive')
-            autolabeled_positive_records_file.write(line)
-            total_autolabeled_positive_records += 1
-            total_new_records_labeled_using_current_models += 1
-            total_new_records_labeled_this_session += 1
-            if not record_number_to_read in already_read_records:
-                aleady_read_record_numbers[record_number_to_read] = []
-            aleady_read_record_numbers[record_number_to_read].append({line_id: positive_class_str})
-
-        elif neg_prob >= config.min_probability_for_auto_labeling:
-            if total_autolabeled_negative_records > total_autolabeled_positive_records:
-                logging.info('This is a negative record, but the search is for a positive record to maintain positive/negative parity. Skipping...')
-                # We maintain positive/negative count parity as we go
-                continue
-
-            # Do not allow more than n duplicates to prevent bias
-            if record_hash not in autolabled_neg_duplicates_table:
-                autolabled_neg_duplicates_table[record_hash] = 0 # Initialize the hash table entry
-
-            if autolabled_neg_duplicates_table[record_hash] >= config.max_semantic_duplicate_records_allowed:
-                logging.info('This is a technically unique but semantically duplicate record. There are already {} copies in the negative set. Skipping...'.format(autolabled_neg_duplicates_table[record_hash]))
-                continue
-
-            autolabled_neg_duplicates_table[record_hash] += 1
-
-
-            logging.info(line)
-            logging.info('Auto-selected: Negative')
-            autolabeled_negative_records_file.write(line)
-            total_autolabeled_negative_records += 1
-            total_new_records_labeled_using_current_models += 1
-            total_new_records_labeled_this_session += 1
-            if not record_number_to_read in already_read_records:
-                aleady_read_record_numbers[record_number_to_read] = []
-            aleady_read_record_numbers[record_number_to_read].append({line_id: negative_class_str})
-
-        else:
-            logging.info('This record (POS: {:.2f}, NEG:{:.2f}) is not strong enough (min required: {:.2f}) to be in the labeled set. Skipping...'.format(pos_prob, neg_prob, config.min_probability_for_auto_labeling))
-            continue;
-
-        
-        save_already_read_records(already_processed_record_numbers_file_path, already_read_records)
-
-    autolabeled_positive_records_file.close()
-    autolabeled_negative_records_file.close()
+                logging.info('Files merged. Total {} positive and {} negative records in autolabeled master set.'.format(total_autolabeled_positive_records, total_autolabeled_negative_records))
+                break;
