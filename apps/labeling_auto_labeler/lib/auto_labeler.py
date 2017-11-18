@@ -10,6 +10,7 @@ import datetime
 import re
 import math
 import hashlib
+import shutil
 
 import sharedlib
 import config
@@ -173,8 +174,9 @@ def perform_random_qc(population, eligible_population_size, sample_size, expecte
     if sample_size > eligible_population_size:
         sample_size = eligible_population_size
 
-    eligible_population_index_range = range(population_size - eligible_population_size, population_size)
-    sample_indices = random.sample(eligible_population_index_range, sample_size)
+    eligible_population_index_range = range(max(0, population_size - eligible_population_size), population_size)
+    print('Population size {}, sample size {}'.format(population_size, sample_size))
+    sample_indices = random.sample(eligible_population_index_range, min(sample_size, len(eligible_population_index_range)))
 
     expected_class_char_0 = expected_class[0].lower()
     logging.info('Random QC will be performed on {} {} samples from {} eligible items..'.format(len(sample_indices), expected_class, len(eligible_population_index_range)))
@@ -245,6 +247,9 @@ def perform_manual_qc(model, positive_records_file_path,
 
     logging.info('Performing manual QC...')
 
+    if qc_sample_size > qc_eligible_population_size:
+        qc_sample_size = qc_eligible_population_size
+
     positive_records = sharedlib.read_all_records(positive_records_file_path)
     negative_records = sharedlib.read_all_records(negative_records_file_path)
 
@@ -276,7 +281,7 @@ def perform_manual_qc(model, positive_records_file_path,
     sharedlib.save_list_to_file(new_positive_records, positive_records_file_path)
     sharedlib.save_list_to_file(new_negative_records, negative_records_file_path)
 
-    qc_score = 0 if total_qced == 0 else (total_qced - (total_misclassified + total_indeterminate) / total_qced)
+    qc_score = 0 if total_qced == 0 else ((total_qced - total_misclassified + total_indeterminate) / total_qced)
     logging.info('Manual QC found {} false positives, {} false negatives and {} indeterminate records. Overall QC score: {:.2f}.'.format(len(false_positive_indices), len(false_negative_indices), len(positive_but_indeterminate_indices|negative_but_indeterminate_indices), qc_score))
 
     return (qc_score, positive_qc_user_aborted or negative_qc_user_aborted)
@@ -489,7 +494,13 @@ def autolabel(mode,
         autolabeled_negative_records_pending_qc_file.close()
         logging.info('{} records auto-labeled since the last model. These new records must be QCed...'.format(total_new_records_labeled_using_current_models))
         while True:
-            sample_size =   math.ceil(total_new_records_labeled_using_current_models * ((1-previous_qc_score) * config.inaccuracy_to_qc_sample_size_multiplier))
+            total_autolabeled_positive_records_pending_qc = sharedlib.get_total_lines_count(autolabeled_positive_records_pending_qc_file_path)
+            total_autolabeled_negative_records_pending_qc = sharedlib.get_total_lines_count(autolabeled_negative_records_pending_qc_file_path)
+            total_pending_qc_records_count = total_autolabeled_positive_records_pending_qc + total_autolabeled_negative_records_pending_qc
+            sample_size =   math.ceil(total_pending_qc_records_count * ((1-previous_qc_score) * config.inaccuracy_to_qc_sample_size_multiplier))
+            if sample_size < 1 or sample_size > total_pending_qc_records_count:
+                sample_size = total_pending_qc_records_count
+
             (qc_score, user_aborted) = perform_manual_qc(new_model, autolabeled_positive_records_pending_qc_file_path, autolabeled_negative_records_pending_qc_file_path, total_new_records_labeled_using_current_models, sample_size)
 
             previous_qc_score = qc_score
@@ -513,13 +524,13 @@ def autolabel(mode,
             else:
                 # User chose 'y'. Proceed with the merge.
                 logging.info('Merging pending QC files to positive/negative master set...')
-                tmp_merged_positive_file = autolabeled_positive_records_file_path + '.tmp'
-                sharedlib.merge_files([autolabeled_positive_records_file_path, autolabeled_positive_records_pending_qc_file], tmp_merged_positive_file, True, config.duplicate_record_check_ignore_pattern)
-                shutil.move(tmp_merged_positive_file, autolabeled_positive_records_file_path)
+                tmp_merged_positive_file_path = autolabeled_positive_records_file_path + '.tmp'
+                sharedlib.merge_files([autolabeled_positive_records_file_path, autolabeled_positive_records_pending_qc_file_path], tmp_merged_positive_file_path)
+                shutil.move(tmp_merged_positive_file_path, autolabeled_positive_records_file_path)
 
-                tmp_merged_negative_file = autolabeled_negative_records_file_path + '.tmp'
-                sharedlib.merge_files([autolabeled_negative_records_file_path, autolabeled_negative_records_pending_qc_file], tmp_merged_negative_file, True, config.duplicate_record_check_ignore_pattern)
-                shutil.move(tmp_merged_negative_file, autolabeled_negative_records_file_path)
+                tmp_merged_negative_file_path = autolabeled_negative_records_file_path + '.tmp'
+                sharedlib.merge_files([autolabeled_negative_records_file_path, autolabeled_negative_records_pending_qc_file_path], tmp_merged_negative_file_path)
+                shutil.move(tmp_merged_negative_file_path, autolabeled_negative_records_file_path)
 
                 total_autolabeled_positive_records = get_total_lines_count(autolabeled_positive_records_file_path) if os.path.exists(autolabeled_positive_records_file_path) else 0
                 total_autolabeled_negative_records = get_total_lines_count(autolabeled_negative_records_file_path) if os.path.exists(autolabeled_negative_records_file_path) else 0
