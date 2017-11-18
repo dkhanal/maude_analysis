@@ -334,6 +334,18 @@ def autolabel(mode,
 
     # Create the model for auto labeling
     while True:
+        logging.info('Confirm to continue with auto-labeling. [Y]es, [N]o: ')
+        decision = None
+        while (decision != 'y' and decision != 'n'):
+            decision = sharedlib.get_char_input()
+            if not isinstance(decision, str):
+                decision = bytes.decode(decision)
+            decision = decision.lower()
+
+        logging.info('Selected: {}'.format(decision))
+        if decision == 'n':
+            break;
+
         logging.info('[Re]building model to be used in classification...')
 
         new_model = __modeling_helper.rebuild_models(autolabeled_positive_records_file_path, autolabeled_negative_records_file_path, already_processed_record_numbers_file_path, input_file_total_lines_count_file_path)[0]
