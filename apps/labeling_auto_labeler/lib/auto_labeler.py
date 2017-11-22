@@ -36,8 +36,6 @@ def label_records(mode):
     input_file_total_lines_count_file = sharedlib.abspath(config.output_files['input_file_total_lines_count_file'])
     already_processed_record_numbers_file = sharedlib.abspath(config.output_files['already_processed_record_numbers_file'])
     
-    __remote_server_helper.download_input_files(config.remote_server, config.remote_server_files, config.input_dir)
-
     existing_work_in_progress = __remote_server_helper.all_work_in_progress_files_present_on_remote_server(config.remote_server, config.remote_server_files)
     if existing_work_in_progress:
         __remote_server_helper.download_remote_server_files(config.remote_server, config.remote_server_files, config.output_files)

@@ -93,7 +93,7 @@ def initialize(remote_server_config):
         __classification_uri = os.path.join(base_uri, __classified_dir)
 
 
-def upload_files_to_prelabled_dir(list_of_files):
+def upload_files_to_labeling_candidates_dir(list_of_files):
     upload_files_to_remote_server(list_of_files, __labeling_candidates_dir)
 
 def upload_files_to_labeling_auto_labeled_dir(list_of_files):

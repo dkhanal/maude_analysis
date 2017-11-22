@@ -27,13 +27,6 @@
       "verified_negative_records_blob": "verified_negative_records_adjusted.txt",
       "skip_download_if_already_present": false
     },
-    "labeling_candidate_files": {
-      "potential_positive_records_blob": "potential_positive_records.txt",
-      "potential_negative_records_blob": "potential_negative_records.txt",
-      "questionable_positive_records_blob": "questionable_positive_records.txt",
-      "questionable_negative_records_blob": "questionable_negative_records.txt",
-      "skip_download_if_already_present": true
-    },
     "auto_labeled_files": {
       "autolabeled_positive_records_blob": "autolabeled_positive_records.txt",
       "autolabeled_negative_records_blob": "autolabeled_negative_records.txt",

@@ -77,7 +77,7 @@ def get_list_of_files_from_remote_server(remote_directory):
     return __remote_server.get_list_of_files_from_remote_server(remote_directory)
 
 def upload_files_to_labeling_candidates_dir(list_of_files):
-    __remote_server.upload_files_to_prelabled_dir(list_of_files)
+    __remote_server.upload_files_to_labeling_candidates_dir(list_of_files)
 
 def upload_files_to_labeling_auto_labeled_dir(list_of_files):
     __remote_server.upload_files_to_labeling_auto_labeled_dir(list_of_files)
