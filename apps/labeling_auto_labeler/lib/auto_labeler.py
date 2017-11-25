@@ -279,7 +279,7 @@ def perform_manual_qc(model, positive_records_file_path,
     sharedlib.save_list_to_file(new_positive_records, positive_records_file_path)
     sharedlib.save_list_to_file(new_negative_records, negative_records_file_path)
 
-    qc_score = 0 if total_qced == 0 else ((total_qced - total_misclassified + total_indeterminate) / total_qced)
+    qc_score = 0 if total_qced == 0 else ((total_qced - (total_misclassified + total_indeterminate)) / total_qced)
     logging.info('Manual QC of total {} records found {} misclassified ({} false positives + {} false negatives) and {} indeterminate records. Overall QC score: {:.2f}.'.format(total_qced, total_misclassified, len(false_positive_indices), len(false_negative_indices), len(positive_but_indeterminate_indices|negative_but_indeterminate_indices), qc_score))
 
     return (qc_score, positive_qc_user_aborted or negative_qc_user_aborted)
