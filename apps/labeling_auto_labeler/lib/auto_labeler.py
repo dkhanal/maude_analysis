@@ -386,11 +386,14 @@ def autolabel(mode,
         save_already_read_records(already_processed_record_numbers_file_path, already_read_records)
         save_total_available_records(input_file_total_lines_count_file_path, total_available_records)
 
-        total_autolabeled_positive_records_pending_qc = get_total_lines_count(autolabeled_positive_records_pending_qc_file_path) if os.path.exists(autolabeled_positive_records_pending_qc_file_path) else 0
-        total_autolabeled_negative_records_pending_qc = get_total_lines_count(autolabeled_negative_records_pending_qc_file_path) if os.path.exists(autolabeled_negative_records_pending_qc_file_path) else 0
+        total_autolabeled_positive_records = get_total_lines_count(autolabeled_positive_records_file_path) if os.path.exists(autolabeled_positive_records_file_path) else 0
+        total_autolabeled_negative_records = get_total_lines_count(autolabeled_negative_records_file_path) if os.path.exists(autolabeled_negative_records_file_path) else 0
 
         autolabeled_positive_records_pending_qc_file = open(autolabeled_positive_records_pending_qc_file_path, 'w', encoding='utf-8', errors='ignore')
         autolabeled_negative_records_pending_qc_file = open(autolabeled_negative_records_pending_qc_file_path, 'w', encoding='utf-8', errors='ignore')
+
+        total_autolabeled_positive_records_pending_qc = 0
+        total_autolabeled_negative_records_pending_qc = 0
 
         input_file_basenames = [key for key in total_available_records for input_file in input_files if key in input_file.lower()]
         while total_new_records_labeled_using_current_models <= config.models_auto_regen_records_threshold:
@@ -437,7 +440,7 @@ def autolabel(mode,
                 neg_prob = 1 - pos_prob
 
                 if pos_prob >= config.min_probability_for_auto_labeling:
-                    if total_autolabeled_positive_records_pending_qc > total_autolabeled_negative_records_pending_qc:
+                    if (total_autolabeled_positive_records + total_autolabeled_positive_records_pending_qc) > (total_autolabeled_negative_records + total_autolabeled_negative_records_pending_qc):
                         logging.info('This is a positive record, but the search is for a negative record to maintain positive/negative parity. Skipping...')
                         # We maintain positive/negative count parity as we go
                         continue
@@ -465,7 +468,7 @@ def autolabel(mode,
                     aleady_read_record_numbers[record_number_to_read].append({line_id: positive_class_str})
 
                 elif neg_prob >= config.min_probability_for_auto_labeling:
-                    if total_autolabeled_negative_records_pending_qc > total_autolabeled_positive_records_pending_qc:
+                    if (total_autolabeled_negative_records + total_autolabeled_negative_records_pending_qc) > (total_autolabeled_positive_records + total_autolabeled_positive_records_pending_qc) :
                         logging.info('This is a negative record, but the search is for a positive record to maintain positive/negative parity. Skipping...')
                         # We maintain positive/negative count parity as we go
                         continue
