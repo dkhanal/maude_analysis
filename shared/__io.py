@@ -52,6 +52,11 @@ def copy_file(src_file, destn_file, skip_if_existing = False):
                          
     shutil.copyfile(src_file, destn_file)
 
+def delete_file(file_path):
+    logging.info('Deleting file {}...'.format(file_path))            
+    os.remove(file_path)
+
+
 def merge_files(source_files, destination_file_path, skip_duplicates = False, duplicate_record_check_ignore_pattern = None):        
     line_hash_dict = {}
     dup_check_ignore_pattern_regex = re.compile(duplicate_record_check_ignore_pattern) if duplicate_record_check_ignore_pattern is not None else None

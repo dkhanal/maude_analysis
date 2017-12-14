@@ -59,14 +59,6 @@
       "use_equal_positive_and_negative_labeled_records": true
     },
     {
-      "name": "sklearn.sgd_with_duplicates",
-      "archive_name": "sklearn_sgd_with_duplicates.zip",
-      "ignore_duplicate_training_records": false,
-      "labeled_files_max_num_records_to_read": null,
-      "max_num_labeled_records_to_use": null,
-      "use_equal_positive_and_negative_labeled_records": true
-    },
-    {
       "name": "sklearn.sgd_no_duplicates",
       "archive_name": "sklearn_sgd_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
@@ -75,8 +67,8 @@
       "use_equal_positive_and_negative_labeled_records": true
     },
     {
-      "name": "sklearn.voting_with_duplicates",
-      "archive_name": "sklearn_voting_with_duplicates.zip",
+      "name": "sklearn.sgd_with_duplicates",
+      "archive_name": "sklearn_sgd_with_duplicates.zip",
       "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
@@ -86,6 +78,14 @@
       "name": "sklearn.voting_no_duplicates",
       "archive_name": "sklearn_voting_no_duplicates.zip",
       "ignore_duplicate_training_records": true,
+      "labeled_files_max_num_records_to_read": null,
+      "max_num_labeled_records_to_use": null,
+      "use_equal_positive_and_negative_labeled_records": true
+    },
+    {
+      "name": "sklearn.voting_with_duplicates",
+      "archive_name": "sklearn_voting_with_duplicates.zip",
+      "ignore_duplicate_training_records": false,
       "labeled_files_max_num_records_to_read": null,
       "max_num_labeled_records_to_use": null,
       "use_equal_positive_and_negative_labeled_records": true

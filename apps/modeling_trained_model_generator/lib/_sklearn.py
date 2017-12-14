@@ -17,6 +17,8 @@ import logging
 import nltk
 from nltk import word_tokenize
 
+import sharedlib
+
 def get_total_lines_count(file_path):
     line_count = 0
     with open(file_path, 'r') as f:
@@ -45,12 +47,24 @@ def get_records(files_to_read):
 def generate_model(positive_records_file, negative_records_file, model_config, output_dir):
     model_name = model_config['name']
     logging.info('Generating model {}...'.format(model_name))
+    tmp_positive_records_file = positive_records_file + '.tmp'
+    tmp_negative_records_file = negative_records_file + '.tmp'
+
+    sharedlib.copy_file(positive_records_file, tmp_positive_records_file)
+    sharedlib.copy_file(negative_records_file, tmp_negative_records_file)
+
+    logging.info('Randomizing records in {}...'.format(tmp_positive_records_file))
+    sharedlib.randomize_records(tmp_positive_records_file)
+
+    logging.info('Randomizing records in {}...'.format(tmp_negative_records_file))
+    sharedlib.randomize_records(tmp_negative_records_file)
+
     labeled_files_max_num_records_to_read = model_config['labeled_files_max_num_records_to_read']
     max_num_labeled_records_to_use = model_config['max_num_labeled_records_to_use']
     use_equal_positive_and_negative_labeled_records = model_config['use_equal_positive_and_negative_labeled_records']
 
-    positive_file_total_records = get_total_lines_count(positive_records_file)
-    negative_file_total_records = get_total_lines_count(negative_records_file)
+    positive_file_total_records = get_total_lines_count(tmp_positive_records_file)
+    negative_file_total_records = get_total_lines_count(tmp_negative_records_file)
 
     total_positive_records_to_read = positive_file_total_records
     total_negative_records_to_read = negative_file_total_records
@@ -87,7 +101,7 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
 
     vectorizer = CountVectorizer(input='content')
 
-    x_train = vectorizer.fit_transform(get_records([(positive_records_file, 0, training_set_cut_off_positive), (negative_records_file, 0, training_set_cut_off_negative)]))
+    x_train = vectorizer.fit_transform(get_records([(tmp_positive_records_file, 0, training_set_cut_off_positive), (tmp_negative_records_file, 0, training_set_cut_off_negative)]))
     tf_transformer = TfidfTransformer(use_idf=False).fit(x_train)
     x_train_tf = tf_transformer.transform(x_train)
 
@@ -105,10 +119,13 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
     logging.info('Classifier shape: {}'.format(x_train_tf.shape))
     logging.info('Testing the classifier now...')
 
-    x_test = vectorizer.transform(get_records([(positive_records_file, training_set_cut_off_positive, testing_set_cut_off_positive), (negative_records_file, training_set_cut_off_negative, testing_set_cut_off_negative)]))
+    x_test = vectorizer.transform(get_records([(tmp_positive_records_file, training_set_cut_off_positive, testing_set_cut_off_positive), (tmp_negative_records_file, training_set_cut_off_negative, testing_set_cut_off_negative)]))
     tf_transformer_test = TfidfTransformer(use_idf=False).fit(x_test)
     x_test_tf = tf_transformer_test.transform(x_test)
     score = classifier.score(x_test_tf, test_labels)
     logging.info('Classifier score: {}'.format(score))
+
+    sharedlib.delete_file(tmp_positive_records_file)
+    sharedlib.delete_file(tmp_negative_records_file)
     
     return classifier, vectorizer, score

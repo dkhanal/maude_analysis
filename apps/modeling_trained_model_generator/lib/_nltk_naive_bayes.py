@@ -119,6 +119,6 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
         accuracy = nltk.classify.util.accuracy(classifier, testing_featureset)
 
         logging.info('Model accuracy is: {}. '.format(accuracy))
-        classifier.show_most_informative_features()
+        classifier.show_most_informative_features(20)
 
     return (classifier, accuracy)

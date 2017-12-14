@@ -144,7 +144,7 @@ def get_overall_classification(classifications):
     negative_classifications = len([s for s in classifications if 'neg' in s.lower()])
     positive_prob = positive_classifications/total_classifications
 
-    if  positive_classifications >= (math.floor(total_classifications/2) + 1):
+    if  positive_classifications >= config.min_models_needed_for_overall_pos_classification:
         return ('pos', positive_prob)
 
     return ('neg', positive_prob) # The probability returned is always for positive classification

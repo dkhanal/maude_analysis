@@ -43,6 +43,12 @@ def abspath(path):
 def get_char_input():
     return __io.get_char_input()
 
+def copy_file(src_file, destn_file, skip_if_existing = False):
+    __io.copy_file(src_file, destn_file, skip_if_existing)
+
+def delete_file(file_path):
+    __io.delete_file(file_path)
+
 def merge_files(source_files, destination_file_path, skip_duplicates = False, duplicate_record_check_ignore_pattern = None):
     __io.merge_files(source_files, destination_file_path, skip_duplicates, duplicate_record_check_ignore_pattern)
 
