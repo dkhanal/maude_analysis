@@ -44,6 +44,25 @@ def get_records(files_to_read):
                 records_read += 1
                 yield line
 
+
+def log_most_informative_features(classifier, vectorizer, n):
+
+    # Not all classifiers have coefficients (e.g. Voting Classifier does not)
+    if classifier is None or vectorizer is None or not hasattr(classifier, 'coef_'):
+        return
+
+    logging.info('Most informative features: ')
+    feature_names = vectorizer.get_feature_names()     
+
+    # Build flattened list in lower coefficient to higher order
+    feature_coefficents = sorted(zip(classifier.coef_[0], feature_names))
+    
+    # Build two lists of same size -- one from the head of the list, another tail
+    topN = zip(feature_coefficents[:n], feature_coefficents[:-(n + 1):-1])
+    
+    for (c1, feature1), (c2, feature2) in topN:
+        logging.info("\t{:.2f}\t{}\t\t\t{:.2f}\t{}".format(c1, feature1, c2, feature2))
+
 def generate_model(positive_records_file, negative_records_file, model_config, output_dir):
     model_name = model_config['name']
     logging.info('Generating model {}...'.format(model_name))
@@ -122,8 +141,10 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
     x_test = vectorizer.transform(get_records([(tmp_positive_records_file, training_set_cut_off_positive, testing_set_cut_off_positive), (tmp_negative_records_file, training_set_cut_off_negative, testing_set_cut_off_negative)]))
     tf_transformer_test = TfidfTransformer(use_idf=False).fit(x_test)
     x_test_tf = tf_transformer_test.transform(x_test)
-    score = classifier.score(x_test_tf, test_labels)
+    score = classifier.score(x_test_tf, test_labels)    
     logging.info('Classifier score: {}'.format(score))
+
+    log_most_informative_features(classifier, vectorizer, 100)
 
     sharedlib.delete_file(tmp_positive_records_file)
     sharedlib.delete_file(tmp_negative_records_file)

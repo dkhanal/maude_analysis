@@ -140,14 +140,23 @@ def get_overall_classification(classifications):
         return None
 
     total_classifications = len(classifications)
-    positive_classifications = len([s for s in classifications if 'pos' in s.lower()])
-    negative_classifications = len([s for s in classifications if 'neg' in s.lower()])
-    positive_prob = positive_classifications/total_classifications
+    positive_proba = None
+    if config.overall_classification_method == 'min_votes':
+        positive_classifications = len([classification for classification, pos_proba in classifications if 'pos' in s.lower()])
+        negative_classifications = len([classification for classification, pos_proba in classifications if 'neg' in s.lower()])
+        positive_proba = positive_classifications/total_classifications
 
-    if  positive_classifications >= config.min_models_needed_for_overall_pos_classification:
-        return ('pos', positive_prob)
+        if  positive_classifications >= config.min_models_needed_for_overall_pos_classification:
+            return ('pos', positive_proba)
 
-    return ('neg', positive_prob) # The probability returned is always for positive classification
+    elif config.overall_classification_method == 'mean_of_probabilities':
+        sum_of_all_proba = sum([pos_proba for classification, pos_proba in classifications])
+        positive_proba = sum_of_all_proba / total_classifications
+        
+        if  positive_proba >= config.positive_probability_threshold:
+            return ('pos', positive_proba)
+
+    return ('neg', positive_proba) # The probability returned is always for positive classification
 
 
 def get_total_lines_count(file_path):
@@ -243,11 +252,11 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
                 log('Probabilities: pos: {}, neg: {}'.format(positive_probability, probabilities.prob('neg')))
     
             if is_positive:
-                classifications.append('pos')
-                pos_file.write(record)
+                classifications.append(('pos', positive_probability))
+                pos_file.write(record.rstrip(os.linesep) + '\n')
             else:
-                classifications.append('neg')
-                neg_file.write(record)
+                classifications.append(('neg', positive_probability)) # For consistency, we store all probability in terms of positive
+                neg_file.write(record.rstrip(os.linesep) + '\n')
 
             prediction_summary_file.write('{}|{}|{:.2f}|{:.2f}|{}\n'.format(record[:40].strip(), name, positive_probability, 1-positive_probability, 'pos' if is_positive == True else 'neg', ))
 
@@ -262,10 +271,10 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
             continue
 
         if overall_classification == 'pos':
-            overall_predicted_pos_records_file.write(record)
+            overall_predicted_pos_records_file.write(record.rstrip(os.linesep) + '\n')
             total_positive +=1
         else:
-            overall_predicted_neg_records_file.write(record)
+            overall_predicted_neg_records_file.write(record.rstrip(os.linesep) + '\n')
             total_negative +=1
 
         prediction_summary_file.write('{}|{}|{:.2f}|{:.2f}|{}\n'.format(record[:40].strip(), 'overall',  overall_positive_probability, 1-overall_positive_probability, overall_classification))
@@ -273,7 +282,7 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
         positive_percent = (total_positive / total_data_records) * 100
         negative_percent = (total_negative / total_data_records) * 100
 
-    log('{}=> Overall {} POS records in total {} ({:.2f}%) with a probability of {} or higher.'.format(file_base_name, total_positive, total_data_records, positive_percent, config.positive_probability_threshold))    
+    log('{}=> Overall {} POS records in total {} ({:.2f}%) with a probability of {} or higher.'.format(file_base_name, total_positive, total_data_records -1, positive_percent, config.positive_probability_threshold))    
     fin.close()
 
     log('Closing output files...')

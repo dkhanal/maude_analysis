@@ -411,6 +411,13 @@ def autolabel(mode,
             minibatch_labeled_records_count = 0
             minibatch_attempted_records_count =  0
 
+            file_to_read_handle = open(file_to_read, 'r', encoding='utf-8', errors='ignore');
+            line_number = 0
+
+            # Advance to the record being read. A 'mini batch' will begin at that location until <minibatch_size> samples are found. 
+            while line_number < record_number_to_read:
+                file_to_read_handle.next()
+
             configured_minibatch_size = config.minibatch_size
         
             logging.info('Entering minibatch loop for file {}, starting Record# {}. Looking for {} labeled records in this file...'.format(file_to_read_basename, record_number_to_read, configured_minibatch_size))
@@ -426,9 +433,9 @@ def autolabel(mode,
                 if total_new_records_labeled_using_current_models > config.models_auto_regen_records_threshold:
                     # Model re-generation is due
                     break;
-
+                
                 logging.info('So far pending QC => POS: {}, NEG: {}. Model accuracy {:.2f}. File: {} Record#: {}. Auto-labeled since last model generation: {}. Still looking for {} labeled in this minibatch.'.format(total_autolabeled_positive_records_pending_qc, total_autolabeled_negative_records_pending_qc, new_model[3], file_to_read_basename, record_number_to_read, total_new_records_labeled_using_current_models, (config.minibatch_size - minibatch_labeled_records_count)))
-                line = get_line(file_to_read, record_number_to_read)
+                line = file_to_read.next()
                 minibatch_attempted_records_count +=1 
 
                 record_hash = hashlib.sha1(re.sub(config.duplicate_record_check_ignore_pattern, '', line).upper().encode(errors='ignore')).hexdigest()
@@ -502,6 +509,7 @@ def autolabel(mode,
         
                 save_already_read_records(already_processed_record_numbers_file_path, already_read_records)
 
+            file_to_read_handle.close()
 
         autolabeled_positive_records_pending_qc_file.close()
         autolabeled_negative_records_pending_qc_file.close()

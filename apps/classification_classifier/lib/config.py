@@ -29,6 +29,7 @@ def load_config():
     global target_file_max_num_records_to_classify
     global models
     global positive_probability_threshold
+    global overall_classification_method
     global min_models_needed_for_overall_pos_classification
     global min_required_record_length
     global upload_output_to_remote_server
@@ -42,6 +43,7 @@ def load_config():
     models = config_data['models']
     target_file_max_num_records_to_classify = config_data['target_file_max_num_records_to_classify']
     positive_probability_threshold = config_data['positive_probability_threshold']
+    overall_classification_method = config_data['overall_classification_method']
     min_models_needed_for_overall_pos_classification = config_data['min_models_needed_for_overall_pos_classification']
     min_required_record_length = config_data['min_required_record_length']
 
