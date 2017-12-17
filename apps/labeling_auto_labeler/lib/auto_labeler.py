@@ -415,8 +415,10 @@ def autolabel(mode,
             line_number = 0
 
             # Advance to the record being read. A 'mini batch' will begin at that location until <minibatch_size> samples are found. 
+            logging.info('Locating the record {} in this file...'.format(record_number_to_read))
             while line_number < record_number_to_read:
-                file_to_read_handle.next()
+                next(file_to_read_handle)
+                line_number += 1
 
             configured_minibatch_size = config.minibatch_size
         
@@ -435,7 +437,7 @@ def autolabel(mode,
                     break;
                 
                 logging.info('So far pending QC => POS: {}, NEG: {}. Model accuracy {:.2f}. File: {} Record#: {}. Auto-labeled since last model generation: {}. Still looking for {} labeled in this minibatch.'.format(total_autolabeled_positive_records_pending_qc, total_autolabeled_negative_records_pending_qc, new_model[3], file_to_read_basename, record_number_to_read, total_new_records_labeled_using_current_models, (config.minibatch_size - minibatch_labeled_records_count)))
-                line = file_to_read.next()
+                line = file_to_read_handle.readline()
                 minibatch_attempted_records_count +=1 
 
                 record_hash = hashlib.sha1(re.sub(config.duplicate_record_check_ignore_pattern, '', line).upper().encode(errors='ignore')).hexdigest()
