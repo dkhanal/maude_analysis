@@ -142,8 +142,8 @@ def get_overall_classification(classifications):
     total_classifications = len(classifications)
     positive_proba = None
     if config.overall_classification_method == 'min_votes':
-        positive_classifications = len([classification for classification, pos_proba in classifications if 'pos' in s.lower()])
-        negative_classifications = len([classification for classification, pos_proba in classifications if 'neg' in s.lower()])
+        positive_classifications = len([classification for classification, pos_proba in classifications if 'pos' in classification.lower()])
+        negative_classifications = len([classification for classification, pos_proba in classifications if 'neg' in classification.lower()])
         positive_proba = positive_classifications/total_classifications
 
         if  positive_classifications >= config.min_models_needed_for_overall_pos_classification:
