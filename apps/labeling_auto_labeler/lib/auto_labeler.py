@@ -48,7 +48,7 @@ def label_records(mode):
 
     autolabel(mode, input_files, autolabeled_positive_records_file, autolabeled_negative_records_file, already_processed_record_numbers_file, input_file_total_lines_count_file, models)
     
-    sharedlib.remove_duplicate_records([autolabeled_positive_records_file, autolabeled_negative_records_file])
+    sharedlib.remove_duplicate_records([autolabeled_negative_records_file, autolabeled_positive_records_file])
 
     if config.upload_output_to_remote_server == True:
         logging.info('Upload output{}? [y/n] '.format( '' if existing_work_in_progress else ' (POTENTIALLY OVERWRITE CLOUD)'))
