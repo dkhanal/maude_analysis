@@ -34,6 +34,7 @@ def load_config():
     global min_required_record_length
     global upload_output_to_remote_server
     global upload_positive_files_only
+    global positive_signals_for_false_negative_check
     global remote_server
     global verbose
 
@@ -49,6 +50,8 @@ def load_config():
 
     upload_output_to_remote_server = config_data['upload_output_to_remote_server']
     upload_positive_files_only = config_data['upload_positive_files_only']
+
+    positive_signals_for_false_negative_check = config_data['positive_signals_for_false_negative_check']
 
     remote_server = config_data['remote_server']
     verbose = config_data['verbose']

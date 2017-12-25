@@ -38,25 +38,24 @@ def generate_models(positive_records_files, negative_records_files, models_confi
 
     all_pos_records_file_path = os.path.join(output_dir, 'positive_records_all.txt')
     all_neg_records_file_path = os.path.join(output_dir,'negative_records_all.txt')
-
-    nodups_pos_records_file_path = os.path.join(output_dir, 'positive_records_nodups.txt')
-    nodups_neg_records_file_path = os.path.join(output_dir,'negative_records_nodups.txt')
-
     sharedlib.merge_files([sharedlib.abspath(p) for p in negative_records_files], all_neg_records_file_path, False, None)
     sharedlib.merge_files([sharedlib.abspath(p) for p in positive_records_files], all_pos_records_file_path, False, None)
-
-    sharedlib.merge_files([sharedlib.abspath(p) for p in negative_records_files], nodups_neg_records_file_path, True, duplicate_record_check_ignore_pattern)
-    sharedlib.merge_files([sharedlib.abspath(p) for p in positive_records_files], nodups_pos_records_file_path, True, duplicate_record_check_ignore_pattern)
-
     sharedlib.randomize_records(all_pos_records_file_path)
-    sharedlib.randomize_records(nodups_pos_records_file_path)
     sharedlib.randomize_records(all_neg_records_file_path)
-    sharedlib.randomize_records(nodups_neg_records_file_path)
-
     log('Combined (merged and randomized) positive labeled (all) file: {}'.format(all_pos_records_file_path))
-    log('Combined (merged and randomized) positive labeled (no-duplicates) file: {}'.format(nodups_pos_records_file_path))
     log('Combined (merged and randomized) negative labeled (all) file: {}'.format(all_neg_records_file_path))
-    log('Combined (merged and randomized) negative labeled (no-duplicates) file: {}'.format(nodups_neg_records_file_path))
+
+
+    at_least_one_no_dup_model = any(model_config['ignore_duplicate_training_records'] == True for model_config in models_config)
+    if at_least_one_no_dup_model:
+        nodups_pos_records_file_path = os.path.join(output_dir, 'positive_records_nodups.txt')
+        nodups_neg_records_file_path = os.path.join(output_dir,'negative_records_nodups.txt')
+        sharedlib.merge_files([sharedlib.abspath(p) for p in negative_records_files], nodups_neg_records_file_path, True, duplicate_record_check_ignore_pattern)
+        sharedlib.merge_files([sharedlib.abspath(p) for p in positive_records_files], nodups_pos_records_file_path, True, duplicate_record_check_ignore_pattern)
+        sharedlib.randomize_records(nodups_pos_records_file_path)
+        sharedlib.randomize_records(nodups_neg_records_file_path)
+        log('Combined (merged and randomized) positive labeled (no-duplicates) file: {}'.format(nodups_pos_records_file_path))
+        log('Combined (merged and randomized) negative labeled (no-duplicates) file: {}'.format(nodups_neg_records_file_path))
 
     generated_models = []
 

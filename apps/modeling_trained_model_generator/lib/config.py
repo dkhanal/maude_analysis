@@ -29,6 +29,7 @@ def load_config():
     global models
     global upload_output_to_remote_server
     global remote_server
+    global custom_stop_words
     global duplicate_record_check_ignore_pattern
     global verbose
 
@@ -37,6 +38,7 @@ def load_config():
     output_dir = config_data['output_dir']
     models = config_data['models']
     upload_output_to_remote_server = config_data['upload_output_to_remote_server']
+    custom_stop_words = config_data['custom_stop_words']
     
     remote_server = config_data['remote_server']
     duplicate_record_check_ignore_pattern = config_data['duplicate_record_check_ignore_pattern']

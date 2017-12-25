@@ -50,11 +50,50 @@ def extract(keywords, input_files, output_file):
     return overall_extracted_lines_count
 
 negative_keywords = set([
+    'SQUIRT',
+    'CATHETER',
+    'BATTERY COMPARTMENT',
+    'FAILED BATTERY',
+    'CASING/CONDITION',
+    'STRIPS IN',
+    'CANNULA',
+    'COMPARED TO',
+    'LOOSE',
+    'CASTER',
+    'HILL-ROM',
+    'HILLROM',
+    'SYRINGE',
+    'SNAPPED',
+    'BROKE',
+    'HYPERGLYCEMIA'
+    'TOO HIGH',
+    'TOO LOW',
+    'INACCURA'
+    'BATTERY ISSUE',
+    'BATTERY LIFE ISSUE',
+    'LEAK',
+    'TEMPERATUIRE',
+    'BLOWN FUSE',
+    'POWER LINE FUSE',
+    'ILLUMINATOR',
+    'CIRCUIT BREAK',
+    'CIRCUIT-BREAK',
+    'CASSETTE',
+    'FLUSH',
+    'LABELING',
+    'FAILED THE GROUND',
+    'THROMBOSIS',
+
+
+
+
+
     #'A GE SERVICE REP PERFORMED AN ON SITE INVESTIGATION. THE FAILURE COULD NOT BE DUPLICATED. THE SYSTEM WAS TESTED AND FOUND TO BE WORKING AS INTENDED AND PUT BACK INTO SERVICE',
     #'PRODUCED A POPPING SOUND',
     #'HIGH TECHNICAL FACTORS',
     #'VERTICAL LIFT',
     #'CASING ISSUE',
+    #'CASING/CONDITION',
     #'LOSS OF PRIME',
     #'EXPOSED WIRE',
     #'WRONG INSULIN',
@@ -66,7 +105,9 @@ negative_keywords = set([
     #'BROKEN ALTERNATING CURRENT',
     #'HIGH VOLT',
     #'COAGUCHEK SYSTEM',
-    #'POWER SUPPLY PS3',
+    #'APPLY SAMPLE',
+    #'POWER SUPPLY',
+    #'POWER CORD',
     #'WIRES ARE VISIBLE',
     #'BIPOLAR FORCEPS INSTRUMENT',
     #'INACCURA',
@@ -78,7 +119,6 @@ negative_keywords = set([
     #'REPLACE X-RAY TUBE',
     #'REPLACED X-RAY TUBE',
     #'REPLACED GENERATOR BATTERIES',
-    #'ADJUSTED THE 5V POWER SUPPLY',
     #'LOSS OF PRIME',
     #'AIR BUBBLE',
     #'EXTERNAL HARD DRIVE',
@@ -88,8 +128,15 @@ negative_keywords = set([
     #'BLOOWN FUSE',
     #'DOOR ASSEMBLY',
     #'STRIP ISSUE',
+    #'STRIPS MISSING',
+    #'STRIPS INVOLVED',
+    #'STRIPS WERE EVALUATED',
+    #'STRIPS PASSED',
     #'BATTERY COMP',
     #'BATTERY CHARG',
+    #'BATTERY CAP',
+    #'BATTERY TEST',
+    #'FAILED BATTER',
     #'HARDWARE ERROR',
     #'ENCODER',
     #'MOTOR ERROR',
@@ -119,7 +166,49 @@ negative_keywords = set([
     #'SENSOR ASSEMBLY',
     #'DOOR ASSEMBLY',
     #'COAGUCHEK',
-    'BATTERY PACK'
+    #'BATTERY PACK'
+    #'PUMP HAD MALFUNCTION',
+    #'PUMP HAD A MALFUNCTION',
+    #'PUMP MALFUNCTION',
+    #'FAILED LEAK TEST',
+    #'FAILED A LEAK TEST',
+    #'LOW BLOOD GLUCOSE',
+    #'HIGH BLOOD GLUCOSE',
+    #'BLOOD GLUCOSE LEVEL',
+    #'DRIVE SUPPORT',
+    #'NOT HOLDING CHARGE',
+    #'WOULD NOT HOLD CHARGE',
+    #'WOULD NOT CHARGE',
+    #'FORCE SENSOR',
+    #'DETACHED FROM',
+    #'INACCURACY COMPARED',
+    #'INACCURACIES COMPARED',
+    #'INACCURACY BETWEEEN',
+    #'INACCURACIES BETWEEN',
+    #'COMPARED TO ANOTHER',
+    #'BOLUS',
+    #'HYPERGLYCEMIA',
+    #'HYPOGLYCEMIA',
+    #'NOT TURN ON',
+    #'NOT POWER ON',
+    #'NO POWER',
+    #'PHYSICAL DAMAGE',
+    #'KETOACIDOSIS',
+    #'SWIMMING',
+    #'FALLS IN THE',
+    #'FALLS INTO THE',
+    #'FELL IN THE',
+    #'FELL INT THE',
+    #'BROKEN AND LOOSE',
+    #'ILLEGIBLE LABEL',
+    #'INFECTION',
+    #'CARTRIDGE',
+    #'DAMAGED LABEL',
+    #'CANNULA',
+    #'REFILL',
+    #'CRACK',
+    #'SHARP OBJECT',
+    #'SQUEAK',
     ])
 
 negative_classified_files = [
@@ -308,17 +397,39 @@ positive_keywords = [
     'LOG FILE',
     'LOG FILE',
     'BUTTON ERROR',
-    'PROGRAM'
-
+    'PROGRAM',
+    'UNRESPONSIVE',
+    'HISTORY ANOMALY',
+    'HISTORY ANOMALY',
+    'DATA LOG',
+    'REBOOT',
+    'RESTART',
+    'MEMORY',
+    'BUTTON',
+    'HISTORY',
+    'INCORRECT',
+    'ERROR',
+    'DATE ISSUE',
+    'TIME ISSUE',
+    'ALARM',
+    'NAVIGATION',
+    'AUTOMATICALLY',
+    'BY ITSELF',
+    'WITHOUT USER',
+    'INTERCONNECT',
+    'BOARD'
     ]
 
-negative_auto_labeled_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\autolabeled_negative_records_after_manual_adjust_9.txt'
-positive_auto_labeled_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\autolabeled_positive_records_after_manual_adjust_9.txt'
+negative_auto_labeled_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\autolabeled_negative_records_after_manual_adjust_11.txt'
+positive_auto_labeled_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\autolabeled_positive_records_after_manual_adjust_11.txt'
 
 classifier_out_dir = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\classification_classifier\out'
-output_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\false_pos_extract_session_output{}.txt'.format(datetime.datetime.now().isoformat().replace(':', ''))
+output_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\false_NEG_extract_session_output{}.txt'.format(datetime.datetime.now().isoformat().replace(':', ''))
 
-extract(negative_keywords, [positive_auto_labeled_file], output_file)
+#extract(negative_keywords, [positive_auto_labeled_file], output_file)
 #extract(positive_keywords, [os.path.join(classifier_out_dir, file) for file in negative_classified_files], output_file)
-#extract(negative_keywords, [os.path.join(classifier_out_dir, file) for file in positive_classified_files], output_file)
-#extract(positive_keywords, [r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_candidate_extractor\out\false_pos_extract_session_output.potential_neg.txt'], output_file)
+extract(negative_keywords, [positive_auto_labeled_file], output_file)
+#extract(positive_keywords, [r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_candidate_extractor\out\false_pos_extract_session_output_2.potential_neg.txt', 
+#                            r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_candidate_extractor\out\false_pos_extract_session_output_2.questionable_neg.txt',
+#                            r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\autolabeled_negative_records_after_manual_adjust_10.txt'
+#                            ], output_file)

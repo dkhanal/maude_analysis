@@ -32,10 +32,22 @@ def build_labeled_features(model_name, file, label, skip_first_record=False, max
     file_base_name = os.path.basename(file)
     total_records = 0
     total_data_records = 0
-    fin = open(file, encoding='utf-8', errors="ignore")
+
+    stop_words = nltk.corpus.stopwords.words('english')
+    if config.custom_stop_words is not None:
+        stop_words = stop_words + [sw.lower() for sw in config.custom_stop_words]
+
+    stop_words = sorted(stop_words)
+    logging.info('Stop words:')
+    for sw  in stop_words:
+        logging.info(sw)
+
+    fin = open(file, encoding='utf-8', errors='ignore')
     for record in fin:
         if len(record.strip()) == 0:
             continue
+
+        record = ' '.join([word for word in record.split() if word.lower() not in stop_words])
 
         total_records += 1
         sys.stdout.write('{} => Now processing record: {}...\r'.format(file_base_name, total_records))
@@ -119,6 +131,6 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
         accuracy = nltk.classify.util.accuracy(classifier, testing_featureset)
 
         logging.info('Model accuracy is: {}. '.format(accuracy))
-        classifier.show_most_informative_features(100)
+        classifier.show_most_informative_features(500)
 
     return (classifier, accuracy)

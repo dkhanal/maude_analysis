@@ -258,16 +258,7 @@
     ]
   },
   "input_data_files": [
-    "../../narratives/foitext2007.txt",
-    "../../narratives/foitext2008.txt",
-    "../../narratives/foitext2009.txt",
-    "../../narratives/foitext2010.txt",
-    "../../narratives/foitext2011.txt",
-    "../../narratives/foitext2012.txt",
-    "../../narratives/foitext2013.txt",
-    "../../narratives/foitext2014.txt",
-    "../../narratives/foitext2015.txt",
-    "../../narratives/foitext2016.txt"
+    "../../apps/classification_classifier/out/foitext2007.txt.predicted.neg.txt"
   ],
   "output_dir": "out/",
   "file_split_dir": "file_chunks",

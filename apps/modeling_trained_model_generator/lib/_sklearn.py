@@ -2,15 +2,20 @@ import numpy
 import sys
 import os
 import time
+import string
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction import text
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import SGDClassifier
 
+import matplotlib.pyplot as plt
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import BernoulliNB
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 import logging
 
@@ -18,6 +23,7 @@ import nltk
 from nltk import word_tokenize
 
 import sharedlib
+import config
 
 def get_total_lines_count(file_path):
     line_count = 0
@@ -47,21 +53,48 @@ def get_records(files_to_read):
 
 def log_most_informative_features(classifier, vectorizer, n):
 
-    # Not all classifiers have coefficients (e.g. Voting Classifier does not)
-    if classifier is None or vectorizer is None or not hasattr(classifier, 'coef_'):
+    if vectorizer is None:
         return
 
-    logging.info('Most informative features: ')
-    feature_names = vectorizer.get_feature_names()     
+    feature_names = vectorizer.vocabulary_    
+    logging.info('All ({}) items in vocabulary: '.format(len(feature_names)))
+    for feature_name in feature_names:
+        logging.info(feature_name)
 
-    # Build flattened list in lower coefficient to higher order
-    feature_coefficents = sorted(zip(classifier.coef_[0], feature_names))
+
+    # Not all classifiers have coefficients (e.g. Voting Classifier does not)
+    if classifier is None:
+        return
+
+    classifiers = None
+
+    # Check if the classifier is a voting one or standalone
+    if hasattr(classifier, 'coef_'):
+        classifiers = [classifier]
+    elif hasattr(classifier, 'estimators_'):
+        classifiers = classifier.estimators_
+
+    if classifiers is None:
+        return
     
-    # Build two lists of same size -- one from the head of the list, another tail
-    topN = zip(feature_coefficents[:n], feature_coefficents[:-(n + 1):-1])
+    feature_names = vectorizer.get_feature_names()    
+    for obj in classifiers:
+        name = str(obj)
+        if not hasattr(obj, 'coef_'):
+           logging.info('No coef_ in model: '.format(name))
+           continue
+
+        logging.info('Most informative features for classifier ({}): '.format(name))
+
+        # Build flattened list in lower coefficient to higher order
+        feature_coefficents = sorted(zip(obj.coef_[0], feature_names))
     
-    for (c1, feature1), (c2, feature2) in topN:
-        logging.info("\t{:.2f}\t{}\t\t\t{:.2f}\t{}".format(c1, feature1, c2, feature2))
+        # Build two lists of same size -- one from the head of the list, another tail
+        topN = zip(feature_coefficents[:n], feature_coefficents[:-(n + 1):-1])
+    
+        for (c1, feature1), (c2, feature2) in topN:
+            logging.info("\t{:.2f}\t{}\t\t\t{:.2f}\t{}".format(c1, feature1, c2, feature2))
+
 
 def generate_model(positive_records_file, negative_records_file, model_config, output_dir):
     model_name = model_config['name']
@@ -118,19 +151,32 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
     length_of_test_labels = len(test_labels)
     logging.info('Length of test_labels is {}. {} \'pos\' and {} \'neg\''.format(length_of_test_labels, testing_set_cut_off_positive, testing_set_cut_off_negative))
 
-    vectorizer = CountVectorizer(input='content')
+    stop_words = text.ENGLISH_STOP_WORDS
+    if config.custom_stop_words is not None:
+        stop_words = stop_words.union([sw.lower() for sw in config.custom_stop_words])
+
+    stop_words = sorted(stop_words)
+    logging.info('These stop words will be omitted from the records')
+    for sw  in stop_words:
+        logging.info(sw)
+
+    vectorizer = CountVectorizer(input ='content', 
+                                 encoding = 'utf-8',
+                                 min_df =.001, 
+                                 stop_words = stop_words,
+                                 lowercase = True)
 
     x_train = vectorizer.fit_transform(get_records([(tmp_positive_records_file, 0, training_set_cut_off_positive), (tmp_negative_records_file, 0, training_set_cut_off_negative)]))
-    tf_transformer = TfidfTransformer(use_idf=False).fit(x_train)
-    x_train_tf = tf_transformer.transform(x_train)
+    tfidf_transformer = TfidfTransformer(use_idf=True, norm='l2').fit(x_train)
+    x_train_tf = tfidf_transformer.transform(x_train)
 
     classifier = None
     if 'sgd' in model_name:
-        classifier = SGDClassifier(loss='log').fit(x_train_tf, train_labels)
+        classifier = SGDClassifier(loss='hinge', penalty ='l2',alpha = 0.0001).fit(x_train_tf, train_labels)
     elif 'voting' in model_name:
-        lrc = LogisticRegression(random_state=1)
+        lrc = LogisticRegression(random_state = 1)
         mnbc = MultinomialNB()
-        vc = VotingClassifier(estimators=[('lr', lrc), ('mnb', mnbc)], voting='soft')
+        vc = VotingClassifier(estimators=[('LogisticRegression', lrc), ('MultinomialNB', mnbc)], voting='soft')
         classifier = vc.fit(x_train_tf, train_labels)
     else:
         raise ValueError('Unsupported model: {}'.format(model_name))
@@ -139,12 +185,12 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
     logging.info('Testing the classifier now...')
 
     x_test = vectorizer.transform(get_records([(tmp_positive_records_file, training_set_cut_off_positive, testing_set_cut_off_positive), (tmp_negative_records_file, training_set_cut_off_negative, testing_set_cut_off_negative)]))
-    tf_transformer_test = TfidfTransformer(use_idf=False).fit(x_test)
-    x_test_tf = tf_transformer_test.transform(x_test)
+    tfidf_transformer_test = TfidfTransformer(use_idf=True, norm='l2').fit(x_test)
+    x_test_tf = tfidf_transformer_test.transform(x_test)
     score = classifier.score(x_test_tf, test_labels)    
     logging.info('Classifier score: {}'.format(score))
 
-    log_most_informative_features(classifier, vectorizer, 100)
+    log_most_informative_features(classifier, vectorizer, 500)
 
     sharedlib.delete_file(tmp_positive_records_file)
     sharedlib.delete_file(tmp_negative_records_file)

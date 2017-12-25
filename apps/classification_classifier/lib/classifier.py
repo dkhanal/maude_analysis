@@ -9,6 +9,7 @@ import codecs
 import platform
 import urllib
 import logging
+import re
 
 import nltk
 import numpy
@@ -94,8 +95,11 @@ def classify_files(files_to_classify):
         models.append((model_name, classifier, vectorizer))
        
     log('Total {} model(s) loaded.'.format(len(models)))
+
+    positive_signal_regexes_for_false_negative_check = [re.compile('\s{}\s'.format(p.strip()), re.IGNORECASE) for p in config.positive_signals_for_false_negative_check]
+
     for input_data_file in files_to_classify:
-        classify_file(input_data_file, models, True, config.target_file_max_num_records_to_classify)
+        classify_file(input_data_file, models, positive_signal_regexes_for_false_negative_check, True, config.target_file_max_num_records_to_classify)
 
     end_time = datetime.datetime.now()
     log('classifier::classify_files() completed at {}. Total duration: {}.'.format(end_time, end_time - start_time))
@@ -108,7 +112,7 @@ def classify_record(record, models, min_required_record_length = 40):
     return results
 
 
-def classify(record, model_name, classifier, vectorizer, min_required_record_length):
+def classify(record, model_name, classifier, vectorizer, min_required_record_length, probability_threshold = .9):
     if len(record.strip()) < min_required_record_length: # We consider anything less than this automatically negative.
         return ('neg', 0)
 
@@ -124,12 +128,19 @@ def classify(record, model_name, classifier, vectorizer, min_required_record_len
         positive_probability = probabilities.prob('pos')
     elif 'sklearn.' in model_name:
         x_counts = vectorizer.transform([record])
-        tf_transformer = TfidfTransformer(use_idf=False)
-        x_tfidf = tf_transformer.transform(x_counts)
+        tfidf_transformer = TfidfTransformer(use_idf=True, norm='l2')
+        x_tfidf = tfidf_transformer.fit_transform(x_counts)
 
         predicted_classification = classifier.predict(x_tfidf)[0]
-        probabilities = classifier.predict_proba(x_tfidf)
-        positive_probability = probabilities[0][numpy.where(classifier.classes_ == 'pos')][0]
+
+        if (hasattr(classifier, 'voting') and classifier.voting == 'hard') or  (hasattr(classifier, 'loss') and classifier.loss == 'hinge'): 
+            # Some classifier may not support predict_proba. For example, VotingClassifer does not support this if the vote is 'hard'.
+            # Similarly, SGD classifier won't give probabilistic estimates when the loss function is SVM (hinge)
+            # We assume the minimum required (threshold) for classification
+            positive_probability = probability_threshold if predicted_classification == 'pos' else 1 - probability_threshold
+        else:
+            probabilities = classifier.predict_proba(x_tfidf)
+            positive_probability = probabilities[0][numpy.where(classifier.classes_ == 'pos')][0]
     else:
         raise ValueError('Unrecognized model name.')
 
@@ -151,7 +162,7 @@ def get_overall_classification(classifications):
 
     elif config.overall_classification_method == 'mean_of_probabilities':
         sum_of_all_proba = sum([pos_proba for classification, pos_proba in classifications])
-        positive_proba = sum_of_all_proba / total_classifications
+        positive_proba = round(sum_of_all_proba / total_classifications, 2)
         
         if  positive_proba >= config.positive_probability_threshold:
             return ('pos', positive_proba)
@@ -166,16 +177,17 @@ def get_total_lines_count(file_path):
             line_count += 1
     return line_count
 
-def show_model_classification_stats(file_name, model_name, positive_records_file, negative_records_file):
+def show_model_classification_stats(file_name, model_name, positive_records_file, negative_records_file, possible_false_negative_records_file):
     all_positive_count = get_total_lines_count(positive_records_file)
     all_negative_count = get_total_lines_count(negative_records_file)
+    all_possible_false_neg_count = get_total_lines_count(possible_false_negative_records_file)
     all_total = all_positive_count + all_negative_count
 
     log('Model ({}), Stats for File: {}: Total: {}, POS: {}/{:.2f}%, NEG: {}/{:.2f}%'.format(model_name, file_name, all_total, all_positive_count, (all_positive_count/all_total * 100), all_negative_count, (all_negative_count/all_total * 100)))
 
 
 
-def classify_file(input_data_file, models, skip_first_record=True, max_records = None):
+def classify_file(input_data_file, models, positive_signal_regexes_for_false_negative_check, skip_first_record=True,  max_records = None):
     start_time = datetime.datetime.now()
     log('classifier::classify_file() starting at {}'.format(start_time))
 
@@ -183,23 +195,26 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     out_dir = sharedlib.abspath(config.output_dir)
     predicted_pos_file_ext = '.predicted.pos.txt'
     predicted_neg_file_ext = '.predicted.neg.txt'
+    possible_false_neg_file_ext = '.possible.false.neg.txt'
     prediction_summary_file_ext = '.prediction.summary.txt'
 
     overall_predicted_pos_records_file_path = os.path.join(out_dir, '{}{}'.format(file_base_name, predicted_pos_file_ext))
     overall_predicted_neg_records_file_path = os.path.join(out_dir, '{}{}'.format(file_base_name, predicted_neg_file_ext))
+    overall_possible_false_neg_records_file_path = os.path.join(out_dir, '{}{}'.format(file_base_name, possible_false_neg_file_ext))
     prediction_summary_file_path = os.path.join(out_dir, '{}{}'.format(file_base_name, prediction_summary_file_ext))
     log('Predicted positive records file (overall): {}'.format(overall_predicted_pos_records_file_path))
     log('Predicted negative records file (overall): {}'.format(overall_predicted_neg_records_file_path))
     log('Prediction summary file: {}'.format(prediction_summary_file_path))
 
     prediction_summary_file =  open(prediction_summary_file_path, 'w', encoding='utf-8', errors='ignore')
-    prediction_summary_file.write('MDR_REPORT_KEY|MDR_TEXT_KEY|TEXT_TYPE_CODE|PATIENT_SEQUENCE_NUMBER|DATE_REPORT|FOI_TEXT|MODEL_NAME|POS_PROB|NEG_PROB|CLASSIFICATION\n')
+    prediction_summary_file.write('MDR_REPORT_KEY|MDR_TEXT_KEY|TEXT_TYPE_CODE|PATIENT_SEQUENCE_NUMBER|DATE_REPORT|FOI_TEXT|MODEL_NAME|POS_PROB|NEG_PROB|CLASSIFICATION|HAS_POS_SIGNALS|POS_SIGNAL\n')
 
     classifiers_info = []
     for (name, classifier, vectorizer) in models:
         log('Building classifier parameters for {}...'.format(name))
         predicted_positive_records_file_path = os.path.join(out_dir, '{}_{}{}'.format(file_base_name, name, predicted_pos_file_ext))
         predicted_negative_records_file_path = os.path.join(out_dir, '{}_{}{}'.format(file_base_name, name, predicted_neg_file_ext))
+        possible_false_negative_records_file_path = os.path.join(out_dir, '{}_{}{}'.format(file_base_name, name, possible_false_neg_file_ext))
         log('Predicted positive records file for this classifier: {}'.format(predicted_positive_records_file_path))
         log('Predicted negative records file for this classifier: {}'.format(predicted_negative_records_file_path))
         classifiers_info.append((name, 
@@ -208,7 +223,10 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
                                  predicted_positive_records_file_path, 
                                  open(predicted_positive_records_file_path, 'w', encoding='utf-8', errors='ignore'), 
                                  predicted_negative_records_file_path, 
-                                 open(predicted_negative_records_file_path, 'w', encoding='utf-8', errors='ignore')))
+                                 open(predicted_negative_records_file_path, 'w', encoding='utf-8', errors='ignore'),
+                                 possible_false_negative_records_file_path,
+                                 open(possible_false_negative_records_file_path, 'w', encoding='utf-8', errors='ignore')
+                                 ))
 
     file_to_classify = sharedlib.abspath(input_data_file)
     log('Total {} models loaded.'.format(len(classifiers_info)))
@@ -220,15 +238,23 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
     total_negative = 0
     positive_percent = 0
     negative_percent = 0
+
+    total_possible_false_negative = 0
+    possible_false_negative_percent_of_negatives = 0
+    possible_false_negative_percent_of_all_records = 0
     
     overall_predicted_pos_records_file = open(overall_predicted_pos_records_file_path, 'w', encoding='utf-8', errors='ignore')
     overall_predicted_neg_records_file = open(overall_predicted_neg_records_file_path, 'w', encoding='utf-8', errors='ignore')
+    overall_possible_false_neg_records_file = open(overall_possible_false_neg_records_file_path, 'w', encoding='utf-8', errors='ignore')
     fin = codecs.open(file_to_classify, mode='r+', encoding='utf-8', errors='ignore')
     for record in fin:
         total_records += 1
-        sys.stdout.write('{} => POS: {}/{:.2f}% NEG: {}/{:.2f}% . Next: {}...\r'.format(file_base_name, 
+        sys.stdout.write('{} => POS: {}/{:.2f}% NEG: {}/{:.2f}% Possible FALSE NEG: {}/{:.2f}% of all NEG; {:.2f}% of all records. Next: {}...\r'.format(file_base_name, 
                                                                                                             total_positive, positive_percent,
                                                                                                             total_negative, negative_percent,
+                                                                                                            total_possible_false_negative, 
+                                                                                                            possible_false_negative_percent_of_negatives,
+                                                                                                            possible_false_negative_percent_of_all_records,
                                                                                                             total_data_records))
         sys.stdout.flush()
 
@@ -240,12 +266,25 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
         if max_records is not None and total_data_records > max_records:
             break
 
+
+        # Compute if this record could be a possible false negative (i.e. has positive signals, but classified as negative)
+        # Since this is global evaluation (irrespective of models), we will perform this check once, and here.
+        # The outcome will be used later to determine if it is a possible false negative.
+        has_positive_signals = False
+        first_positive_signal_found = None
+        for pattern in positive_signal_regexes_for_false_negative_check:
+            match = re.search(pattern, record)
+            if match is not None:
+                has_positive_signals = True
+                first_positive_signal_found = match.group()
+                break
+
         classifications = []
-        for (name, classifier, vectorizer, pos_file_path, pos_file, neg_file_path, neg_file) in classifiers_info:
+        for (name, classifier, vectorizer, pos_file_path, pos_file, neg_file_path, neg_file, possible_false_neg_file_path, possible_false_neg_file) in classifiers_info:
 
-            predicted_classification, positive_probability = classify(record, name, classifier, vectorizer, config.min_required_record_length)
+            predicted_classification, positive_probability = classify(record, name, classifier, vectorizer, config.min_required_record_length, config.positive_probability_threshold)
 
-            is_positive = predicted_classification == 'pos' and positive_probability > config.positive_probability_threshold
+            is_positive = predicted_classification == 'pos' and round(positive_probability, 2) >= config.positive_probability_threshold
 
             if config.verbose == True:
                 log('Classification by {} is {}'.format(name, predicted_classification))
@@ -258,40 +297,57 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
                 classifications.append(('neg', positive_probability)) # For consistency, we store all probability in terms of positive
                 neg_file.write(record.rstrip(os.linesep) + '\n')
 
-            prediction_summary_file.write('{}|{}|{:.2f}|{:.2f}|{}\n'.format(record[:40].strip(), name, positive_probability, 1-positive_probability, 'pos' if is_positive == True else 'neg', ))
+                if has_positive_signals:
+                    # Potential false negative. 
+                    possible_false_neg_file.write(record.rstrip(os.linesep) + '\n')
+
+            prediction_summary_file.write('{}|{}|{:.2f}|{:.2f}|{}|{}|{}\n'.format(record[:40].strip(), name, positive_probability, 1-positive_probability, 'pos' if is_positive == True else 'neg', has_positive_signals, first_positive_signal_found))
 
             if total_data_records % 10000 == 0:
                 pos_file.flush()
                 neg_file.flush()
+                possible_false_neg_file.flush()
                 prediction_summary_file.flush()
-                show_model_classification_stats(file_base_name, name, pos_file_path, neg_file_path)
+                show_model_classification_stats(file_base_name, name, pos_file_path, neg_file_path, possible_false_neg_file_path)            
 
         overall_classification, overall_positive_probability = get_overall_classification(classifications)
         if overall_classification is None:
             continue
 
         if overall_classification == 'pos':
-            overall_predicted_pos_records_file.write(record.rstrip(os.linesep) + '\n')
             total_positive +=1
         else:
-            overall_predicted_neg_records_file.write(record.rstrip(os.linesep) + '\n')
             total_negative +=1
-
-        prediction_summary_file.write('{}|{}|{:.2f}|{:.2f}|{}\n'.format(record[:40].strip(), 'overall',  overall_positive_probability, 1-overall_positive_probability, overall_classification))
+            if has_positive_signals:
+                total_possible_false_negative += 1
 
         positive_percent = (total_positive / total_data_records) * 100
         negative_percent = (total_negative / total_data_records) * 100
+        possible_false_negative_percent_of_all_records = (total_possible_false_negative / total_data_records) * 100
+        possible_false_negative_percent_of_negatives = 0 if total_negative == 0 else (total_possible_false_negative / total_negative) * 100
+        
+        if len(classifications) > 1:
+            if overall_classification == 'pos':
+                overall_predicted_pos_records_file.write(record.rstrip(os.linesep) + '\n')
+            else:
+                overall_predicted_neg_records_file.write(record.rstrip(os.linesep) + '\n')
+                if has_positive_signals:
+                    # Potential false negative. 
+                    overall_possible_false_neg_records_file.write(record.rstrip(os.linesep) + '\n')
 
-    log('{}=> Overall {} POS records in total {} ({:.2f}%) with a probability of {} or higher.'.format(file_base_name, total_positive, total_data_records -1, positive_percent, config.positive_probability_threshold))    
+            prediction_summary_file.write('{}|{}|{:.2f}|{:.2f}|{}|{}|{}\n'.format(record[:40].strip(), 'overall',  overall_positive_probability, 1-overall_positive_probability, overall_classification, has_positive_signals, first_positive_signal_found))
+
+    log('{}=> Overall {} POS records in total {} ({:.2f}%) with a probability of {} or higher. *Possible* false negatives {}/{:.2f}% of all NEG; {:.2f}% of all records.'.format(file_base_name, total_positive, total_data_records -1, positive_percent, config.positive_probability_threshold, total_possible_false_negative, possible_false_negative_percent_of_negatives, possible_false_negative_percent_of_all_records)) 
     fin.close()
 
     log('Closing output files...')
     overall_predicted_pos_records_file.close()
     overall_predicted_neg_records_file.close()
+    overall_possible_false_neg_records_file.close()
     prediction_summary_file.close()
 
     files_to_zip = []
-    for (name, classifier, vectorizer, pos_file_path, pos_file_handle, neg_file_path, neg_file_handle) in classifiers_info:
+    for (name, classifier, vectorizer, pos_file_path, pos_file_handle, neg_file_path, neg_file_handle, possible_false_neg_file_path, possible_false_neg_file_handle) in classifiers_info:
         files_to_zip.append(pos_file_path)
         if config.upload_positive_files_only == False:
             files_to_zip.append(neg_file_path)
@@ -302,7 +358,12 @@ def classify_file(input_data_file, models, skip_first_record=True, max_records =
         if config.verbose == True:
             log('Closing {}...'.format(neg_file_path))
         neg_file_handle.close()
-        show_model_classification_stats(file_base_name, name, pos_file_path, neg_file_path)
+
+        if config.verbose == True:
+            log('Closing {}...'.format(possible_false_neg_file_handle))
+        possible_false_neg_file_handle.close()
+
+        show_model_classification_stats(file_base_name, name, pos_file_path, neg_file_path, possible_false_neg_file_path)
 
     files_to_zip.append(prediction_summary_file_path)
     files_to_zip.append(overall_predicted_pos_records_file_path)
