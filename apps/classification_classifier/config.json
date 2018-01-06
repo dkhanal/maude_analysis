@@ -33,8 +33,8 @@
   "target_file_max_num_records_to_classify": 25000,
   "min_required_record_length": 40,
   "positive_probability_threshold": 0.95,
-  "overall_classification_method": "mean_of_probabilities",
-  "min_models_needed_for_overall_pos_classification": 1,
+  "overall_classification_method": "min_votes",
+  "min_models_needed_for_overall_pos_classification": 2,
   "upload_output_to_remote_server": false,
   "upload_positive_files_only": true,
   "remote_server": {
