@@ -34,6 +34,25 @@ def get_total_lines_count(file_path):
     print('Total {} lines in {}'.format(line_count, file_path))
     return line_count
 
+def dump_2d_array_to_log(ar):
+    logging.info('[')
+    for row in ar:
+        row_str = '['
+        for element in row:
+            row_str += '{},'.format(element)
+        
+        row_str = row_str.rstrip(',')
+        row_str += ']'
+        logging.info(row_str)
+    logging.info(']')
+
+def dump_1d_array_to_log(ar):
+    row_str = '['
+    for element in ar:
+        row_str += '{},'.format(element)        
+    row_str = row_str.rstrip(',')
+    logging.info(row_str + ']')
+
 def get_records(files_to_read):
     for filename, begin, max_records_to_read in files_to_read:
         records_count = 0
@@ -167,20 +186,25 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
                                  lowercase = True)
 
     x_train = vectorizer.fit_transform(get_records([(tmp_positive_records_file, 0, training_set_cut_off_positive), (tmp_negative_records_file, 0, training_set_cut_off_negative)]))
+    logging.info('CountVectorizer - Fitted matrix shape: {}'.format(x_train.shape))
+    features = vectorizer.get_feature_names()
+    logging.info('CountVectorizer - Features (Total: {}):'.format(len(features)))
+    dump_1d_array_to_log(features)
+
     tfidf_transformer = TfidfTransformer(use_idf=True, norm='l2').fit(x_train)
     x_train_tf = tfidf_transformer.transform(x_train)
 
     classifier = None
     if 'sgd' in model_name:
         classifier = SGDClassifier(loss='hinge', penalty ='l2',alpha = 0.0001).fit(x_train_tf, train_labels)
-    elif 'voting' in model_name:
-        lrc = LogisticRegression(random_state = 1)
-        mnbc = MultinomialNB()
-        vc = VotingClassifier(estimators=[('LogisticRegression', lrc), ('MultinomialNB', mnbc)], voting='soft')
-        classifier = vc.fit(x_train_tf, train_labels)
+    elif 'mnb' in model_name:
+        classifier = MultinomialNB()
+    elif 'logreg' in model_name:
+        classifier = LogisticRegression(random_state = 1)
     else:
         raise ValueError('Unsupported model: {}'.format(model_name))
 
+    classifier.fit(x_train_tf, train_labels)
     logging.info('Classifier shape: {}'.format(x_train_tf.shape))
     logging.info('Testing the classifier now...')
 

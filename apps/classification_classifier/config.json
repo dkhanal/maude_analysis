@@ -15,18 +15,18 @@
   ],
   "models": [
     {
-      "name": "nltk.naive_bayes_bow_with_duplicates",
-      "archive_name": "nltk_naive_bayes_bow_with_duplicates.zip",
+      "name": "sklearn.sgd",
+      "archive_name": "sklearn_sgd.zip",
       "always_download": true
     },
     {
-      "name": "sklearn.sgd_with_duplicates",
-      "archive_name": "sklearn_sgd_with_duplicates.zip",
+      "name": "sklearn.mnb",
+      "archive_name": "sklearn_mnb.zip",
       "always_download": true
     },
     {
-      "name": "sklearn.voting_with_duplicates",
-      "archive_name": "sklearn_voting_with_duplicates.zip",
+      "name": "sklearn.logreg",
+      "archive_name": "sklearn_logreg.zip",
       "always_download": true
     }
   ],
