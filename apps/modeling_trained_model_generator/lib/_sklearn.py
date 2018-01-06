@@ -11,8 +11,6 @@ from sklearn.feature_extraction import text
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import SGDClassifier
 
-import matplotlib.pyplot as plt
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import BernoulliNB
