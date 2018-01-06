@@ -194,7 +194,7 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
 
     classifier = None
     if 'sgd' in model_name:
-        classifier = SGDClassifier(loss='hinge', penalty ='l2',alpha = 0.0001).fit(x_train_tf, train_labels)
+        classifier = SGDClassifier(loss='hinge', penalty ='l2',alpha = 0.0001)
     elif 'mnb' in model_name:
         classifier = MultinomialNB()
     elif 'logreg' in model_name:
@@ -203,14 +203,14 @@ def generate_model(positive_records_file, negative_records_file, model_config, o
         raise ValueError('Unsupported model: {}'.format(model_name))
 
     classifier.fit(x_train_tf, train_labels)
-    logging.info('Classifier shape: {}'.format(x_train_tf.shape))
+    logging.info('Classifier {} shape: {}'.format(model_name, x_train_tf.shape))
     logging.info('Testing the classifier now...')
 
     x_test = vectorizer.transform(get_records([(tmp_positive_records_file, training_set_cut_off_positive, testing_set_cut_off_positive), (tmp_negative_records_file, training_set_cut_off_negative, testing_set_cut_off_negative)]))
     tfidf_transformer_test = TfidfTransformer(use_idf=True, norm='l2').fit(x_test)
     x_test_tf = tfidf_transformer_test.transform(x_test)
     score = classifier.score(x_test_tf, test_labels)    
-    logging.info('Classifier score: {}'.format(score))
+    logging.info('Classifier {} score: {}'.format(model_name, score))
 
     log_most_informative_features(classifier, vectorizer, 500)
 
