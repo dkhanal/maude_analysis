@@ -30,7 +30,7 @@
       "always_download": true
     }
   ],
-  "target_file_max_num_records_to_classify": 25000,
+  "target_file_max_num_records_to_classify": null,
   "min_required_record_length": 40,
   "positive_probability_threshold": 0.95,
   "overall_classification_method": "min_votes",
