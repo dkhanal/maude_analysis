@@ -10,8 +10,8 @@ import re
 
 def get_sample_density():
     sample_files = [
-        ('pos', r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\autolabeled_positive_records.txt'),
-        ('neg', r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\autolabeled_negative_records.txt')
+        ('pos', r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\Results\final\auto_labeled_records\autolabeled_positive_records.txt'),
+        ('neg', r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\Results\final\auto_labeled_records\autolabeled_negative_records.txt')
         ]
 
     population_files = [
@@ -29,7 +29,7 @@ def get_sample_density():
 
     sample_record_ids = {}
 
-    sample_density_output_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\maude_experiments\apps\labeling_auto_labeler\out\sample_density.txt'
+    sample_density_output_file = r'C:\Users\dkhan\Google Drive\Dissertation\Machine Learning\Results\final\auto_labeled_records\sample_density.txt'
 
     print('Loading sample Ids into a set... ')
     total_samples = 0
@@ -39,7 +39,11 @@ def get_sample_density():
             samples_in_this_file = 0
             for line in fin:
                 record_id = line[:40].strip()
-                sample_record_ids[record_id] = label
+
+                if record_id in sample_record_ids:
+                    print('******** WARN: DUPLICATE: {}\n'.format(line))
+
+                sample_record_ids[record_id] = (label, None)
                 samples_in_this_file += 1
                 total_samples += 1
         print('Loaded {} samples from {}.'.format(samples_in_this_file, os.path.basename(sample_file)))
@@ -51,6 +55,8 @@ def get_sample_density():
     yearly_pos_samples_count = 0
     overall_lines_count = 0 
     overall_samples_count = 0
+    overall_pos_samples_count = 0
+    overall_neg_samples_count= 0
     with open(sample_density_output_file, 'w', encoding='utf-8', errors='ignore') as fout:
         year_regex = re.compile(r'\d+')
         year = None
@@ -80,22 +86,39 @@ def get_sample_density():
                     record_id = line[:40].strip()
 
                     if record_id in sample_record_ids:
-                        fout.write('{}|{}|{}|{}\n'.format(overall_lines_count, year, sample_record_ids[record_id], record_id))
+                        if sample_record_ids[record_id][1] is not None:
+                            fout.write('******** DUPLICATE: {}\n'.format(line))
+                            continue
+
+                        fout.write('{}|{}|{}|{}\n'.format(overall_lines_count, year, sample_record_ids[record_id][0], record_id))
+                        sample_record_ids[record_id] = (sample_record_ids[record_id][0], year)
                         yearly_samples_count += 1
                         overall_samples_count += 1
 
-                        if sample_record_ids[record_id] == 'pos':
+                        if sample_record_ids[record_id][0] == 'pos':
+                            overall_pos_samples_count += 1
                             yearly_pos_samples_count += 1
                         else:
+                            overall_neg_samples_count += 1
                             yearly_neg_samples_count += 1
 
         msg = '{}|{}|NA|{}\n'.format(overall_lines_count, year, '********* YEAR END LINE. TOTAL LINES {}. SAMPLES: {} (POS: {}/{:.3f} NEG: {}/{:.3f}). Percent: {:.4f} ********'.format(yearly_lines_count, yearly_samples_count, yearly_pos_samples_count, yearly_pos_samples_count/yearly_samples_count, yearly_neg_samples_count, yearly_neg_samples_count/yearly_samples_count, yearly_samples_count/yearly_lines_count))
         print(msg)
         fout.write(msg)
 
-        msg = '*********  ALL TOTAL LINES {}. ALL TOTAL SAMPLES: {}. Percent: {:.4f} ********'.format(overall_lines_count, overall_samples_count, overall_samples_count/overall_lines_count)
+        msg = '*********  ALL TOTAL LINES {}. ALL TOTAL SAMPLES: {}. Percent: {:.4f} POS: {}, NEG: {} ********'.format(overall_lines_count, overall_samples_count, overall_samples_count/overall_lines_count, overall_pos_samples_count, overall_neg_samples_count)
         print(msg)
         fout.write(msg)
+
+        samples_with_no_year = [record_id for record_id in sample_record_ids if sample_record_ids[record_id][1] is None] 
+        if len(samples_with_no_year) > 0:
+            msg = '>>>  The following {} records did not belong to any year\n'.format(len(samples_with_no_year))
+            print(msg)
+            fout.write(msg)
+            for record_id in samples_with_no_year:
+                msg = '{}\n'.format(record_id)
+                print(msg)
+                fout.write(msg)
 
 # Entry Point
 get_sample_density()

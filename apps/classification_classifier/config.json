@@ -35,8 +35,8 @@
   "positive_probability_threshold": 0.95,
   "overall_classification_method": "min_votes",
   "min_models_needed_for_overall_pos_classification": 2,
-  "upload_output_to_remote_server": false,
-  "upload_positive_files_only": true,
+  "upload_output_to_remote_server": true,
+  "upload_positive_files_only": false,
   "remote_server": {
     "base_uri": "https://maude.blob.core.windows.net/",
     "narratives_dir": "narratives",
