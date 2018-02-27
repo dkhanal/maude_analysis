@@ -1,0 +1,12 @@
+/* 
+Copyright (c) 2017 Deepak Khanal
+All Rights Reserved
+dkhanal AT gmail DOT com
+
+Overall Classification Summary
+*/
+
+SELECT [YEAR], CLASSIFICATION, COUNT (*) AS NUMBER_OF_RECORDS
+FROM [dbo].[VW_CLASSIFICATION_SUMMARY_OVERALL]
+GROUP BY CLASSIFICATION, [YEAR]
+ORDER BY [YEAR], CLASSIFICATION

@@ -1,0 +1,17 @@
+/* 
+Copyright (c) 2017 Deepak Khanal
+All Rights Reserved
+dkhanal AT gmail DOT com
+
+View of Computing Technology-related Causes of Medical Device Failure 
+*/
+
+CREATE VIEW [dbo].[VW_DEVICE_PROBLEM_CODES_COMPUTING]
+AS
+SELECT        DEVICE_PROBLEM_CODE, DESCRIPTION
+FROM            dbo.VW_DEVICE_PROBLEM_CODES_CDRH_FDA_COMBINED
+WHERE        DEVICE_PROBLEM_CODE IN 
+(1047, 1048, 1110, 1111, 1112, 1138, 1189, 1449, 
+1473, 1495, 2581, 2582, 2851, 2879, 2880, 2881, 2882, 2898, 
+2899, 2902, 2903, 2963, 2996, 2997, 3013, 3014, 3025, 3041, 3046, 
+3196, 3197, 3198)
